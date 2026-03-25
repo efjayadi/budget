@@ -101,6 +101,8 @@
         .splash-title {
             font-size: 10vmin;
             margin: 0;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
         }
 
         .splash-title .char {
@@ -123,24 +125,24 @@
             }
         }
 
-        /* Using "color: transparent" hides text but keeps pseudo-element space */
-        .splash-title .char[data-char="t" i],
-        .splash-title .char[data-char="i" i] {
-            color: transparent;
+        /* Menargetkan efek pantulan hanya pada huruf U */
+        .splash-title .char[data-char="u"],
+        .splash-title .char[data-char="U"] {
+            visibility: hidden;
             --squish-scale: 0.6;
             --squish-y: 10%;
         }
 
-        .splash-title .char[data-char="t" i]::before,
-        .splash-title .char[data-char="i" i]::before {
+        .splash-title .char[data-char="u"]::before,
+        .splash-title .char[data-char="U"]::before {
+            content: attr(data-char);
+            visibility: visible;
+            position: absolute;
+            left: 0;
+            top: 0;
             animation: splash-text-squish var(--splash-duration) var(--splash-easing) forwards;
             color: black;
             transform-origin: center 1em;
-        }
-
-        .splash-title .char[data-char="i" i] {
-            --squish-scale: 0.9;
-            --squish-y: 5%;
         }
 
         @keyframes splash-text-squish {
@@ -313,7 +315,7 @@
                     }}
                 >
                     <div className="splash-container">
-                        <h1 className="splash-title" ref={titleRef}>Tangtu</h1>
+                        <h1 className="splash-title" ref={titleRef}>JeStudios</h1>
                         <div className="splash-dot">
                             <div className="splash-dot-inner">
                                 <svg className="splash-dot-wave background" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
