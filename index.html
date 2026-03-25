@@ -24,7 +24,6 @@
             background-color: #f9fafb; /* gray-50 */
             margin: 0;
             padding: 0;
-            /* Prevent bounce scrolling on iOS */
             overscroll-behavior-y: none;
         }
         @keyframes breathe {
@@ -37,19 +36,50 @@
         .pb-safe {
             padding-bottom: env(safe-area-inset-bottom, 20px);
         }
-        /* Hide scrollbar for a cleaner app feel */
         ::-webkit-scrollbar {
             display: none;
+        }
+        
+        /* Mencegah iOS Safari auto-zoom saat tap input */
+        input[type="text"], input[type="number"] {
+            font-size: 16px !important;
         }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
-    <script type="text/babel">
+    <script type="text/babel" data-type="module">
+        // Firebase Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         const { useState, useEffect, useMemo, useRef } = React;
 
-        // --- Embedded SVG Icons (Replaces Lucide dependency) ---
+        // ==========================================
+        // FIREBASE SETUP & CONFIGURATION
+        // ==========================================
+        const firebaseConfig = {
+          apiKey: "AIzaSyBw17dqJnfsfHwmXTIgs03_BsrNbHR3IhE",
+          authDomain: "budget-dd989.firebaseapp.com",
+          projectId: "budget-dd989",
+          storageBucket: "budget-dd989.firebasestorage.app",
+          messagingSenderId: "92916317003",
+          appId: "1:92916317003:web:e7889919c1567b319c46ce",
+          measurementId: "G-5SK1M5868K"
+        };
+        
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'budget-tracker';
+        
+        let app, auth, db;
+        if (firebaseConfig && firebaseConfig.projectId) {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        }
+
+        // --- Embedded SVG Icons ---
         const Wallet = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a8 8 0 0 1-5 7H5a2 2 0 0 1-2-2V4"/></svg>;
         const Trash2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>;
         const TrendingDown = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>;
@@ -57,20 +87,18 @@
         const Sunrise = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 2v8M4.93 10.93l1.41 1.41M2 18h2M20 18h2M19.07 10.93l-1.41 1.41M22 22H2M8 6l4-4 4 4M16 18a4 4 0 0 0-8 0"/></svg>;
         const Sunset = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 10v12M4.93 10.93l1.41 1.41M2 18h2M20 18h2M19.07 10.93l-1.41 1.41M22 22H2M16 5l-4-4-4 4M16 18a4 4 0 0 0-8 0"/></svg>;
         const Moon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>;
-        const Calendar = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
         const Settings = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>;
         const X = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18M6 6l12 12"/></svg>;
         const ChevronLeft = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m15 18-6-6 6-6"/></svg>;
+        const User = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
+        const Edit3 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>;
+        const GoogleIcon = ({ className }) => <svg className={className} viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>;
 
-        // Simple polyfill for crypto.randomUUID
         const generateUUID = () => {
-            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-                return crypto.randomUUID();
-            }
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
             return Math.random().toString(36).substring(2) + Date.now().toString(36);
         };
 
-        // Sub-component to handle the ultra-slow number countdown animation
         const AnimatedNumber = ({ value, formatFn }) => {
             const [displayValue, setDisplayValue] = useState(value);
             const startValue = useRef(value);
@@ -85,20 +113,19 @@
                 let animationFrame;
 
                 const animate = (time) => {
-                if (!startTime) startTime = time;
-                const progress = Math.min((time - startTime) / duration, 1);
-                
-                const easeOut = 1 - Math.pow(1 - progress, 3);
-                const currentVal = start + (end - start) * easeOut;
-                
-                setDisplayValue(currentVal);
+                    if (!startTime) startTime = time;
+                    const progress = Math.min((time - startTime) / duration, 1);
+                    const easeOut = 1 - Math.pow(1 - progress, 3);
+                    const currentVal = start + (end - start) * easeOut;
+                    
+                    setDisplayValue(currentVal);
 
-                if (progress < 1) {
-                    animationFrame = requestAnimationFrame(animate);
-                } else {
-                    setDisplayValue(end);
-                    startValue.current = end;
-                }
+                    if (progress < 1) {
+                        animationFrame = requestAnimationFrame(animate);
+                    } else {
+                        setDisplayValue(end);
+                        startValue.current = end;
+                    }
                 };
 
                 animationFrame = requestAnimationFrame(animate);
@@ -109,61 +136,75 @@
         };
 
         const App = () => {
+            // --- Cloud States ---
+            const [firebaseUser, setFirebaseUser] = useState(null);
+            const [uid, setUid] = useState(''); // Menggunakan UID bukan username manual
+            const [loginStep, setLoginStep] = useState('auth'); // auth | login | setup | app
+
             // --- Persistent States ---
-            const [budget, setBudget] = useState(() => {
-                const saved = localStorage.getItem('monthly_budget');
-                return saved ? parseFloat(saved) : 0;
-            });
-            
-            const [paycheckDate, setPaycheckDate] = useState(() => {
-                const saved = localStorage.getItem('paycheck_date');
-                return saved ? parseInt(saved) : 1;
-            });
-
-            const [expenses, setExpenses] = useState(() => {
-                const saved = localStorage.getItem('expenses');
-                return saved ? JSON.parse(saved) : [];
-            });
-
-            const [userProfile, setUserProfile] = useState(() => {
-                const saved = localStorage.getItem('user_profile');
-                return saved ? JSON.parse(saved) : { name: '', age: '', gender: '', promiseBudget: '' };
-            });
-
-            const [appSettings, setAppSettings] = useState(() => {
-                const saved = localStorage.getItem('app_settings');
-                return saved ? JSON.parse(saved) : { showTime: false, showRecap: true };
-            });
+            const [budget, setBudget] = useState(0);
+            const [paycheckDate, setPaycheckDate] = useState(1);
+            const [expenses, setExpenses] = useState([]);
+            const [userProfile, setUserProfile] = useState({ name: '', age: '', gender: '', promiseBudget: '' });
+            const [appSettings, setAppSettings] = useState({ showTime: false, showRecap: true });
 
             // --- UI States ---
-            const [isSettingBudget, setIsSettingBudget] = useState(budget === 0);
             const [setupStep, setSetupStep] = useState(1);
             const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+            const [isEditMode, setIsEditMode] = useState(false);
             const [isScrolled, setIsScrolled] = useState(false);
-            const [currentView, setCurrentView] = useState('home'); // 'home' | 'calendar'
+            const [currentView, setCurrentView] = useState('home'); 
+            const [currentMonthOffset, setCurrentMonthOffset] = useState(0); 
             
-            // Touch States for Swiping
             const [touchStartPos, setTouchStartPos] = useState({x: null, y: null});
             const [touchEndPos, setTouchEndPos] = useState({x: null, y: null});
 
-            // Fast input states
             const [amountInput, setAmountInput] = useState('');
             const [descInput, setDescInput] = useState('');
             const descInputRef = useRef(null); 
 
-            // Damage effect state
             const [isTakingDamage, setIsTakingDamage] = useState(false);
-            const prevRemainingRef = useRef(budget);
+            const prevRemainingRef = useRef(0);
 
-            // Sync to LocalStorage
+            // ==========================================
+            // FIREBASE INIT & AUTHENTICATION LISTENER
+            // ==========================================
             useEffect(() => {
-                localStorage.setItem('monthly_budget', budget.toString());
-                localStorage.setItem('paycheck_date', paycheckDate.toString());
-                localStorage.setItem('expenses', JSON.stringify(expenses));
-                localStorage.setItem('user_profile', JSON.stringify(userProfile));
-                localStorage.setItem('app_settings', JSON.stringify(appSettings));
-            }, [budget, paycheckDate, expenses, userProfile, appSettings]);
+                if (!auth) {
+                    setLoginStep('login');
+                    return;
+                }
 
+                const unsubscribe = onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        setFirebaseUser(user);
+                        handleUserAuthSuccess(user);
+                    } else {
+                        setFirebaseUser(null);
+                        setLoginStep('login');
+                    }
+                });
+                return () => unsubscribe();
+            }, []);
+
+            // ==========================================
+            // DATA FETCHING (Firebase)
+            // ==========================================
+            useEffect(() => {
+                if (!firebaseUser || loginStep !== 'app' || !uid || !db) return;
+                
+                const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid);
+                const unsubscribe = onSnapshot(expensesRef, (snapshot) => {
+                    const exps = [];
+                    snapshot.forEach(doc => exps.push({ id: doc.id, ...doc.data() }));
+                    exps.sort((a,b) => new Date(b.date) - new Date(a.date));
+                    setExpenses(exps);
+                }, (err) => console.error("Error fetching expenses:", err));
+
+                return () => unsubscribe();
+            }, [firebaseUser, loginStep, uid]);
+
+            // Derived values
             const totalSpent = useMemo(() => {
                 return expenses.reduce((sum, exp) => sum + exp.amount, 0);
             }, [expenses]);
@@ -171,12 +212,11 @@
             const remaining = budget - totalSpent;
             const percentage = budget > 0 ? Math.max(0, Math.min(100, (remaining / budget) * 100)) : 0;
 
-            // Trigger damage flash
             useEffect(() => {
                 if (remaining < prevRemainingRef.current) {
-                setIsTakingDamage(true);
-                const timer = setTimeout(() => setIsTakingDamage(false), 500); 
-                return () => clearTimeout(timer);
+                    setIsTakingDamage(true);
+                    const timer = setTimeout(() => setIsTakingDamage(false), 500); 
+                    return () => clearTimeout(timer);
                 }
                 prevRemainingRef.current = remaining;
             }, [remaining]);
@@ -190,14 +230,13 @@
                 return new Intl.NumberFormat('id-ID', { notation: "compact", maximumFractionDigits: 1 }).format(amount);
             };
 
-            // Dynamic Battery Gradient Calculation
             const getBarStyle = () => {
                 if (percentage === 0) return { backgroundColor: 'transparent', width: '0%' };
                 const hue = percentage > 50 ? 120 : (percentage / 50) * 120;
                 return { 
-                backgroundColor: `hsl(${hue}, 85%, 45%)`,
-                width: `${percentage}%`,
-                transitionDuration: '2.5s'
+                    backgroundColor: `hsl(${hue}, 85%, 45%)`,
+                    width: `${percentage}%`,
+                    transitionDuration: '2.5s'
                 };
             };
 
@@ -209,15 +248,12 @@
                 return <Moon className="w-4 h-4 text-gray-400" />;
             };
 
-            // --- Core Survival Mechanics ---
             const { daysLeft, dailyAllowance, yesterdayRecap } = useMemo(() => {
                 const today = new Date();
-                
                 let nextPaycheck = new Date(today.getFullYear(), today.getMonth(), paycheckDate);
                 if (today.getDate() >= paycheckDate) {
-                nextPaycheck.setMonth(nextPaycheck.getMonth() + 1);
+                    nextPaycheck.setMonth(nextPaycheck.getMonth() + 1);
                 }
-                
                 const diffTime = nextPaycheck.getTime() - today.getTime();
                 let days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 if (days === 0) days = 1; 
@@ -236,613 +272,745 @@
                 
                 let recap = null;
                 if (yesterdayTotal > 0 || diff < 0) {
-                recap = { overspent: diff < 0, amount: Math.abs(diff), spent: yesterdayTotal };
+                    recap = { overspent: diff < 0, amount: Math.abs(diff), spent: yesterdayTotal };
                 }
 
                 return { daysLeft: days, dailyAllowance: allowance, yesterdayRecap: recap };
             }, [remaining, paycheckDate, expenses]);
 
-            // Group expenses for Home List
             const groupedExpenses = useMemo(() => {
                 const groups = {};
                 expenses.forEach(exp => {
-                const date = new Date(exp.date);
-                const today = new Date();
-                const yesterday = new Date(today);
-                yesterday.setDate(yesterday.getDate() - 1);
+                    const date = new Date(exp.date);
+                    const today = new Date();
+                    const yesterday = new Date(today);
+                    yesterday.setDate(yesterday.getDate() - 1);
 
-                let dateKey = date.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' });
-                if (date.toDateString() === today.toDateString()) dateKey = "Hari Ini";
-                else if (date.toDateString() === yesterday.toDateString()) dateKey = "Kemarin";
+                    let dateKey = date.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' });
+                    if (date.toDateString() === today.toDateString()) dateKey = "Hari Ini";
+                    else if (date.toDateString() === yesterday.toDateString()) dateKey = "Kemarin";
 
-                if (!groups[dateKey]) groups[dateKey] = [];
-                groups[dateKey].push(exp);
+                    if (!groups[dateKey]) groups[dateKey] = [];
+                    groups[dateKey].push(exp);
                 });
                 return groups;
             }, [expenses]);
 
-            // Generate Calendar Data
             const calendarData = useMemo(() => {
                 const today = new Date();
-                const year = today.getFullYear();
-                const month = today.getMonth();
+                const targetMonth = new Date(today.getFullYear(), today.getMonth() + currentMonthOffset, 1);
+                const year = targetMonth.getFullYear();
+                const month = targetMonth.getMonth();
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
 
                 const days = [];
                 let totalSpentMonth = 0;
 
                 for (let d = 1; d <= daysInMonth; d++) {
-                const currentDate = new Date(year, month, d);
-                const dateStr = currentDate.toDateString();
-                const dailyTotal = expenses
-                    .filter(exp => new Date(exp.date).toDateString() === dateStr)
-                    .reduce((sum, exp) => sum + exp.amount, 0);
-                
-                totalSpentMonth += dailyTotal;
-                
-                const isFuture = currentDate.setHours(0,0,0,0) > new Date().setHours(0,0,0,0);
-                const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+                    const currentDate = new Date(year, month, d);
+                    const dateStr = currentDate.toDateString();
+                    const dailyTotal = expenses
+                        .filter(exp => new Date(exp.date).toDateString() === dateStr)
+                        .reduce((sum, exp) => sum + exp.amount, 0);
+                    
+                    totalSpentMonth += dailyTotal;
+                    
+                    const isFuture = currentDate.setHours(0,0,0,0) > new Date().setHours(0,0,0,0);
+                    const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
 
-                days.push({
-                    day: d,
-                    amount: dailyTotal,
-                    isToday,
-                    isFuture
-                });
+                    days.push({
+                        day: d,
+                        amount: dailyTotal,
+                        isToday,
+                        isFuture
+                    });
                 }
 
                 return { 
-                days, 
-                monthName: today.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
-                totalSpentMonth 
+                    days, 
+                    monthName: targetMonth.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
+                    totalSpentMonth 
                 };
-            }, [expenses]);
+            }, [expenses, currentMonthOffset]);
 
-            // Swipe Gesture Handlers
+            // ==========================================
+            // ACTIONS (Google Auth & Guest)
+            // ==========================================
+            const handleUserAuthSuccess = async (user) => {
+                setUid(user.uid);
+
+                if (!db) { 
+                    setLoginStep('setup');
+                    return; 
+                }
+
+                const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', user.uid);
+                const snap = await getDoc(profileRef);
+
+                if (snap.exists()) {
+                    const data = snap.data();
+                    setUserProfile(data);
+                    setBudget(data.budget || 0);
+                    setPaycheckDate(data.paycheckDate || 1);
+                    setLoginStep('app');
+                } else {
+                    // Jika login pakai Google, pre-fill nama dari akun Google
+                    setUserProfile(prev => ({...prev, name: user.displayName || ''}));
+                    setLoginStep('setup');
+                }
+            };
+
+            const handleGoogleLogin = async () => {
+                if (!auth) { alert("Firebase belum terkonfigurasi dengan benar."); return; }
+                const provider = new GoogleAuthProvider();
+                try {
+                    setLoginStep('auth'); // Show loading
+                    const result = await signInWithPopup(auth, provider);
+                    handleUserAuthSuccess(result.user);
+                } catch (error) {
+                    console.error("Google Login Error:", error);
+                    alert("Gagal login dengan Google: " + error.message);
+                    setLoginStep('login');
+                }
+            };
+
+            const handleGuestLogin = async () => {
+                if (!auth) return;
+                try {
+                    setLoginStep('auth');
+                    const result = await signInAnonymously(auth);
+                    handleUserAuthSuccess(result.user);
+                } catch (error) {
+                    console.error("Guest Login Error:", error);
+                    alert("Gagal login sebagai guest: " + error.message);
+                    setLoginStep('login');
+                }
+            };
+
+            const handleFinishSetup = async (e) => {
+                e.preventDefault();
+                const finalProfile = { ...userProfile, budget, paycheckDate };
+                
+                if (db) {
+                    const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', uid);
+                    await setDoc(profileRef, finalProfile);
+                }
+                setLoginStep('app');
+            };
+
+            const handleUpdateProfile = async () => {
+                if (db) {
+                    const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', uid);
+                    await setDoc(profileRef, { ...userProfile, budget, paycheckDate });
+                } 
+            };
+
+            const handleAddExpense = async (e) => {
+                e.preventDefault();
+                const amount = parseFloat(amountInput.replace(/\D/g, ''));
+                if (amount > 0 && descInput.trim()) {
+                    const newExpense = {
+                        amount: amount,
+                        description: descInput.trim(),
+                        date: new Date().toISOString()
+                    };
+                    
+                    if (db) {
+                        const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid);
+                        await addDoc(expensesRef, newExpense);
+                    }
+                    
+                    setAmountInput('');
+                    setDescInput('');
+                    
+                    // FIX: Hilangkan fokus agar keyboard hp turun, lalu otomatis naik lagi jika deskripsi di-tap manual.
+                    if (document.activeElement) {
+                        document.activeElement.blur();
+                    }
+                }
+            };
+
+            const handleEditExpense = async (id, field, value) => {
+                if (db) {
+                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid, id);
+                    await updateDoc(ref, { [field]: value });
+                }
+            };
+
+            const handleDeleteExpense = async (id) => {
+                if (db) {
+                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid, id);
+                    await deleteDoc(ref);
+                }
+            };
+
+            // Swipe Handlers
             const onTouchStart = (e) => {
                 setTouchEndPos({x: null, y: null});
-                setTouchStartPos({
-                x: e.targetTouches[0].clientX,
-                y: e.targetTouches[0].clientY
-                });
+                setTouchStartPos({ x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY });
             };
-
             const onTouchMove = (e) => {
-                setTouchEndPos({
-                x: e.targetTouches[0].clientX,
-                y: e.targetTouches[0].clientY
-                });
+                setTouchEndPos({ x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY });
             };
-
             const onTouchEnd = () => {
                 if (!touchStartPos.x || !touchEndPos.x) return;
                 const distanceX = touchStartPos.x - touchEndPos.x;
                 const distanceY = touchStartPos.y - touchEndPos.y;
-                
-                const minSwipeDistance = 50;
-                
-                // Ensure horizontal swipe is dominant over scrolling
-                if (Math.abs(distanceX) > Math.abs(distanceY) && Math.abs(distanceX) > minSwipeDistance) {
-                if (distanceX > 0 && currentView === 'home') {
-                    setCurrentView('calendar'); // Swipe Left -> Show Calendar
-                } else if (distanceX < 0 && currentView === 'calendar') {
-                    setCurrentView('home'); // Swipe Right -> Show Home
-                }
+                if (Math.abs(distanceX) > Math.abs(distanceY) && Math.abs(distanceX) > 50) {
+                    if (distanceX > 0 && currentView === 'home') setCurrentView('calendar'); 
+                    else if (distanceX < 0 && currentView === 'calendar') setCurrentView('home'); 
                 }
             };
 
-            const handleFinishSetup = (e) => {
-                e.preventDefault();
-                setIsSettingBudget(false);
-            };
-
-            const handleAddExpense = (e) => {
-                e.preventDefault();
-                const amount = parseFloat(amountInput.replace(/\D/g, ''));
-                if (amount > 0 && descInput.trim()) {
-                const newExpense = {
-                    id: generateUUID(),
-                    amount: amount,
-                    description: descInput.trim(),
-                    date: new Date().toISOString()
-                };
-                
-                setExpenses([newExpense, ...expenses]);
-                setAmountInput('');
-                setDescInput('');
-                
-                setTimeout(() => {
-                    descInputRef.current?.focus();
-                }, 0);
+            const onCalendarTouchEnd = (e) => {
+                if (!touchStartPos.y || !touchEndPos.y) return;
+                const distanceX = touchStartPos.x - touchEndPos.x;
+                const distanceY = touchStartPos.y - touchEndPos.y;
+                if (Math.abs(distanceY) > Math.abs(distanceX) && Math.abs(distanceY) > 50) {
+                    if (distanceY > 0) setCurrentMonthOffset(prev => prev + 1);
+                    else setCurrentMonthOffset(prev => prev - 1);
                 }
             };
 
-            const deleteExpense = (id) => {
-                setExpenses(expenses.filter(exp => exp.id !== id));
+            const handleHomeScroll = (e) => {
+                const scrollTop = e.target.scrollTop;
+                if (scrollTop > 80 && !isScrolled) setIsScrolled(true);
+                else if (scrollTop < 20 && isScrolled) setIsScrolled(false);
             };
 
             const isDangerBadge = dailyAllowance <= 20000;
 
-            // --- View: Initial First-Time Setup ---
-            if (isSettingBudget) {
+            // --- View: Authenticating/Loading ---
+            if (loginStep === 'auth') {
                 return (
-                <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6">
-                    <div className="w-full max-w-md space-y-6">
-                    
-                    {setupStep === 1 && (
-                        <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                        <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">Siapa nama kamu?</h1>
-                        <div className="space-y-4">
-                            <input
-                            type="text"
-                            value={userProfile.name}
-                            onChange={(e) => setUserProfile({...userProfile, name: e.target.value})}
-                            placeholder="Nama"
-                            className="w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-blue-500 outline-none transition-colors"
-                            />
-                            <input
-                            type="number"
-                            value={userProfile.age}
-                            onChange={(e) => setUserProfile({...userProfile, age: e.target.value})}
-                            placeholder="Umur"
-                            className="w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-blue-500 outline-none transition-colors"
-                            />
-                            <div className="flex gap-4 pt-4">
-                            <button 
-                                onClick={() => setUserProfile({...userProfile, gender: 'male'})}
-                                className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'male' ? 'border-blue-500 bg-blue-50 scale-105' : 'border-gray-200 bg-white hover:bg-gray-50'}`}
-                            >
-                                👨
-                            </button>
-                            <button 
-                                onClick={() => setUserProfile({...userProfile, gender: 'female'})}
-                                className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'female' ? 'border-pink-500 bg-pink-50 scale-105' : 'border-gray-200 bg-white hover:bg-gray-50'}`}
-                            >
-                                👩
-                            </button>
-                            </div>
-                            <button 
-                            onClick={() => setSetupStep(2)}
-                            disabled={!userProfile.name || !userProfile.age || !userProfile.gender}
-                            className="w-full mt-8 py-4 bg-gray-900 text-white rounded-2xl font-bold text-lg disabled:opacity-50"
-                            >
-                            Lanjut
-                            </button>
-                        </div>
-                        </div>
-                    )}
-
-                    {setupStep === 2 && (
-                        <form onSubmit={handleFinishSetup} className="animate-in fade-in slide-in-from-right-4 duration-300">
-                        <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
-                            <Wallet className="w-8 h-8 text-green-600" />
-                        </div>
-                        <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">Tentukan Anggaranmu</h1>
-                        
-                        <div className="space-y-4">
-                            <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">Rp</span>
-                            <input
-                                type="text"
-                                value={budget ? budget.toLocaleString('id-ID') : ''}
-                                onChange={(e) => {
-                                const rawValue = e.target.value.replace(/\D/g, '');
-                                setBudget(rawValue ? parseFloat(rawValue) : 0);
-                                }}
-                                placeholder="Total Anggaran Bulanan"
-                                className="w-full pl-12 pr-4 py-4 text-xl border-2 border-gray-200 rounded-2xl focus:border-green-500 outline-none"
-                                required
-                            />
-                            </div>
-
-                            <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">Rp</span>
-                            <input
-                                type="text"
-                                value={userProfile.promiseBudget ? parseInt(userProfile.promiseBudget).toLocaleString('id-ID') : ''}
-                                onChange={(e) => {
-                                const rawValue = e.target.value.replace(/\D/g, '');
-                                setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
-                                }}
-                                placeholder="Target Pengeluaran Harian"
-                                className="w-full pl-12 pr-4 py-4 text-xl border-2 border-gray-200 rounded-2xl focus:border-green-500 outline-none"
-                                required
-                            />
-                            </div>
-
-                            <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"><Calendar className="w-5 h-5"/></span>
-                            <input
-                                type="number"
-                                min="1"
-                                max="31"
-                                value={paycheckDate}
-                                onChange={(e) => setPaycheckDate(parseInt(e.target.value) || 1)}
-                                placeholder="Tanggal Gajian (1-31)"
-                                className="w-full pl-12 pr-4 py-4 text-xl border-2 border-gray-200 rounded-2xl focus:border-green-500 outline-none"
-                                required
-                            />
-                            </div>
-
-                            <button type="submit" className="w-full py-4 bg-green-500 hover:bg-green-600 text-white rounded-2xl font-bold text-lg active:scale-95 transition-all mt-6">
-                            Mulai Bertahan
-                            </button>
-                        </div>
-                        </form>
-                    )}
+                    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6">
+                        <div className="w-12 h-12 border-4 border-green-200 border-t-green-500 rounded-full animate-spin"></div>
+                        <p className="mt-4 text-gray-500 font-medium">Connecting...</p>
                     </div>
-                </div>
+                );
+            }
+
+            // --- View: Login Username ---
+            if (loginStep === 'login') {
+                return (
+                    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">
+                        <div className="w-full max-w-sm space-y-6">
+                            <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                                <User className="w-10 h-10 text-green-600" />
+                            </div>
+                            <h1 className="text-3xl font-bold text-gray-900 mb-2">Selamat Datang</h1>
+                            <p className="text-gray-500 mb-10">Pilih metode masuk untuk melanjutkan.</p>
+
+                            <div className="space-y-4">
+                                <button 
+                                    onClick={handleGoogleLogin}
+                                    className="w-full py-4 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-2xl font-bold text-lg transition-transform active:scale-95 flex items-center justify-center shadow-sm"
+                                >
+                                    <GoogleIcon className="w-6 h-6 mr-3" />
+                                    Lanjutkan dengan Google
+                                </button>
+                                
+                                <div className="flex items-center py-2">
+                                    <div className="flex-grow border-t border-gray-200"></div>
+                                    <span className="px-4 text-sm text-gray-400 font-medium">atau</span>
+                                    <div className="flex-grow border-t border-gray-200"></div>
+                                </div>
+
+                                <button 
+                                    type="button"
+                                    onClick={handleGuestLogin}
+                                    className="w-full py-4 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-2xl font-bold text-lg transition-transform active:scale-95 shadow-sm"
+                                >
+                                    Lanjut sebagai Guest
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // --- View: Setup Phase ---
+            if (loginStep === 'setup') {
+                return (
+                    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6">
+                        <div className="w-full max-w-md space-y-6">
+                        
+                        {setupStep === 1 && (
+                            <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                                <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">Siapa nama kamu?</h1>
+                                <div className="space-y-4">
+                                    <input
+                                        type="text"
+                                        value={userProfile.name}
+                                        onChange={(e) => setUserProfile({...userProfile, name: e.target.value})}
+                                        placeholder="Nama Asli"
+                                        className="w-full px-5 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-blue-500 outline-none transition-colors"
+                                    />
+                                    <input
+                                        type="number"
+                                        value={userProfile.age}
+                                        onChange={(e) => setUserProfile({...userProfile, age: e.target.value})}
+                                        placeholder="Umur"
+                                        className="w-full px-5 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-blue-500 outline-none transition-colors"
+                                    />
+                                    <div className="flex gap-4 pt-4">
+                                        <button 
+                                            onClick={() => setUserProfile({...userProfile, gender: 'male'})}
+                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'male' ? 'border-blue-500 bg-blue-50 scale-105' : 'border-gray-200 bg-white hover:bg-gray-50'}`}
+                                        >
+                                            👨
+                                        </button>
+                                        <button 
+                                            onClick={() => setUserProfile({...userProfile, gender: 'female'})}
+                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'female' ? 'border-pink-500 bg-pink-50 scale-105' : 'border-gray-200 bg-white hover:bg-gray-50'}`}
+                                        >
+                                            👩
+                                        </button>
+                                    </div>
+                                    <button 
+                                        onClick={() => setSetupStep(2)}
+                                        disabled={!userProfile.name || !userProfile.age || !userProfile.gender}
+                                        className="w-full mt-8 py-4 bg-gray-900 text-white rounded-2xl font-bold text-lg disabled:opacity-50"
+                                    >
+                                        Lanjut
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {setupStep === 2 && (
+                            <form onSubmit={handleFinishSetup} className="animate-in fade-in slide-in-from-right-4 duration-300">
+                                <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                                    <Wallet className="w-8 h-8 text-green-600" />
+                                </div>
+                                <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">Tentukan Anggaranmu</h1>
+                                
+                                <div className="space-y-4">
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">Rp</span>
+                                        <input
+                                            type="text"
+                                            value={budget ? budget.toLocaleString('id-ID') : ''}
+                                            onChange={(e) => {
+                                                const rawValue = e.target.value.replace(/\D/g, '');
+                                                setBudget(rawValue ? parseFloat(rawValue) : 0);
+                                            }}
+                                            placeholder="Total Anggaran Bulanan"
+                                            className="w-full pl-12 pr-4 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-green-500 outline-none"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">Rp</span>
+                                        <input
+                                            type="text"
+                                            value={userProfile.promiseBudget ? parseInt(userProfile.promiseBudget).toLocaleString('id-ID') : ''}
+                                            onChange={(e) => {
+                                                const rawValue = e.target.value.replace(/\D/g, '');
+                                                setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
+                                            }}
+                                            placeholder="Target Pengeluaran Harian"
+                                            className="w-full pl-12 pr-4 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-green-500 outline-none"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"><Calendar className="w-5 h-5"/></span>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max="31"
+                                            value={paycheckDate}
+                                            onChange={(e) => setPaycheckDate(parseInt(e.target.value) || 1)}
+                                            placeholder="Tanggal Gajian (1-31)"
+                                            className="w-full pl-12 pr-4 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-green-500 outline-none"
+                                            required
+                                        />
+                                    </div>
+
+                                    <button type="submit" className="w-full py-4 bg-green-500 hover:bg-green-600 text-white rounded-2xl font-bold text-lg active:scale-95 transition-all mt-6">
+                                        Mulai Bertahan
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+                        </div>
+                    </div>
                 );
             }
 
             // --- View: Main Tracking App ---
             return (
                 <div className="min-h-screen bg-gray-50 flex justify-center w-full overflow-hidden">
-                <div 
-                    className="w-full max-w-md h-[100dvh] bg-gray-50 relative shadow-sm overflow-hidden"
-                    onTouchStart={onTouchStart}
-                    onTouchMove={onTouchMove}
-                    onTouchEnd={onTouchEnd}
-                >
-                    {/* Sliding Wrapper for smooth dual-pane navigation */}
                     <div 
-                    className="flex w-[200%] h-full transition-transform duration-300 ease-in-out"
-                    style={{ transform: currentView === 'calendar' ? 'translateX(-50%)' : 'translateX(0)' }}
+                        className="w-full max-w-md h-[100dvh] bg-gray-50 relative shadow-sm overflow-hidden flex flex-col"
                     >
-                    
-                    {/* ========================================================= */}
-                    {/* ======================= HOME PANE ======================= */}
-                    {/* ========================================================= */}
-                    <div className="w-1/2 h-full bg-white flex flex-col relative overflow-hidden">
-                        
-                        {/* Settings Button */}
-                        <button 
-                        onClick={() => setIsSettingsOpen(true)}
-                        className="absolute top-6 right-5 z-50 p-2 opacity-40 hover:opacity-100 transition-opacity"
+                        {/* Sliding Wrapper */}
+                        <div 
+                            className="flex w-[200%] flex-1 transition-transform duration-300 ease-in-out"
+                            style={{ transform: currentView === 'calendar' ? 'translateX(-50%)' : 'translateX(0)' }}
+                            onTouchStart={onTouchStart}
+                            onTouchMove={onTouchMove}
+                            onTouchEnd={onTouchEnd}
                         >
-                        <Settings className="w-6 h-6 text-gray-800" strokeWidth={1.5} />
-                        </button>
-
-                        {/* Scrollable Container for Home */}
-                        <div className="flex-1 overflow-y-auto" onScroll={(e) => setIsScrolled(e.target.scrollTop > 50)}>
                         
-                        {/* UNIFIED ANIMATED STICKY HEADER */}
-                        <div className={`sticky top-0 w-full bg-white/95 backdrop-blur-md z-40 px-5 transition-all duration-500 ease-in-out ${
-                            isScrolled ? 'pt-6 pb-3' : 'pt-16 pb-12'
-                        }`}>
-                            <div className="flex flex-col items-center justify-center w-full relative">
-                            
-                            {/* Title */}
-                            <span className={`font-bold text-gray-400 uppercase tracking-widest transition-all duration-500 ${
-                                isScrolled ? 'text-[10px] mb-0.5' : 'text-sm mb-2'
-                            }`}>Sisa Uang</span>
-                            
-                            {/* Amount */}
-                            <div className={`flex items-start justify-center text-gray-900 transition-all duration-500 ${
-                                isScrolled ? 'mb-3' : 'mb-6'
-                            }`}>
-                                <span className={`font-medium text-gray-500 transition-all duration-500 ${
-                                isScrolled ? 'text-xs mt-1 mr-1' : 'text-xl mt-3 mr-1'
-                                }`}>Rp</span>
-                                <span className={`font-bold tracking-tight leading-none transition-all duration-500 ${
-                                isScrolled ? 'text-3xl' : 'text-[5rem]'
-                                }`}>
-                                <AnimatedNumber value={remaining} formatFn={formatNumber} />
-                                </span>
-                            </div>
-                            
-                            {/* Daily Allowance Badge */}
-                            <div className={`overflow-hidden transition-all duration-500 flex justify-center ${
-                                isScrolled ? 'max-h-0 opacity-0 mb-0' : 'max-h-20 opacity-100 mb-8'
-                            }`}>
-                                <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center gap-2 border shadow-sm transition-colors ${
-                                isDangerBadge ? 'bg-red-50 text-red-700 border-red-200 animate-pulse' : 'bg-gray-100 text-gray-600 border-gray-200'
-                                }`}>
-                                <span>Sisa {daysLeft} hari</span>
-                                <span className={isDangerBadge ? "text-red-300" : "text-gray-300"}>•</span>
-                                <span>Rp {formatNumber(Math.max(0, dailyAllowance))} / hari</span>
-                                </div>
-                            </div>
-
-                            {/* Dynamic Battery Bar */}
-                            <div 
-                                className={`relative w-full bg-gray-200 border-[3px] ring-1 transition-all duration-500 ease-in-out ${
-                                percentage === 0 ? 'border-red-600 animate-pulse bg-red-50 ring-red-200' : 'border-white ring-gray-200'
-                                } ${isScrolled ? 'h-6 rounded-md' : 'h-14 rounded-xl'}`}
-                                style={{ boxShadow: percentage === 100 ? (isScrolled ? '0 0 15px 3px rgba(34, 197, 94, 0.4)' : '0 0 25px 6px rgba(34, 197, 94, 0.5)') : 'none' }}
-                            >
-                                <div className={`absolute inset-0 overflow-hidden transition-all duration-500 ${isScrolled ? 'rounded-[4px]' : 'rounded-[9px]'}`}>
-                                <div className={`absolute inset-0 bg-red-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isTakingDamage ? 'opacity-60' : 'opacity-0'}`}></div>
-                                <div 
-                                    className={`h-full transition-all relative z-0`}
-                                    style={getBarStyle()}
+                            {/* ======================= HOME PANE ======================= */}
+                            <div className="w-1/2 h-full bg-white flex flex-col relative overflow-hidden">
+                                
+                                <button 
+                                    onClick={() => setIsSettingsOpen(true)}
+                                    className="absolute top-6 right-5 z-50 p-2 opacity-40 hover:opacity-100 transition-opacity"
                                 >
-                                    <div className="absolute inset-0 bg-white animate-breathe"></div>
-                                </div>
-                                </div>
+                                    <Settings className="w-6 h-6 text-gray-800" strokeWidth={1.5} />
+                                </button>
 
-                                <div className={`absolute inset-0 flex items-center justify-start z-10 pointer-events-none transition-all duration-500 ${
-                                isScrolled ? 'px-2' : 'px-4'
-                                }`}>
-                                <span className={`font-bold transition-all duration-500 ${
-                                    percentage < 40 && percentage > 0 ? 'text-gray-800' : percentage === 0 ? 'text-red-500' : 'text-white/90'
-                                } ${isScrolled ? 'text-[10px]' : 'text-sm'}`}>
-                                    {percentage.toFixed(0)}%
-                                </span>
-                                </div>
-                            </div>
-
-                            {/* Yesterday Recap */}
-                            {appSettings.showRecap && yesterdayRecap && (
-                                <div className={`overflow-hidden transition-all duration-500 w-full ${
-                                isScrolled ? 'max-h-20 opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'
-                                }`}>
-                                <div className={`p-2 rounded-lg text-[11px] font-bold flex items-center justify-between border ${
-                                    yesterdayRecap.overspent 
-                                    ? 'bg-red-50 border-red-200 text-red-700 animate-pulse' 
-                                    : 'bg-green-50 border-green-200 text-green-700'
-                                }`}>
-                                    <span>{yesterdayRecap.overspent ? '⚠️ Kemarin Overbudget!' : '🔥 Kemarin Hemat!'}</span>
-                                    <span>{yesterdayRecap.overspent ? '-' : '+'} Rp {formatNumber(yesterdayRecap.amount)}</span>
-                                </div>
-                                </div>
-                            )}
-                            
-                            </div>
-
-                            {/* Frosted Fade Separator */}
-                            <div className={`absolute top-full left-0 w-full h-8 bg-gradient-to-b from-white/95 to-transparent pointer-events-none transition-opacity duration-500 ${isScrolled ? 'opacity-100' : 'opacity-0'}`}></div>
-                        </div>
-
-                        {/* CONTENT (Expenses List) */}
-                        <div className="px-5 pt-4 flex-1 pb-10">
-                            {expenses.length === 0 ? (
-                            <div className="text-center py-10 text-gray-300 flex flex-col items-center">
-                                <p className="font-semibold text-sm">Belum ada pengeluaran.</p>
-                            </div>
-                            ) : (
-                            <div className="pb-6">
-                                {Object.entries(groupedExpenses).map(([dateStr, dayExpenses]) => (
-                                <div key={dateStr} className="mb-6 relative">
-                                    <div className="py-1 mb-2">
-                                    <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{dateStr}</span>
-                                    </div>
-                                    
-                                    <div className="space-y-3 mt-1">
-                                    {dayExpenses.map((expense) => {
-                                        const pctNum = parseFloat(((expense.amount / budget) * 100).toFixed(1));
-                                        return (
-                                        <div key={expense.id} className="group flex items-center py-1 relative animate-in fade-in duration-300">
+                                <div className="flex-1 overflow-y-auto" onScroll={handleHomeScroll}>
+                                    {/* UNIFIED ANIMATED STICKY HEADER */}
+                                    <div className={`sticky top-0 w-full bg-white/95 backdrop-blur-md z-40 px-5 transition-all duration-500 ease-in-out ${
+                                        isScrolled ? 'pt-6 pb-3' : 'pt-16 pb-12'
+                                    }`}>
+                                        <div className="flex flex-col items-center justify-center w-full relative">
+                                            <span className={`font-bold text-gray-400 uppercase tracking-widest transition-all duration-500 ${
+                                                isScrolled ? 'text-[10px] mb-0.5' : 'text-sm mb-2'
+                                            }`}>Sisa Uang</span>
                                             
-                                            {/* Left: Time Icon */}
-                                            {appSettings.showTime && (
-                                            <div className="flex-shrink-0 mr-2 opacity-50" title={new Date(expense.date).toLocaleTimeString()}>
-                                                {getTimeIcon(expense.date)}
-                                            </div>
-                                            )}
-                                            
-                                            {/* Item Name */}
-                                            <div className="text-[15px] text-gray-700 font-normal">
-                                            {expense.description}
-                                            </div>
-                                            
-                                            {/* Connector Line */}
-                                            <div className="flex-1 border-b border-dashed border-gray-300 mx-2 mt-2 opacity-60"></div>
-                                            
-                                            {/* Right: Amount & Percent */}
-                                            <div className="flex items-center">
-                                            <span className="text-[11px] text-gray-400 mr-0.5">Rp</span>
-                                            <span className="text-[15px] text-gray-900 font-medium tracking-tight mr-2">
-                                                {formatNumber(expense.amount)}
-                                            </span>
-                                            
-                                            {/* Percent Capsule */}
-                                            <div className="bg-red-100/80 px-1.5 py-0.5 rounded flex items-center justify-center min-w-[34px]">
-                                                <span className="text-[10px] font-bold text-red-800">
-                                                {pctNum}%
+                                            <div className={`flex items-start justify-center text-gray-900 transition-all duration-500 ${
+                                                isScrolled ? 'mb-3' : 'mb-6'
+                                            }`}>
+                                                <span className={`font-medium text-gray-500 transition-all duration-500 ${
+                                                isScrolled ? 'text-xs mt-1 mr-1' : 'text-xl mt-3 mr-1'
+                                                }`}>Rp</span>
+                                                <span className={`font-bold tracking-tight leading-none transition-all duration-500 ${
+                                                isScrolled ? 'text-3xl' : 'text-[5rem]'
+                                                }`}>
+                                                <AnimatedNumber value={remaining} formatFn={formatNumber} />
                                                 </span>
                                             </div>
+                                            
+                                            <div className={`overflow-hidden transition-all duration-500 flex justify-center ${
+                                                isScrolled ? 'max-h-0 opacity-0 mb-0' : 'max-h-20 opacity-100 mb-8'
+                                            }`}>
+                                                <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center gap-2 border shadow-sm transition-colors ${
+                                                isDangerBadge ? 'bg-red-50 text-red-700 border-red-200 animate-pulse' : 'bg-gray-100 text-gray-600 border-gray-200'
+                                                }`}>
+                                                <span>Sisa {daysLeft} hari</span>
+                                                <span className={isDangerBadge ? "text-red-300" : "text-gray-300"}>•</span>
+                                                <span>Rp {formatNumber(Math.max(0, dailyAllowance))} / hari</span>
+                                                </div>
                                             </div>
 
-                                            {/* Delete Button */}
-                                            <button 
-                                            onClick={() => deleteExpense(expense.id)}
-                                            className="absolute -right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-red-500 bg-white p-1 rounded transition-opacity"
+                                            <div 
+                                                className={`relative w-full bg-gray-200 border-[3px] ring-1 transition-all duration-500 ease-in-out ${
+                                                percentage === 0 ? 'border-red-600 animate-pulse bg-red-50 ring-red-200' : 'border-white ring-gray-200'
+                                                } ${isScrolled ? 'h-6 rounded-md' : 'h-14 rounded-xl'}`}
+                                                style={{ boxShadow: percentage === 100 ? (isScrolled ? '0 0 15px 3px rgba(34, 197, 94, 0.4)' : '0 0 25px 6px rgba(34, 197, 94, 0.5)') : 'none' }}
                                             >
-                                            <Trash2 className="w-3 h-3" />
-                                            </button>
+                                                <div className={`absolute inset-0 overflow-hidden transition-all duration-500 ${isScrolled ? 'rounded-[4px]' : 'rounded-[9px]'}`}>
+                                                    <div className={`absolute inset-0 bg-red-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isTakingDamage ? 'opacity-60' : 'opacity-0'}`}></div>
+                                                    <div className={`h-full transition-all relative z-0`} style={getBarStyle()}>
+                                                        <div className="absolute inset-0 bg-white animate-breathe"></div>
+                                                    </div>
+                                                </div>
+
+                                                <div className={`absolute inset-0 flex items-center justify-start z-10 pointer-events-none transition-all duration-500 ${
+                                                isScrolled ? 'px-2' : 'px-4'
+                                                }`}>
+                                                <span className={`font-bold transition-all duration-500 ${
+                                                    percentage < 40 && percentage > 0 ? 'text-gray-800' : percentage === 0 ? 'text-red-500' : 'text-white/90'
+                                                } ${isScrolled ? 'text-[10px]' : 'text-sm'}`}>
+                                                    {percentage.toFixed(0)}%
+                                                </span>
+                                                </div>
+                                            </div>
+
+                                            {appSettings.showRecap && yesterdayRecap && (
+                                                <div className={`overflow-hidden transition-all duration-500 w-full ${
+                                                isScrolled ? 'max-h-20 opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'
+                                                }`}>
+                                                    <div className={`p-2 rounded-lg text-[11px] font-bold flex items-center justify-between border ${
+                                                        yesterdayRecap.overspent 
+                                                        ? 'bg-red-50 border-red-200 text-red-700 animate-pulse' 
+                                                        : 'bg-green-50 border-green-200 text-green-700'
+                                                    }`}>
+                                                        <span>{yesterdayRecap.overspent ? '⚠️ Kemarin Overbudget!' : '🔥 Kemarin Hemat!'}</span>
+                                                        <span>{yesterdayRecap.overspent ? '-' : '+'} Rp {formatNumber(yesterdayRecap.amount)}</span>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
-                                        );
-                                    })}
+                                        <div className={`absolute top-full left-0 w-full h-8 bg-gradient-to-b from-white/95 to-transparent pointer-events-none transition-opacity duration-500 ${isScrolled ? 'opacity-100' : 'opacity-0'}`}></div>
+                                    </div>
+
+                                    {/* CONTENT (Expenses List) */}
+                                    <div className="px-5 pt-4 flex-1 pb-10">
+                                        {expenses.length === 0 ? (
+                                        <div className="text-center py-10 text-gray-300 flex flex-col items-center">
+                                            <p className="font-semibold text-sm">Belum ada pengeluaran.</p>
+                                        </div>
+                                        ) : (
+                                        <div className="pb-6">
+                                            {Object.entries(groupedExpenses).map(([dateStr, dayExpenses]) => (
+                                            <div key={dateStr} className="mb-6 relative">
+                                                <div className="py-1 mb-2">
+                                                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{dateStr}</span>
+                                                </div>
+                                                
+                                                <div className="space-y-3 mt-1">
+                                                {dayExpenses.map((expense) => {
+                                                    const pctNum = parseFloat(((expense.amount / budget) * 100).toFixed(1));
+                                                    return (
+                                                    <div key={expense.id} className="group flex items-center py-1 relative animate-in fade-in duration-300">
+                                                        {appSettings.showTime && (
+                                                        <div className="flex-shrink-0 mr-2 opacity-50" title={new Date(expense.date).toLocaleTimeString()}>
+                                                            {getTimeIcon(expense.date)}
+                                                        </div>
+                                                        )}
+                                                        <div className="text-[15px] text-gray-700 font-normal">
+                                                            {expense.description}
+                                                        </div>
+                                                        <div className="flex-1 border-b border-dashed border-gray-300 mx-2 mt-2 opacity-60"></div>
+                                                        <div className="flex items-center">
+                                                            <span className="text-[11px] text-gray-400 mr-0.5">Rp</span>
+                                                            <span className="text-[15px] text-gray-900 font-medium tracking-tight mr-2">
+                                                                {formatNumber(expense.amount)}
+                                                            </span>
+                                                            <div className="bg-red-100/80 px-1.5 py-0.5 rounded flex items-center justify-center min-w-[34px]">
+                                                                <span className="text-[10px] font-bold text-red-800">
+                                                                    {pctNum}%
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    );
+                                                })}
+                                                </div>
+                                            </div>
+                                            ))}
+                                        </div>
+                                        )}
                                     </div>
                                 </div>
-                                ))}
                             </div>
-                            )}
-                        </div>
-                        </div>
 
-                        {/* FAST ZERO-FRICTION INPUT FORM */}
-                        <div className="shrink-0 w-full bg-white border-t border-gray-100 pb-safe z-50">
-                        <form onSubmit={handleAddExpense} className="flex px-4 py-3 items-center">
-                            <input
-                            ref={descInputRef}
-                            type="text"
-                            value={descInput}
-                            onChange={(e) => setDescInput(e.target.value)}
-                            placeholder="Buat apa uangnya?"
-                            className="flex-1 bg-transparent border-none text-[15px] font-normal text-gray-800 outline-none placeholder-gray-400 focus:ring-0 p-0"
-                            required
-                            />
-                            <div className="w-px h-6 bg-gray-200 mx-3"></div>
-                            <input
-                            type="text"
-                            value={amountInput}
-                            onChange={(e) => {
-                                const rawValue = e.target.value.replace(/\D/g, '');
-                                setAmountInput(rawValue ? parseInt(rawValue).toLocaleString('id-ID') : '');
-                            }}
-                            placeholder="Berapa?"
-                            className="w-24 bg-transparent border-none text-[15px] font-semibold text-gray-900 outline-none placeholder-gray-300 focus:ring-0 p-0 text-right mr-3"
-                            required
-                            />
-                            <button 
-                            type="submit"
-                            disabled={!amountInput || !descInput.trim()}
-                            className="bg-red-700 hover:bg-red-800 text-white rounded-full p-2.5 flex items-center justify-center transition-transform active:scale-90 disabled:opacity-30 disabled:active:scale-100"
-                            >
-                            <TrendingDown className="w-4 h-4" strokeWidth={3} />
-                            </button>
-                        </form>
-                        </div>
-                    </div>
-
-                    {/* ========================================================= */}
-                    {/* ===================== CALENDAR PANE ===================== */}
-                    {/* ========================================================= */}
-                    <div className="w-1/2 h-full bg-gray-50 flex flex-col relative overflow-hidden shadow-[inset_10px_0_20px_-10px_rgba(0,0,0,0.05)]">
-                        
-                        {/* Calendar Header */}
-                        <div className="shrink-0 flex items-center px-4 pt-6 pb-4 bg-white border-b border-gray-100 shadow-sm z-10">
-                        <button 
-                            onClick={() => setCurrentView('home')} 
-                            className="p-2 -ml-2 bg-gray-100 rounded-full text-gray-500 hover:text-gray-900 transition-colors"
-                        >
-                            <ChevronLeft className="w-6 h-6" />
-                        </button>
-                        <div className="ml-3">
-                            <h2 className="text-xl font-bold text-gray-900">{calendarData.monthName}</h2>
-                        </div>
-                        </div>
-
-                        {/* Calendar Body */}
-                        <div className="flex-1 overflow-y-auto p-5 pb-20">
-                        
-                        {/* 5-Column Grid */}
-                        <div className="grid grid-cols-5 gap-2">
-                            {calendarData.days.map((dayObj, i) => {
-                            const targetBudget = parseInt(userProfile.promiseBudget) || 0;
-                            
-                            let bgClass = '';
-                            let textClass = '';
-                            let showAmount = false;
-
-                            if (dayObj.isFuture) {
-                                bgClass = 'bg-gray-100 border-gray-200 opacity-60';
-                                textClass = 'text-gray-400';
-                            } else {
-                                showAmount = true;
-                                if (dayObj.amount <= targetBudget) {
-                                    bgClass = 'bg-green-50 border-green-200';
-                                    textClass = 'text-green-600';
-                                } else {
-                                    bgClass = 'bg-red-50 border-red-200';
-                                    textClass = 'text-red-600';
-                                }
-                            }
-
-                            return (
-                                <div key={i} className={`flex flex-col items-center justify-center p-2 rounded-xl border ${
-                                dayObj.isToday ? 'ring-2 ring-blue-400 ring-offset-1' : ''
-                                } ${bgClass} aspect-square relative`}>
-                                
-                                <span className={`absolute top-1.5 left-2 text-[10px] font-bold ${textClass}`}>
-                                    {dayObj.day}
-                                </span>
-                                
-                                {showAmount && (
-                                    <span className={`text-xs font-bold mt-3 tracking-tight ${textClass}`}>
-                                    {dayObj.amount > 0 ? `-${formatCompact(dayObj.amount)}` : '0'}
-                                    </span>
-                                )}
+                            {/* ===================== CALENDAR PANE ===================== */}
+                            <div className="w-1/2 h-full bg-gray-50 flex flex-col relative overflow-hidden shadow-[inset_10px_0_20px_-10px_rgba(0,0,0,0.05)]">
+                                <div className="shrink-0 flex items-center justify-between px-4 pt-6 pb-4 bg-white border-b border-gray-100 shadow-sm z-10">
+                                    <div className="flex items-center">
+                                        <button 
+                                            onClick={() => setCurrentView('home')} 
+                                            className="p-2 -ml-2 bg-gray-100 rounded-full text-gray-500 hover:text-gray-900 transition-colors"
+                                        >
+                                            <ChevronLeft className="w-6 h-6" />
+                                        </button>
+                                        <div className="ml-3">
+                                            <h2 className="text-lg font-bold text-gray-900 whitespace-nowrap">{calendarData.monthName}</h2>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-sm font-bold text-red-600 tracking-tight">-Rp {formatNumber(calendarData.totalSpentMonth)}</p>
+                                    </div>
                                 </div>
-                            )
-                            })}
-                        </div>
 
-                        {/* Monthly Recap Box */}
-                        <div className="mt-8 p-5 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-center">
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Pengeluaran Bulan Ini</p>
-                            <p className="text-2xl font-bold text-red-600 tracking-tight">-Rp {formatNumber(calendarData.totalSpentMonth)}</p>
-                        </div>
-                        </div>
-                    </div>
-                    </div>
+                                <div 
+                                    className="flex-1 overflow-y-auto p-5 pb-20 touch-pan-y"
+                                    onTouchEnd={(e) => {
+                                        e.stopPropagation(); // Prevents horizontal swipe interference
+                                        onCalendarTouchEnd(e);
+                                    }}
+                                >
+                                    <div className="grid grid-cols-5 gap-2">
+                                        {calendarData.days.map((dayObj, i) => {
+                                            const targetBudget = parseInt(userProfile.promiseBudget) || 0;
+                                            let bgClass = '';
+                                            let textClass = '';
+                                            let showAmount = false;
 
-                    {/* SETTINGS MODAL */}
-                    {isSettingsOpen && (
-                    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                        <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-bold text-gray-900">Pengaturan</h2>
-                            <button onClick={() => setIsSettingsOpen(false)} className="p-1 text-gray-400 hover:text-gray-800">
-                            <X className="w-6 h-6" />
-                            </button>
-                        </div>
+                                            if (dayObj.isFuture) {
+                                                bgClass = 'bg-gray-100 border-gray-200 opacity-60';
+                                                textClass = 'text-gray-400';
+                                            } else {
+                                                showAmount = true;
+                                                if (dayObj.amount <= targetBudget) {
+                                                    bgClass = 'bg-green-50 border-green-200';
+                                                    textClass = 'text-green-600';
+                                                } else {
+                                                    bgClass = 'bg-red-50 border-red-200';
+                                                    textClass = 'text-red-600';
+                                                }
+                                            }
 
-                        {/* ID Card (KTP Style) */}
-                        <div className="bg-[#e0f2fe] rounded-2xl p-5 shadow-sm border border-[#bae6fd] relative overflow-hidden mb-6 flex items-center">
-                            <div className="absolute top-0 left-0 w-full h-1.5 bg-[#7dd3fc]"></div>
-                            
-                            <div className="flex-1 pr-4 z-10">
-                            <h3 className="font-bold text-[#0c4a6e] text-xl leading-tight mb-0.5 uppercase tracking-wide">
-                                {userProfile.name}
-                            </h3>
-                            <p className="text-[#0284c7] text-sm font-semibold mb-3">
-                                {userProfile.age} Tahun
-                            </p>
-                            <p className="text-[#0369a1] text-[10px] font-medium italic leading-snug border-l-2 border-[#7dd3fc] pl-2">
-                                "Aku adalah orang yang disiplin finansial"
-                            </p>
+                                            return (
+                                                <div key={i} className={`flex flex-col items-center justify-center p-2 rounded-xl border ${
+                                                    dayObj.isToday ? 'ring-2 ring-blue-400 ring-offset-1' : ''
+                                                } ${bgClass} aspect-square relative`}>
+                                                    <span className={`absolute top-1.5 left-2 text-[10px] font-bold ${textClass}`}>
+                                                        {dayObj.day}
+                                                    </span>
+                                                    {showAmount && (
+                                                        <span className={`text-xs font-bold mt-3 tracking-tight ${textClass}`}>
+                                                            {dayObj.amount > 0 ? `-${formatCompact(dayObj.amount)}` : '0'}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
                             </div>
-                            
-                            <div className="w-16 h-16 rounded-full bg-white border-2 border-[#bae6fd] flex items-center justify-center text-4xl shadow-sm z-10 flex-shrink-0">
-                            {userProfile.gender === 'male' ? '👨' : '👩'}
+                        </div>
+
+                        {/* FAST ZERO-FRICTION INPUT FORM (Fixed at bottom) */}
+                        <div className="shrink-0 w-full bg-white border-t border-gray-100 pb-safe z-50">
+                            <form onSubmit={handleAddExpense} className="flex px-4 py-3 items-center">
+                                <input
+                                    type="text"
+                                    value={descInput}
+                                    onChange={(e) => setDescInput(e.target.value)}
+                                    placeholder="Buat apa uangnya?"
+                                    className="flex-1 bg-transparent border-none text-[16px] font-normal text-gray-800 outline-none placeholder-gray-400 focus:ring-0 p-0"
+                                    required
+                                />
+                                <div className="w-px h-6 bg-gray-200 mx-3"></div>
+                                <input
+                                    type="text"
+                                    value={amountInput}
+                                    onChange={(e) => {
+                                        const rawValue = e.target.value.replace(/\D/g, '');
+                                        setAmountInput(rawValue ? parseInt(rawValue).toLocaleString('id-ID') : '');
+                                    }}
+                                    placeholder="Berapa?"
+                                    className="w-24 bg-transparent border-none text-[16px] font-semibold text-gray-900 outline-none placeholder-gray-300 focus:ring-0 p-0 text-right mr-3"
+                                    required
+                                />
+                                <button 
+                                    type="submit"
+                                    disabled={!amountInput || !descInput.trim()}
+                                    className="bg-red-700 hover:bg-red-800 text-white rounded-full p-2.5 flex items-center justify-center transition-transform active:scale-90 disabled:opacity-30 disabled:active:scale-100"
+                                >
+                                    <TrendingDown className="w-4 h-4" strokeWidth={3} />
+                                </button>
+                            </form>
+                        </div>
+
+                        {/* SETTINGS / EDIT MODAL */}
+                        {isSettingsOpen && (
+                        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                            <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+                                
+                                <div className="flex justify-between items-center mb-6 shrink-0">
+                                    <h2 className="text-xl font-bold text-gray-900">{isEditMode ? 'Edit Pengeluaran' : 'Pengaturan'}</h2>
+                                    <button onClick={() => { setIsSettingsOpen(false); setIsEditMode(false); }} className="p-1 text-gray-400 hover:text-gray-800">
+                                        <X className="w-6 h-6" />
+                                    </button>
+                                </div>
+
+                                <div className="overflow-y-auto flex-1 pb-4">
+                                    {isEditMode ? (
+                                        <div className="space-y-3">
+                                            <button onClick={() => setIsEditMode(false)} className="text-blue-500 text-sm font-semibold mb-2 flex items-center"><ChevronLeft className="w-4 h-4 mr-1"/> Kembali</button>
+                                            {expenses.map(exp => (
+                                                <div key={exp.id} className="flex gap-2 items-center bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                                                    <input 
+                                                        defaultValue={exp.description} 
+                                                        onBlur={(e) => handleEditExpense(exp.id, 'description', e.target.value)} 
+                                                        className="flex-1 w-full bg-white px-2 py-1.5 rounded border border-gray-200 text-[16px]"
+                                                    />
+                                                    <input 
+                                                        defaultValue={exp.amount} 
+                                                        onBlur={(e) => handleEditExpense(exp.id, 'amount', parseInt(e.target.value.replace(/\D/g, '')) || 0)} 
+                                                        className="w-20 bg-white px-2 py-1.5 rounded border border-gray-200 text-[16px]"
+                                                    />
+                                                    <button onClick={() => handleDeleteExpense(exp.id)} className="p-2 text-red-500 hover:bg-red-50 rounded">
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {expenses.length === 0 && <p className="text-center text-gray-400 text-sm mt-4">Kosong</p>}
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            <div className="bg-[#e0f2fe] rounded-2xl p-5 shadow-sm border border-[#bae6fd] relative overflow-hidden flex items-center">
+                                                <div className="absolute top-0 left-0 w-full h-1.5 bg-[#7dd3fc]"></div>
+                                                <div className="flex-1 pr-4 z-10">
+                                                    <h3 className="font-bold text-[#0c4a6e] text-xl leading-tight mb-0.5 uppercase tracking-wide">
+                                                        {userProfile.name}
+                                                    </h3>
+                                                    <p className="text-[#0284c7] text-sm font-semibold mb-3">
+                                                        {userProfile.age} Tahun
+                                                    </p>
+                                                    <p className="text-[#0369a1] text-[10px] font-medium italic leading-snug border-l-2 border-[#7dd3fc] pl-2">
+                                                        "Aku adalah orang yang disiplin finansial"
+                                                    </p>
+                                                </div>
+                                                <div className="w-16 h-16 rounded-full bg-white border-2 border-[#bae6fd] flex items-center justify-center text-4xl shadow-sm z-10 shrink-0">
+                                                    {userProfile.gender === 'male' ? '👨' : '👩'}
+                                                </div>
+                                            </div>
+
+                                            <button 
+                                                onClick={() => setIsEditMode(true)}
+                                                className="w-full flex items-center justify-center gap-2 py-3 bg-blue-50 text-blue-600 rounded-xl font-semibold border border-blue-100 hover:bg-blue-100 transition-colors"
+                                            >
+                                                <Edit3 className="w-4 h-4" /> Edit Data Pengeluaran
+                                            </button>
+
+                                            <label className="flex flex-col p-3 bg-gray-50 rounded-xl">
+                                                <span className="text-sm font-semibold text-gray-700 mb-1">Target Harian (Rp)</span>
+                                                <input 
+                                                    type="text"
+                                                    value={userProfile.promiseBudget ? parseInt(userProfile.promiseBudget).toLocaleString('id-ID') : ''}
+                                                    onChange={(e) => {
+                                                        const rawValue = e.target.value.replace(/\D/g, '');
+                                                        setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
+                                                    }}
+                                                    onBlur={handleUpdateProfile}
+                                                    className="px-3 py-2 border border-gray-200 rounded-lg text-[16px] bg-white"
+                                                    placeholder="Contoh: 50000"
+                                                />
+                                            </label>
+
+                                            <label className="flex flex-col p-3 bg-gray-50 rounded-xl">
+                                                <span className="text-sm font-semibold text-gray-700 mb-1">Anggaran Bulanan (Rp)</span>
+                                                <input 
+                                                    type="text"
+                                                    value={budget ? parseInt(budget).toLocaleString('id-ID') : ''}
+                                                    onChange={(e) => {
+                                                        const rawValue = e.target.value.replace(/\D/g, '');
+                                                        setBudget(rawValue ? parseInt(rawValue) : 0);
+                                                    }}
+                                                    onBlur={handleUpdateProfile}
+                                                    className="px-3 py-2 border border-gray-200 rounded-lg text-[16px] bg-white"
+                                                />
+                                            </label>
+
+                                            <label className="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer">
+                                                <span className="text-sm font-semibold text-gray-700">Tampilkan Waktu</span>
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={appSettings.showTime}
+                                                    onChange={(e) => setAppSettings({...appSettings, showTime: e.target.checked})}
+                                                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+                                                />
+                                            </label>
+                                            
+                                            <label className="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer">
+                                                <span className="text-sm font-semibold text-gray-700">Peringatan Harian</span>
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={appSettings.showRecap}
+                                                    onChange={(e) => setAppSettings({...appSettings, showRecap: e.target.checked})}
+                                                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+                                                />
+                                            </label>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
-
-                        {/* Settings Form Elements */}
-                        <div className="space-y-4">
-                            <label className="flex flex-col p-3 bg-gray-50 rounded-xl">
-                            <span className="text-sm font-semibold text-gray-700 mb-1">Target Harian (Rp)</span>
-                            <input 
-                                type="text"
-                                value={userProfile.promiseBudget ? parseInt(userProfile.promiseBudget).toLocaleString('id-ID') : ''}
-                                onChange={(e) => {
-                                const rawValue = e.target.value.replace(/\D/g, '');
-                                setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
-                                }}
-                                className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white"
-                                placeholder="Contoh: 50000"
-                            />
-                            </label>
-
-                            <label className="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer">
-                            <span className="text-sm font-semibold text-gray-700">Tampilkan Waktu</span>
-                            <input 
-                                type="checkbox" 
-                                checked={appSettings.showTime}
-                                onChange={(e) => setAppSettings({...appSettings, showTime: e.target.checked})}
-                                className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                            />
-                            </label>
-                            
-                            <label className="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer">
-                            <span className="text-sm font-semibold text-gray-700">Peringatan Harian</span>
-                            <input 
-                                type="checkbox" 
-                                checked={appSettings.showRecap}
-                                onChange={(e) => setAppSettings({...appSettings, showRecap: e.target.checked})}
-                                className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                            />
-                            </label>
-                        </div>
-
-                        </div>
+                        )}
                     </div>
-                    )}
-
-                </div>
                 </div>
             );
         };
