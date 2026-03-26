@@ -1045,9 +1045,9 @@
                     <div 
                         className="w-full max-w-md h-full bg-gray-50 relative shadow-sm overflow-hidden flex flex-col"
                     >
-                        {/* Sliding Wrapper */}
+                        {/* Kelas `min-h-0` PADA PEMBUNGKUS UTAMA INILAH YANG MEMPERBAIKI BUG FLEXBOX */}
                         <div 
-                            className="flex w-[200%] flex-1 transition-transform duration-300 ease-in-out"
+                            className="flex w-[200%] flex-1 min-h-0 transition-transform duration-300 ease-in-out"
                             style={{ transform: currentView === 'calendar' ? 'translateX(-50%)' : 'translateX(0)' }}
                             onTouchStart={onTouchStart}
                             onTouchMove={onTouchMove}
@@ -1064,8 +1064,7 @@
                                     <CalendarIcon className="w-6 h-6 text-gray-800" strokeWidth={1.5} />
                                 </button>
 
-                                {/* Tambahkan kelas pb-24 (padding-bottom) agar saat di-scroll ke mentok bawah, list tidak tertutup form input */}
-                                <div className="flex-1 min-h-0 overflow-y-auto pb-24" onScroll={handleHomeScroll}>
+                                <div className="flex-1 min-h-0 overflow-y-auto" onScroll={handleHomeScroll}>
                                     
                                     {/* UNIFIED ANIMATED STICKY HEADER */}
                                     <div className={`sticky top-0 w-full bg-white/95 backdrop-blur-md z-40 px-5 transition-all duration-500 ease-in-out ${
@@ -1197,14 +1196,13 @@
                                     </div>
                                 </div>
 
-                                {/* FAST ZERO-FRICTION INPUT FORM (Diubah menjadi Absolute Bottom sesuai ide Anda) */}
-                                <div className="absolute bottom-0 left-0 w-full bg-white border-t border-gray-200 pb-safe z-50 shadow-[0_-5px_15px_rgba(0,0,0,0.03)]">
+                                {/* FAST ZERO-FRICTION INPUT FORM (Tidak lagi absolute, melainkan shrink-0 agar aman terikat layout) */}
+                                <div className="shrink-0 w-full bg-white border-t border-gray-200 pb-safe z-50 shadow-[0_-5px_15px_rgba(0,0,0,0.03)]">
                                     <form onSubmit={handleAddExpense} className="flex px-4 py-3 items-center">
                                         <input
                                             type="text"
                                             value={descInput}
                                             onChange={(e) => setDescInput(e.target.value)}
-                                            onBlur={() => setTimeout(() => window.scrollTo(0, 0), 50)}
                                             placeholder="Buat apa uangnya?"
                                             className="flex-1 bg-transparent border-none text-[16px] font-normal text-gray-800 outline-none placeholder-gray-400 focus:ring-0 p-0"
                                             required
@@ -1217,7 +1215,6 @@
                                                 const rawValue = e.target.value.replace(/\D/g, '');
                                                 setAmountInput(rawValue ? parseInt(rawValue).toLocaleString('id-ID') : '');
                                             }}
-                                            onBlur={() => setTimeout(() => window.scrollTo(0, 0), 50)}
                                             placeholder="Berapa?"
                                             className="w-24 bg-transparent border-none text-[16px] font-semibold text-gray-900 outline-none placeholder-gray-300 focus:ring-0 p-0 text-right mr-3"
                                             required
@@ -1257,7 +1254,6 @@
                                     </div>
                                 </div>
 
-                                {/* Kelas `min-h-0` juga ditambahkan di sini untuk berjaga-jaga */}
                                 <div 
                                     className={`flex-1 min-h-0 overflow-y-auto p-5 pb-20 transition-all duration-150 ${isAnimatingMonth ? `opacity-0 ${monthAnimDir > 0 ? '-translate-y-4' : 'translate-y-4'}` : 'opacity-100 translate-y-0'}`}
                                     onTouchEnd={(e) => {
