@@ -1520,4 +1520,1526 @@
         root.render(<App />);
     </script>
 </body>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Budget Tracker</title>
+    
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- Babel for in-browser JSX compilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Splitting.js for Splash Screen Text Animations -->
+    <link rel="stylesheet" href="https://unpkg.com/splitting/dist/splitting.css" />
+    <link rel="stylesheet" href="https://unpkg.com/splitting/dist/splitting-cells.css" />
+    <script src="https://unpkg.com/splitting/dist/splitting.min.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+            background-color: #f9fafb;
+            margin: 0;
+            padding: 0;
+            overscroll-behavior-y: none;
+        }
+        @keyframes breathe {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.25; }
+        }
+        .animate-breathe {
+            animation: breathe 3s ease-in-out infinite;
+        }
+        
+        /* Memastikan selalu ada jarak aman minimal 16px di bawah, agar tidak terlalu mepet layar */
+        .pb-safe {
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
+        }
+        
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Mencegah iOS Safari auto-zoom saat tap input */
+        input[type="text"], input[type="number"] {
+            font-size: 16px !important;
+        }
+
+        /* ==========================================
+           RECEIPT MASK STYLE
+           ========================================== */
+        .receipt-mask {
+            background-color: #ffffff;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            --mask: 
+                conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% 100% / 12px 51% repeat-x,
+                conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) 50% 0% / 12px 51% repeat-x;
+            -webkit-mask: var(--mask);
+                    mask: var(--mask);
+        }
+
+        /* ==========================================
+           SPLASH SCREEN ANIMATION STYLES
+           ========================================== */
+        @import url("https://fonts.googleapis.com/css2?family=Heebo:wght@900&display=swap");
+
+        :root {
+            --splash-duration: 4s;
+            --splash-wave-duration: calc(var(--splash-duration) * 0.25);
+            --splash-text-in-delay: calc(var(--splash-duration) * 0.275);
+            --splash-text-in-duration: calc(var(--splash-duration) * 0.1);
+            --splash-easing: cubic-bezier(0.5, 0, 0.5, 1);
+            --splash-dot-color: #6ee16e;
+            --splash-dot-color-dark: #2f6b2f;
+        }
+
+        .splash-wrapper {
+            height: 100dvh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+            color: black;
+            font-family: "Heebo", sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 99999;
+        }
+
+        .splash-wrapper * {
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .splash-container {
+            display: grid;
+            align-items: center;
+            justify-items: center;
+        }
+        .splash-container > * {
+            grid-area: 1 / 1;
+        }
+
+        .splash-title {
+            font-size: 10vmin;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+        }
+
+        .splash-title .char {
+            --char-offset: calc(var(--char-index) - (var(--char-total) / 2));
+            --distance-percent: calc(var(--char-index) / var(--char-total));
+            --delay: calc(var(--splash-text-in-delay) + (0.25s * (1 - var(--distance-percent))));
+            
+            animation: splash-text-in var(--splash-text-in-duration) var(--splash-easing) var(--delay) backwards;
+            transform-origin: center 1em;
+            display: inline-block;
+        }
+
+        @keyframes splash-text-in {
+            0% {
+                opacity: 0;
+                transform: translateX(calc(-0.4em * var(--char-offset))) scale(0);
+            }
+            90% {
+                transform: translateX(0em) scale(1.1);
+            }
+        }
+
+        .splash-title .char[data-char="u"],
+        .splash-title .char[data-char="U"] {
+            visibility: hidden;
+            --squish-scale: 0.6;
+            --squish-y: 10%;
+        }
+
+        .splash-title .char[data-char="u"]::before,
+        .splash-title .char[data-char="U"]::before {
+            content: attr(data-char);
+            visibility: visible;
+            position: absolute;
+            left: 0;
+            top: 0;
+            animation: splash-text-squish var(--splash-duration) var(--splash-easing) forwards;
+            color: black;
+            transform-origin: center 1em;
+        }
+
+        @keyframes splash-text-squish {
+            47.5%, 52.5% { transform: none; }
+            50% { transform: translateY(calc(var(--squish-y) * 1)) scaleY(calc(var(--squish-scale) * 1)); }
+        }
+
+        .splash-title .char:last-child {
+            animation: splash-text-in var(--splash-text-in-duration) var(--splash-easing) var(--delay) backwards,
+                       splash-text-bonk var(--splash-duration) var(--splash-easing) forwards;
+        }
+
+        @keyframes splash-text-bonk {
+            80%, 85%, to { transform: none; }
+            82% { transform: translateX(-20%); }
+        }
+
+        .splash-dot {
+            font-size: 5vmin;
+            width: 1em;
+            height: 1em;
+            animation: splash-dot var(--splash-duration) var(--splash-easing) both;
+            z-index: 10;
+        }
+
+        .splash-dot-inner {
+            animation: splash-dot-inner var(--splash-duration) var(--splash-easing) both;
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            display: grid;
+            align-items: center;
+            justify-items: center;
+        }
+        .splash-dot-inner > * {
+            grid-area: 1 / 1;
+        }
+
+        .splash-dot-wave {
+            width: 200%;
+            height: 200%;
+            fill: var(--splash-dot-color);
+            animation: splash-wave-in var(--splash-wave-duration) var(--splash-easing);
+            --offset-x: -110%;
+        }
+
+        @keyframes splash-wave-in {
+            0% { transform: translateY(100%) translateX(var(--offset-x)); }
+            70% { transform: translateY(30%) translateX(0%); }
+        }
+
+        .splash-dot-wave.background {
+            fill: var(--splash-dot-color-dark);
+            animation-duration: calc(0.95 * var(--splash-wave-duration));
+            --offset-x: 110%;
+        }
+
+        @keyframes splash-dot {
+            from { opacity: 0; transform: scale(3); }
+            10% { opacity: 1; transform: scale(3); }
+            15% { transform: scale(3) translateY(0.5em) scaleY(1.5); }
+            20% { transform: scale(1) translateY(-300%); }
+            30% { transform: translateY(1em) scaleY(0.5); }
+            40% { transform: translateY(-400%); }
+            50% { transform: translateY(-1em); }
+            53% { transform: translateY(-300%); }
+            56% { transform: translateY(-1em); }
+            59% { transform: translateY(-200%); }
+            62% { transform: translateY(1em); }
+            80%, 90%, to { transform: translateY(calc(0.2em + 2px)); }
+        }
+
+        @keyframes splash-dot-inner {
+            from, 45% { transform: none; }
+            70% { transform: translateX(7em); animation-timing-function: cubic-bezier(0.5, 0, 1, 0); }
+            80% { transform: translateX(5.3em); animation-timing-function: var(--splash-easing); }
+            83%, to { transform: translateX(5.4em); }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel" data-type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const { useState, useEffect, useMemo, useRef } = React;
+
+        // ==========================================
+        // FIREBASE SETUP & CONFIGURATION
+        // ==========================================
+        const firebaseConfig = {
+          apiKey: "AIzaSyBw17dqJnfsfHwmXTIgs03_BsrNbHR3IhE",
+          authDomain: "budget-dd989.firebaseapp.com",
+          projectId: "budget-dd989",
+          storageBucket: "budget-dd989.firebasestorage.app",
+          messagingSenderId: "92916317003",
+          appId: "1:92916317003:web:e7889919c1567b319c46ce",
+          measurementId: "G-5SK1M5868K"
+        };
+        
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'budget-tracker';
+        
+        let app, auth, db;
+        if (firebaseConfig && firebaseConfig.projectId) {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        }
+
+        // --- Embedded SVG Icons ---
+        const Wallet = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a8 8 0 0 1-5 7H5a2 2 0 0 1-2-2V4"/></svg>;
+        const Calendar = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
+        const Trash2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>;
+        const TrendingDown = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>;
+        const TrendingUp = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>;
+        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>;
+        const Sunrise = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 2v8M4.93 10.93l1.41 1.41M2 18h2M20 18h2M19.07 10.93l-1.41 1.41M22 22H2M8 6l4-4 4 4M16 18a4 4 0 0 0-8 0"/></svg>;
+        const Sunset = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 10v12M4.93 10.93l1.41 1.41M2 18h2M20 18h2M19.07 10.93l-1.41 1.41M22 22H2M16 5l-4-4-4 4M16 18a4 4 0 0 0-8 0"/></svg>;
+        const Moon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>;
+        const Settings = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>;
+        const X = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18M6 6l12 12"/></svg>;
+        const ChevronLeft = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m15 18-6-6 6-6"/></svg>;
+        const ChevronUp = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m18 15-6-6-6 6"/></svg>;
+        const ChevronDown = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m6 9 6 6 6-6"/></svg>;
+        const User = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
+        const Edit3 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>;
+        const LogOut = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>;
+        const GoogleIcon = ({ className }) => <svg className={className} viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>;
+        const Plus = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
+
+        const generateUUID = () => {
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+            return Math.random().toString(36).substring(2) + Date.now().toString(36);
+        };
+
+        // --- SPLASH SCREEN COMPONENT ---
+        const SplashScreen = ({ onComplete }) => {
+            const titleRef = useRef(null);
+            const [isFading, setIsFading] = useState(false);
+
+            useEffect(() => {
+                if (window.Splitting && titleRef.current) {
+                    window.Splitting({ target: titleRef.current, by: 'chars' });
+                }
+
+                const fadeTimer = setTimeout(() => setIsFading(true), 4000); 
+                const removeTimer = setTimeout(() => onComplete(), 4500); 
+
+                return () => {
+                    clearTimeout(fadeTimer);
+                    clearTimeout(removeTimer);
+                };
+            }, [onComplete]);
+
+            return (
+                <div 
+                    className="splash-wrapper" 
+                    onClick={() => {
+                        setIsFading(true);
+                        setTimeout(onComplete, 500);
+                    }}
+                    style={{ 
+                        opacity: isFading ? 0 : 1, 
+                        transition: 'opacity 0.5s ease-in-out',
+                        cursor: 'pointer'
+                    }}
+                >
+                    <div className="splash-container">
+                        <h1 className="splash-title" ref={titleRef}>JeStudios</h1>
+                        <div className="splash-dot">
+                            <div className="splash-dot-inner">
+                                <svg className="splash-dot-wave background" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+                                    <path d="M799.09 90s11.04 0 0 0c-80.714 0-79.621-90-200-90-120.377 0-118.607 90-200 90-81.391 0-81.215-90-200-90C80.308 0 78.68 89.29-.91 90c-6.946.062 0 0 0 0v510h800V90z" />
+                                </svg>
+                                <svg className="splash-dot-wave foreground" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+                                    <path d="M799.09 90s11.04 0 0 0c-80.714 0-79.621-90-200-90-120.377 0-118.607 90-200 90-81.391 0-81.215-90-200-90C80.308 0 78.68 89.29-.91 90c-6.946.062 0 0 0 0v510h800V90z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const AnimatedNumber = ({ value, formatFn }) => {
+            const [displayValue, setDisplayValue] = useState(value);
+            const startValue = useRef(value);
+
+            useEffect(() => {
+                let start = displayValue;
+                let end = value;
+                if (start === end) return;
+
+                const duration = 2500; 
+                let startTime = null;
+                let animationFrame;
+
+                const animate = (time) => {
+                    if (!startTime) startTime = time;
+                    const progress = Math.min((time - startTime) / duration, 1);
+                    const easeOut = 1 - Math.pow(1 - progress, 3);
+                    const currentVal = start + (end - start) * easeOut;
+                    
+                    setDisplayValue(currentVal);
+
+                    if (progress < 1) {
+                        animationFrame = requestAnimationFrame(animate);
+                    } else {
+                        setDisplayValue(end);
+                        startValue.current = end;
+                    }
+                };
+
+                animationFrame = requestAnimationFrame(animate);
+                return () => cancelAnimationFrame(animationFrame);
+            }, [value]);
+
+            return <span>{formatFn(Math.round(displayValue))}</span>;
+        };
+
+        const App = () => {
+            const [appSettings, setAppSettings] = useState(() => {
+                const saved = localStorage.getItem('app_settings');
+                const parsed = saved ? JSON.parse(saved) : { showTime: false, showRecap: true, showSplash: true };
+                if (parsed.showSplash === undefined) parsed.showSplash = true;
+                return parsed;
+            });
+            const [isSplashVisible, setIsSplashVisible] = useState(appSettings.showSplash);
+
+            // --- Cloud States ---
+            const [firebaseUser, setFirebaseUser] = useState(null);
+            const [uid, setUid] = useState(''); 
+            const [loginStep, setLoginStep] = useState('auth'); 
+
+            // --- Persistent States ---
+            const [budget, setBudget] = useState(0);
+            const [paycheckDate, setPaycheckDate] = useState('');
+            const [expenses, setExpenses] = useState([]);
+            const [userProfile, setUserProfile] = useState({ name: '', age: '', gender: '', promiseBudget: '', createdAt: '' });
+
+            // --- UI States ---
+            const [setupStep, setSetupStep] = useState(1);
+            const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+            const [isEditMode, setIsEditMode] = useState(false);
+            const [isScrolled, setIsScrolled] = useState(false);
+            const [currentView, setCurrentView] = useState('home'); 
+            
+            // Calendar Animation States
+            const [currentMonthOffset, setCurrentMonthOffset] = useState(0); 
+            const [isAnimatingMonth, setIsAnimatingMonth] = useState(false);
+            const [monthAnimDir, setMonthAnimDir] = useState(0); // -1 = up, 1 = down
+            
+            // Interaction States
+            const [touchStartPos, setTouchStartPos] = useState({x: null, y: null});
+            const [touchEndPos, setTouchEndPos] = useState({x: null, y: null});
+            
+            // Input States
+            const [amountInput, setAmountInput] = useState('');
+            const [descInput, setDescInput] = useState('');
+            const descInputRef = useRef(null); 
+
+            // Modal States
+            const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
+            const [incomeAmountInput, setIncomeAmountInput] = useState('');
+            const [incomeDescInput, setIncomeDescInput] = useState('');
+            const [selectedDateReceipt, setSelectedDateReceipt] = useState(null);
+            
+            const [isTakingDamage, setIsTakingDamage] = useState(false);
+            const [isHealing, setIsHealing] = useState(false);
+            const prevRemainingRef = useRef(0);
+
+            // ==========================================
+            // FIREBASE INIT & AUTHENTICATION LISTENER
+            // ==========================================
+            useEffect(() => {
+                if (!auth) {
+                    setLoginStep('login');
+                    return;
+                }
+
+                const unsubscribe = onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        setFirebaseUser(user);
+                        await handleUserAuthSuccess(user);
+                    } else {
+                        setFirebaseUser(null);
+                        setLoginStep('login');
+                    }
+                });
+                return () => unsubscribe();
+            }, []);
+
+            // ==========================================
+            // DATA FETCHING
+            // ==========================================
+            useEffect(() => {
+                if (!firebaseUser || loginStep !== 'app' || !uid || !db) return;
+                
+                const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid);
+                const unsubscribe = onSnapshot(expensesRef, (snapshot) => {
+                    const exps = [];
+                    snapshot.forEach(doc => exps.push({ id: doc.id, ...doc.data() }));
+                    exps.sort((a,b) => new Date(b.date) - new Date(a.date));
+                    setExpenses(exps);
+                }, (err) => console.error("Error fetching expenses:", err));
+
+                return () => unsubscribe();
+            }, [firebaseUser, loginStep, uid]);
+
+            // Save Settings
+            useEffect(() => {
+                localStorage.setItem('app_settings', JSON.stringify(appSettings));
+            }, [appSettings]);
+
+            // Track account creation date safely
+            const createdAtTime = useMemo(() => {
+                if (userProfile.createdAt) return new Date(userProfile.createdAt).setHours(0,0,0,0);
+                if (expenses.length > 0) {
+                    const oldest = expenses.reduce((old, exp) => new Date(exp.date) < new Date(old.date) ? exp : old, expenses[0]);
+                    return new Date(oldest.date).setHours(0,0,0,0);
+                }
+                return new Date().setHours(0,0,0,0);
+            }, [userProfile.createdAt, expenses]);
+
+            // Calculate Totals considering Income
+            const totalSpent = useMemo(() => {
+                return expenses.reduce((sum, exp) => {
+                    if (exp.type === 'income') return sum - exp.amount;
+                    return sum + exp.amount;
+                }, 0);
+            }, [expenses]);
+
+            const remaining = budget - totalSpent;
+            // Visual percentage caps at 100%
+            const percentage = budget > 0 ? Math.max(0, Math.min(100, (remaining / budget) * 100)) : 0;
+
+            useEffect(() => {
+                if (remaining < prevRemainingRef.current) {
+                    setIsTakingDamage(true);
+                    setTimeout(() => setIsTakingDamage(false), 500); 
+                } else if (remaining > prevRemainingRef.current && prevRemainingRef.current > 0) {
+                    setIsHealing(true);
+                    setTimeout(() => setIsHealing(false), 500);
+                }
+                prevRemainingRef.current = remaining;
+            }, [remaining]);
+
+            const formatNumber = (amount) => {
+                return new Intl.NumberFormat('id-ID').format(amount);
+            };
+
+            const formatCompact = (amount) => {
+                if (amount === 0) return '0';
+                return new Intl.NumberFormat('id-ID', { notation: "compact", maximumFractionDigits: 1 }).format(amount);
+            };
+
+            const getBarStyle = () => {
+                if (percentage === 0) return { backgroundColor: 'transparent', width: '0%' };
+                const hue = percentage > 50 ? 120 : (percentage / 50) * 120;
+                return { 
+                    backgroundColor: `hsl(${hue}, 85%, 45%)`,
+                    width: `${percentage}%`,
+                    transitionDuration: '2.5s'
+                };
+            };
+
+            const getTimeIcon = (dateStr) => {
+                const hour = new Date(dateStr).getHours();
+                if (hour >= 5 && hour < 11) return <Sunrise className="w-4 h-4 text-gray-400" />;
+                if (hour >= 11 && hour < 15) return <Sun className="w-4 h-4 text-gray-400" />;
+                if (hour >= 15 && hour < 18) return <Sunset className="w-4 h-4 text-gray-400" />;
+                return <Moon className="w-4 h-4 text-gray-400" />;
+            };
+
+            const { daysLeft, dailyAllowance, yesterdayRecap } = useMemo(() => {
+                const today = new Date();
+                const actualPaycheckDate = paycheckDate || 1;
+                let nextPaycheck = new Date(today.getFullYear(), today.getMonth(), actualPaycheckDate);
+                if (today.getDate() >= actualPaycheckDate) {
+                    nextPaycheck.setMonth(nextPaycheck.getMonth() + 1);
+                }
+                const diffTime = nextPaycheck.getTime() - today.getTime();
+                let days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (days === 0) days = 1; 
+                
+                const allowance = remaining / days;
+
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                const yesterdayExpenses = expenses.filter(exp => new Date(exp.date).toDateString() === yesterday.toDateString());
+                
+                // Net spent yesterday
+                const yesterdaySpent = yesterdayExpenses.filter(e => e.type !== 'income').reduce((s, e) => s + e.amount, 0);
+                const yesterdayIncome = yesterdayExpenses.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
+                const yesterdayNetTotal = yesterdaySpent - yesterdayIncome;
+                
+                const yesterdayRemaining = remaining + yesterdayNetTotal;
+                const yesterdayAllowance = yesterdayRemaining / (days + 1);
+                const diff = yesterdayAllowance - yesterdayNetTotal;
+                
+                let recap = null;
+                if (yesterdaySpent > 0 || diff < 0) {
+                    recap = { overspent: diff < 0, amount: Math.abs(diff), spent: yesterdayNetTotal };
+                }
+
+                return { daysLeft: days, dailyAllowance: allowance, yesterdayRecap: recap };
+            }, [remaining, paycheckDate, expenses]);
+
+            const groupedExpenses = useMemo(() => {
+                const groups = {};
+                // Exclude income from the visual grouped records
+                expenses.filter(exp => exp.type !== 'income').forEach(exp => {
+                    const date = new Date(exp.date);
+                    const today = new Date();
+                    const yesterday = new Date(today);
+                    yesterday.setDate(yesterday.getDate() - 1);
+
+                    let dateKey = date.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' });
+                    if (date.toDateString() === today.toDateString()) dateKey = "Hari Ini";
+                    else if (date.toDateString() === yesterday.toDateString()) dateKey = "Kemarin";
+
+                    if (!groups[dateKey]) groups[dateKey] = [];
+                    groups[dateKey].push(exp);
+                });
+                return groups;
+            }, [expenses]);
+
+            const calendarData = useMemo(() => {
+                const today = new Date();
+                const targetMonth = new Date(today.getFullYear(), today.getMonth() + currentMonthOffset, 1);
+                const year = targetMonth.getFullYear();
+                const month = targetMonth.getMonth();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                const days = [];
+                let totalSpentMonth = 0;
+
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const currentDate = new Date(year, month, d);
+                    const dateStr = currentDate.toDateString();
+                    
+                    const dayExps = expenses.filter(exp => new Date(exp.date).toDateString() === dateStr);
+                    
+                    const dailyExpense = dayExps.filter(e => e.type !== 'income').reduce((sum, exp) => sum + exp.amount, 0);
+                    const dailyIncome = dayExps.filter(e => e.type === 'income').reduce((sum, exp) => sum + exp.amount, 0);
+                    
+                    totalSpentMonth += dailyExpense;
+                    
+                    const isFuture = currentDate.setHours(0,0,0,0) > new Date().setHours(0,0,0,0);
+                    const isBeforeStart = currentDate.setHours(0,0,0,0) < createdAtTime;
+                    const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+
+                    days.push({
+                        day: d,
+                        dailyExpense,
+                        dailyIncome,
+                        isToday,
+                        isFuture,
+                        isBeforeStart,
+                        dateStr: currentDate.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
+                    });
+                }
+
+                return { 
+                    days, 
+                    monthName: targetMonth.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
+                    totalSpentMonth 
+                };
+            }, [expenses, currentMonthOffset, createdAtTime]);
+
+            // ==========================================
+            // ACTIONS (Auth & Settings)
+            // ==========================================
+            const handleUserAuthSuccess = async (user) => {
+                try {
+                    setUid(user.uid);
+
+                    if (!db) { 
+                        setLoginStep('setup');
+                        return; 
+                    }
+
+                    const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', user.uid);
+                    const snap = await getDoc(profileRef);
+
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        setUserProfile(data);
+                        setBudget(data.budget || 0);
+                        setPaycheckDate(data.paycheckDate || 1);
+                        setLoginStep('app');
+                    } else {
+                        setUserProfile(prev => ({...prev, name: user.displayName || ''}));
+                        setLoginStep('setup');
+                    }
+                } catch (error) {
+                    console.error("Auth Data Error:", error);
+                    alert("Koneksi ditolak oleh Firebase. Pastikan Rules Anda mengizinkan proses Read/Write untuk user yang telah login.");
+                    setLoginStep('setup'); 
+                }
+            };
+
+            const handleGoogleLogin = async () => {
+                if (!auth) return;
+                const provider = new GoogleAuthProvider();
+                try {
+                    setLoginStep('auth');
+                    await signInWithPopup(auth, provider);
+                } catch (error) {
+                    alert("Gagal login dengan Google: " + error.message);
+                    setLoginStep('login');
+                }
+            };
+
+            const handleGuestLogin = async () => {
+                if (!auth) return;
+                try {
+                    setLoginStep('auth');
+                    await signInAnonymously(auth);
+                } catch (error) {
+                    alert("Gagal login sebagai guest: " + error.message);
+                    setLoginStep('login');
+                }
+            };
+
+            const handleLogout = async () => {
+                if (auth) await signOut(auth);
+                setFirebaseUser(null);
+                setUid('');
+                setLoginStep('login');
+                setIsSettingsOpen(false);
+            };
+
+            const handleFinishSetup = async (e) => {
+                e.preventDefault();
+                const actualPaycheckDate = paycheckDate || 1;
+                const finalProfile = { 
+                    ...userProfile, 
+                    budget, 
+                    paycheckDate: actualPaycheckDate,
+                    createdAt: userProfile.createdAt || new Date().toISOString()
+                };
+                
+                if (db) {
+                    try {
+                        const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', uid);
+                        await setDoc(profileRef, finalProfile);
+                    } catch (e) {
+                        console.error("Set Doc Error:", e);
+                    }
+                }
+                setLoginStep('app');
+            };
+
+            const handleUpdateProfile = async () => {
+                if (db) {
+                    const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', uid);
+                    await setDoc(profileRef, { ...userProfile, budget, paycheckDate });
+                } 
+            };
+
+            // ==========================================
+            // DATA MUTATION
+            // ==========================================
+            const handleAddExpense = async (e) => {
+                e.preventDefault();
+                const amount = parseFloat(amountInput.replace(/\D/g, ''));
+                if (amount > 0 && descInput.trim()) {
+                    const newExpense = {
+                        amount: amount,
+                        description: descInput.trim(),
+                        date: new Date().toISOString(),
+                        type: 'expense'
+                    };
+                    
+                    if (db) {
+                        const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid);
+                        await addDoc(expensesRef, newExpense);
+                    }
+                    
+                    setAmountInput('');
+                    setDescInput('');
+                    
+                    // Hilangkan fokus agar keyboard HP menutup
+                    if (document.activeElement) {
+                        document.activeElement.blur();
+                    }
+                    
+                    // Force browser untuk mengembalikan layar yang terdorong keyboard
+                    setTimeout(() => {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 50);
+                }
+            };
+
+            const handleAddIncome = async (e) => {
+                e.preventDefault();
+                const amount = parseFloat(incomeAmountInput.replace(/\D/g, ''));
+                if (amount > 0 && incomeDescInput.trim()) {
+                    const newIncome = {
+                        amount: amount,
+                        description: incomeDescInput.trim(),
+                        date: new Date().toISOString(),
+                        type: 'income'
+                    };
+                    
+                    if (db) {
+                        const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid);
+                        await addDoc(expensesRef, newIncome);
+                    }
+                    
+                    setIncomeAmountInput('');
+                    setIncomeDescInput('');
+                    setIsIncomeModalOpen(false);
+                }
+            };
+
+            const handleEditExpense = async (id, field, value) => {
+                if (db) {
+                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid, id);
+                    await updateDoc(ref, { [field]: value });
+                }
+            };
+
+            const handleDeleteExpense = async (id) => {
+                if (db) {
+                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid, id);
+                    await deleteDoc(ref);
+                }
+            };
+
+            // ==========================================
+            // SWIPE & SCROLL LOGIC
+            // ==========================================
+            const onTouchStart = (e) => {
+                setTouchEndPos({x: null, y: null});
+                setTouchStartPos({ x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY });
+            };
+            const onTouchMove = (e) => {
+                setTouchEndPos({ x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY });
+            };
+            const onTouchEnd = () => {
+                if (!touchStartPos.x || !touchEndPos.x) return;
+                const distanceX = touchStartPos.x - touchEndPos.x;
+                const distanceY = touchStartPos.y - touchEndPos.y;
+                
+                // Allow Horizontal swipe globally to switch panes
+                if (Math.abs(distanceX) > Math.abs(distanceY) && Math.abs(distanceX) > 50) {
+                    if (distanceX > 0 && currentView === 'home') setCurrentView('calendar'); 
+                    else if (distanceX < 0 && currentView === 'calendar') setCurrentView('home'); 
+                }
+            };
+
+            const changeMonth = (delta) => {
+                const today = new Date();
+                const nextTarget = new Date(today.getFullYear(), today.getMonth() + currentMonthOffset + delta, 1);
+                const startLimit = new Date(createdAtTime);
+                startLimit.setDate(1);
+                startLimit.setHours(0,0,0,0);
+
+                // Prevent user from navigating to months prior to their app start date
+                if (nextTarget < startLimit) return;
+
+                setMonthAnimDir(delta); // -1 for Up (Previous Month), 1 for Down (Next Month)
+                setIsAnimatingMonth(true);
+                setTimeout(() => {
+                    setCurrentMonthOffset(prev => prev + delta);
+                    setIsAnimatingMonth(false);
+                }, 150);
+            };
+
+            const isStartMonth = () => {
+                const today = new Date();
+                const currentRenderedMonth = new Date(today.getFullYear(), today.getMonth() + currentMonthOffset, 1);
+                const startLimit = new Date(createdAtTime);
+                startLimit.setDate(1);
+                startLimit.setHours(0,0,0,0);
+                return currentRenderedMonth <= startLimit;
+            };
+
+            const onCalendarTouchEnd = (e) => {
+                if (!touchStartPos.y || !touchEndPos.y) return;
+                const distanceX = touchStartPos.x - touchEndPos.x;
+                const distanceY = touchStartPos.y - touchEndPos.y;
+                if (Math.abs(distanceY) > Math.abs(distanceX) && Math.abs(distanceY) > 50) {
+                    if (distanceY > 0) changeMonth(1);
+                    else changeMonth(-1);
+                }
+            };
+
+            const handleHomeScroll = (e) => {
+                const scrollTop = e.target.scrollTop;
+                if (scrollTop > 80 && !isScrolled) setIsScrolled(true);
+                else if (scrollTop < 20 && isScrolled) setIsScrolled(false);
+            };
+
+            const isDangerBadge = dailyAllowance <= 20000;
+
+            // ==========================================
+            // RENDER LOGIC
+            // ==========================================
+            if (isSplashVisible) {
+                return <SplashScreen onComplete={() => setIsSplashVisible(false)} />;
+            }
+
+            if (loginStep === 'auth') {
+                return (
+                    <div className="fixed inset-0 bg-white flex flex-col items-center justify-center p-6 z-50">
+                        <div className="w-12 h-12 border-4 border-green-200 border-t-green-500 rounded-full animate-spin"></div>
+                        <p className="mt-4 text-gray-500 font-medium">Connecting...</p>
+                    </div>
+                );
+            }
+
+            if (loginStep === 'login') {
+                return (
+                    <div className="fixed inset-0 bg-white flex flex-col items-center justify-center p-6 text-center z-50">
+                        <div className="w-full max-w-sm space-y-6">
+                            <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                                <User className="w-10 h-10 text-green-600" />
+                            </div>
+                            <h1 className="text-3xl font-bold text-gray-900 mb-2">Selamat Datang</h1>
+                            <p className="text-gray-500 mb-10">Pilih metode masuk untuk melanjutkan.</p>
+
+                            <div className="space-y-4">
+                                <button 
+                                    onClick={handleGoogleLogin}
+                                    className="w-full py-4 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-2xl font-bold text-lg transition-transform active:scale-95 flex items-center justify-center shadow-sm"
+                                >
+                                    <GoogleIcon className="w-6 h-6 mr-3" />
+                                    Lanjutkan dengan Google
+                                </button>
+                                
+                                <div className="flex items-center py-2">
+                                    <div className="flex-grow border-t border-gray-200"></div>
+                                    <span className="px-4 text-sm text-gray-400 font-medium">atau</span>
+                                    <div className="flex-grow border-t border-gray-200"></div>
+                                </div>
+
+                                <button 
+                                    type="button"
+                                    onClick={handleGuestLogin}
+                                    className="w-full py-4 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-2xl font-bold text-lg transition-transform active:scale-95 shadow-sm"
+                                >
+                                    Lanjut sebagai Guest
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (loginStep === 'setup') {
+                return (
+                    <div className="fixed inset-0 bg-white flex flex-col items-center justify-center p-6 z-50">
+                        <div className="w-full max-w-md space-y-6">
+                        
+                        {setupStep === 1 && (
+                            <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                                <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">Siapa nama kamu?</h1>
+                                <div className="space-y-4">
+                                    <input
+                                        type="text"
+                                        value={userProfile.name}
+                                        onChange={(e) => setUserProfile({...userProfile, name: e.target.value})}
+                                        placeholder="Nama Asli"
+                                        className="w-full px-5 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-blue-500 outline-none transition-colors"
+                                    />
+                                    <input
+                                        type="number"
+                                        value={userProfile.age}
+                                        onChange={(e) => setUserProfile({...userProfile, age: e.target.value})}
+                                        placeholder="Umur"
+                                        className="w-full px-5 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-blue-500 outline-none transition-colors"
+                                    />
+                                    <div className="flex gap-4 pt-4">
+                                        <button 
+                                            onClick={() => setUserProfile({...userProfile, gender: 'male'})}
+                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'male' ? 'border-blue-500 bg-blue-50 scale-105' : 'border-gray-200 bg-white hover:bg-gray-50'}`}
+                                        >
+                                            👨
+                                        </button>
+                                        <button 
+                                            onClick={() => setUserProfile({...userProfile, gender: 'female'})}
+                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'female' ? 'border-pink-500 bg-pink-50 scale-105' : 'border-gray-200 bg-white hover:bg-gray-50'}`}
+                                        >
+                                            👩
+                                        </button>
+                                    </div>
+                                    <button 
+                                        onClick={() => setSetupStep(2)}
+                                        disabled={!userProfile.name || !userProfile.age || !userProfile.gender}
+                                        className="w-full mt-8 py-4 bg-gray-900 text-white rounded-2xl font-bold text-lg disabled:opacity-50"
+                                    >
+                                        Lanjut
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {setupStep === 2 && (
+                            <form onSubmit={handleFinishSetup} className="animate-in fade-in slide-in-from-right-4 duration-300">
+                                <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                                    <Wallet className="w-8 h-8 text-green-600" />
+                                </div>
+                                <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">Tentukan Anggaranmu</h1>
+                                
+                                <div className="space-y-4">
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">Rp</span>
+                                        <input
+                                            type="text"
+                                            value={budget ? budget.toLocaleString('id-ID') : ''}
+                                            onChange={(e) => {
+                                                const rawValue = e.target.value.replace(/\D/g, '');
+                                                setBudget(rawValue ? parseFloat(rawValue) : 0);
+                                            }}
+                                            placeholder="Total Anggaran Bulanan"
+                                            className="w-full pl-12 pr-4 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-green-500 outline-none"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">Rp</span>
+                                        <input
+                                            type="text"
+                                            value={userProfile.promiseBudget ? parseInt(userProfile.promiseBudget).toLocaleString('id-ID') : ''}
+                                            onChange={(e) => {
+                                                const rawValue = e.target.value.replace(/\D/g, '');
+                                                setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
+                                            }}
+                                            placeholder="Target Pengeluaran Harian"
+                                            className="w-full pl-12 pr-4 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-green-500 outline-none"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"><Calendar className="w-5 h-5"/></span>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max="31"
+                                            value={paycheckDate}
+                                            onChange={(e) => setPaycheckDate(e.target.value ? parseInt(e.target.value) : '')}
+                                            placeholder="Tanggal Gajian (1-31)"
+                                            className="w-full pl-12 pr-4 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-green-500 outline-none"
+                                            required
+                                        />
+                                    </div>
+
+                                    <button type="submit" className="w-full py-4 bg-green-500 hover:bg-green-600 text-white rounded-2xl font-bold text-lg active:scale-95 transition-all mt-6">
+                                        Mulai Bertahan
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="fixed inset-0 bg-gray-50 flex justify-center w-full overflow-hidden">
+                    <div 
+                        className="w-full max-w-md h-full bg-gray-50 relative shadow-sm overflow-hidden flex flex-col"
+                    >
+                        {/* Sliding Wrapper */}
+                        <div 
+                            className="flex w-[200%] flex-1 transition-transform duration-300 ease-in-out"
+                            style={{ transform: currentView === 'calendar' ? 'translateX(-50%)' : 'translateX(0)' }}
+                            onTouchStart={onTouchStart}
+                            onTouchMove={onTouchMove}
+                            onTouchEnd={onTouchEnd}
+                        >
+                        
+                            {/* ======================= HOME PANE ======================= */}
+                            <div className="w-1/2 h-full bg-white flex flex-col relative overflow-hidden">
+                                
+                                <button 
+                                    onClick={() => setCurrentView('calendar')}
+                                    className="absolute top-6 right-5 z-50 p-2 opacity-40 hover:opacity-100 transition-opacity"
+                                >
+                                    <Calendar className="w-6 h-6 text-gray-800" strokeWidth={1.5} />
+                                </button>
+
+                                <div className="flex-1 overflow-y-auto" onScroll={handleHomeScroll}>
+                                    {/* UNIFIED ANIMATED STICKY HEADER */}
+                                    <div className={`sticky top-0 w-full bg-white/95 backdrop-blur-md z-40 px-5 transition-all duration-500 ease-in-out ${
+                                        isScrolled ? 'pt-6 pb-3' : 'pt-16 pb-12'
+                                    }`}>
+                                        <div className="flex flex-col items-center justify-center w-full relative">
+                                            <span className={`font-bold text-gray-400 uppercase tracking-widest transition-all duration-500 ${
+                                                isScrolled ? 'text-[10px] mb-0.5' : 'text-sm mb-2'
+                                            }`}>Sisa Uang</span>
+                                            
+                                            <div className={`flex items-start justify-center text-gray-900 transition-all duration-500 ${
+                                                isScrolled ? 'mb-3' : 'mb-6'
+                                            }`}>
+                                                <span className={`font-medium text-gray-500 transition-all duration-500 ${
+                                                isScrolled ? 'text-xs mt-1 mr-1' : 'text-xl mt-3 mr-1'
+                                                }`}>Rp</span>
+                                                <span className={`font-bold tracking-tight leading-none transition-all duration-500 ${
+                                                isScrolled ? 'text-3xl' : 'text-[5rem]'
+                                                }`}>
+                                                <AnimatedNumber value={remaining} formatFn={formatNumber} />
+                                                </span>
+                                            </div>
+                                            
+                                            <div className={`overflow-hidden transition-all duration-500 flex justify-center items-center gap-2 ${
+                                                isScrolled ? 'max-h-0 opacity-0 mb-0' : 'max-h-20 opacity-100 mb-8'
+                                            }`}>
+                                                <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center border shadow-sm transition-colors ${
+                                                isDangerBadge ? 'bg-red-50 text-red-700 border-red-200 animate-pulse' : 'bg-gray-100 text-gray-600 border-gray-200'
+                                                }`}>
+                                                    <span>Sisa {daysLeft} hari</span>
+                                                    <span className={`mx-2 ${isDangerBadge ? "text-red-300" : "text-gray-300"}`}>•</span>
+                                                    <span>Rp {formatNumber(Math.max(0, dailyAllowance))} / hari</span>
+                                                </div>
+                                                <button onClick={(e) => { e.stopPropagation(); setIsIncomeModalOpen(true); }} className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-500 transition-colors shadow-sm">
+                                                    <Plus className="w-4 h-4" strokeWidth={3} />
+                                                </button>
+                                            </div>
+
+                                            <div 
+                                                className={`relative w-full bg-gray-200 border-[3px] ring-1 transition-all duration-500 ease-in-out ${
+                                                percentage === 0 ? 'border-red-600 animate-pulse bg-red-50 ring-red-200' : 'border-white ring-gray-200'
+                                                } ${isScrolled ? 'h-6 rounded-md' : 'h-14 rounded-xl'}`}
+                                                style={{ boxShadow: isHealing ? '0 0 25px 6px rgba(34, 197, 94, 0.8)' : (percentage === 100 ? (isScrolled ? '0 0 15px 3px rgba(34, 197, 94, 0.4)' : '0 0 25px 6px rgba(34, 197, 94, 0.5)') : 'none') }}
+                                            >
+                                                <div className={`absolute inset-0 overflow-hidden transition-all duration-500 ${isScrolled ? 'rounded-[4px]' : 'rounded-[9px]'}`}>
+                                                    <div className={`absolute inset-0 bg-red-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isTakingDamage ? 'opacity-60' : 'opacity-0'}`}></div>
+                                                    <div className={`absolute inset-0 bg-green-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isHealing ? 'opacity-60' : 'opacity-0'}`}></div>
+                                                    <div className={`h-full transition-all relative z-0`} style={getBarStyle()}>
+                                                        <div className="absolute inset-0 bg-white animate-breathe"></div>
+                                                    </div>
+                                                </div>
+
+                                                <div className={`absolute inset-0 flex items-center justify-start z-10 pointer-events-none transition-all duration-500 ${
+                                                isScrolled ? 'px-2' : 'px-4'
+                                                }`}>
+                                                <span className={`font-bold transition-all duration-500 ${
+                                                    percentage < 40 && percentage > 0 ? 'text-gray-800' : percentage === 0 ? 'text-red-500' : 'text-white/90'
+                                                } ${isScrolled ? 'text-[10px]' : 'text-sm'}`}>
+                                                    {percentage.toFixed(0)}%
+                                                </span>
+                                                </div>
+                                            </div>
+
+                                            {appSettings.showRecap && yesterdayRecap && (
+                                                <div className={`overflow-hidden transition-all duration-500 w-full ${
+                                                isScrolled ? 'max-h-20 opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'
+                                                }`}>
+                                                    <div className={`p-2 rounded-lg text-[11px] font-bold flex items-center justify-between border ${
+                                                        yesterdayRecap.overspent 
+                                                        ? 'bg-red-50 border-red-200 text-red-700 animate-pulse' 
+                                                        : 'bg-green-50 border-green-200 text-green-700'
+                                                    }`}>
+                                                        <span>{yesterdayRecap.overspent ? '⚠️ Kemarin Overbudget!' : '🔥 Kemarin Hemat!'}</span>
+                                                        <span>{yesterdayRecap.overspent ? '-' : '+'} Rp {formatNumber(yesterdayRecap.amount)}</span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className={`absolute top-full left-0 w-full h-8 bg-gradient-to-b from-white/95 to-transparent pointer-events-none transition-opacity duration-500 ${isScrolled ? 'opacity-100' : 'opacity-0'}`}></div>
+                                    </div>
+
+                                    {/* CONTENT (Expenses List) */}
+                                    <div className="px-5 pt-4 flex-1 pb-10">
+                                        {Object.keys(groupedExpenses).length === 0 ? (
+                                        <div className="text-center py-10 text-gray-300 flex flex-col items-center">
+                                            <p className="font-semibold text-sm">Belum ada pengeluaran.</p>
+                                        </div>
+                                        ) : (
+                                        <div className="pb-6">
+                                            {Object.entries(groupedExpenses).map(([dateStr, dayExpenses]) => (
+                                            <div key={dateStr} className="mb-6 relative">
+                                                <div className="py-1 mb-2">
+                                                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{dateStr}</span>
+                                                </div>
+                                                
+                                                <div className="space-y-3 mt-1">
+                                                {dayExpenses.map((expense) => {
+                                                    const pctNum = parseFloat(((expense.amount / budget) * 100).toFixed(1));
+                                                    return (
+                                                    <div key={expense.id} className="group flex items-center py-1 relative animate-in fade-in duration-300">
+                                                        {appSettings.showTime && (
+                                                        <div className="flex-shrink-0 mr-2 opacity-50" title={new Date(expense.date).toLocaleTimeString()}>
+                                                            {getTimeIcon(expense.date)}
+                                                        </div>
+                                                        )}
+                                                        <div className="text-[15px] text-gray-700 font-normal">
+                                                            {expense.description}
+                                                        </div>
+                                                        <div className="flex-1 border-b border-dashed border-gray-300 mx-2 mt-2 opacity-60"></div>
+                                                        <div className="flex items-center">
+                                                            <span className="text-[11px] text-gray-400 mr-0.5">Rp</span>
+                                                            <span className="text-[15px] text-gray-900 font-medium tracking-tight mr-2">
+                                                                {formatNumber(expense.amount)}
+                                                            </span>
+                                                            <div className="bg-red-100/80 px-1.5 py-0.5 rounded flex items-center justify-center min-w-[34px]">
+                                                                <span className="text-[10px] font-bold text-red-800">
+                                                                    {pctNum}%
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    );
+                                                })}
+                                                </div>
+                                            </div>
+                                            ))}
+                                        </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* FAST ZERO-FRICTION INPUT FORM (Fixed at bottom of Home Pane) */}
+                                <div className="shrink-0 w-full bg-white border-t border-gray-200 pb-safe z-50 shadow-[0_-5px_15px_rgba(0,0,0,0.03)]">
+                                    <form onSubmit={handleAddExpense} className="flex px-4 py-3 items-center">
+                                        <input
+                                            type="text"
+                                            value={descInput}
+                                            onChange={(e) => setDescInput(e.target.value)}
+                                            onBlur={() => setTimeout(() => window.scrollTo(0, 0), 50)}
+                                            placeholder="Buat apa uangnya?"
+                                            className="flex-1 bg-transparent border-none text-[16px] font-normal text-gray-800 outline-none placeholder-gray-400 focus:ring-0 p-0"
+                                            required
+                                        />
+                                        <div className="w-px h-6 bg-gray-200 mx-3"></div>
+                                        <input
+                                            type="text"
+                                            value={amountInput}
+                                            onChange={(e) => {
+                                                const rawValue = e.target.value.replace(/\D/g, '');
+                                                setAmountInput(rawValue ? parseInt(rawValue).toLocaleString('id-ID') : '');
+                                            }}
+                                            onBlur={() => setTimeout(() => window.scrollTo(0, 0), 50)}
+                                            placeholder="Berapa?"
+                                            className="w-24 bg-transparent border-none text-[16px] font-semibold text-gray-900 outline-none placeholder-gray-300 focus:ring-0 p-0 text-right mr-3"
+                                            required
+                                        />
+                                        <button 
+                                            type="submit"
+                                            disabled={!amountInput || !descInput.trim()}
+                                            className="bg-red-700 hover:bg-red-800 text-white rounded-full p-2.5 flex items-center justify-center transition-all active:scale-90 disabled:opacity-30 disabled:active:scale-100"
+                                        >
+                                            <TrendingDown className="w-4 h-4" strokeWidth={3} />
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            {/* ===================== CALENDAR PANE ===================== */}
+                            <div className="w-1/2 h-full bg-gray-50 flex flex-col relative overflow-hidden shadow-[inset_10px_0_20px_-10px_rgba(0,0,0,0.05)]">
+                                <div className="shrink-0 flex items-center justify-between px-4 pt-6 pb-4 bg-white border-b border-gray-100 shadow-sm z-10">
+                                    <div className="flex items-center">
+                                        <button 
+                                            onClick={() => setCurrentView('home')} 
+                                            className="p-2 -ml-2 bg-gray-100 rounded-full text-gray-500 hover:text-gray-900 transition-colors"
+                                        >
+                                            <ChevronLeft className="w-6 h-6" />
+                                        </button>
+                                        <div className="ml-3">
+                                            <h2 className="text-lg font-bold text-gray-900 whitespace-nowrap">{calendarData.monthName}</h2>
+                                        </div>
+                                    </div>
+                                    <div className="text-right flex items-center gap-1">
+                                        <button onClick={() => changeMonth(-1)} disabled={isStartMonth()} className={`p-2 rounded-full transition-colors ${isStartMonth() ? 'text-gray-300 opacity-50 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-100'}`}><ChevronUp className="w-5 h-5" /></button>
+                                        <button onClick={() => changeMonth(1)} className="p-2 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"><ChevronDown className="w-5 h-5" /></button>
+                                        <div className="w-px h-5 bg-gray-200 mx-1"></div>
+                                        <button onClick={() => setIsSettingsOpen(true)} className="p-2 rounded-full text-gray-500 hover:bg-gray-100 transition-colors">
+                                            <Settings className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div 
+                                    className={`flex-1 overflow-y-auto p-5 pb-20 transition-all duration-150 ${isAnimatingMonth ? `opacity-0 ${monthAnimDir > 0 ? '-translate-y-4' : 'translate-y-4'}` : 'opacity-100 translate-y-0'}`}
+                                    onTouchEnd={(e) => {
+                                        e.stopPropagation(); 
+                                        onCalendarTouchEnd(e);
+                                    }}
+                                >
+                                    <div className="grid grid-cols-5 gap-2">
+                                        {calendarData.days.map((dayObj, i) => {
+                                            const targetBudget = parseInt(userProfile.promiseBudget) || 0;
+                                            let bgClass = '';
+                                            let textClass = '';
+                                            let showData = false;
+
+                                            if (dayObj.isFuture || dayObj.isBeforeStart) {
+                                                bgClass = 'bg-gray-100 border-gray-200 opacity-50';
+                                                textClass = 'text-gray-400';
+                                            } else {
+                                                showData = true;
+                                                if (dayObj.dailyExpense <= targetBudget) {
+                                                    bgClass = 'bg-green-50 border-green-200';
+                                                    textClass = 'text-green-600';
+                                                } else {
+                                                    bgClass = 'bg-red-50 border-red-200';
+                                                    textClass = 'text-red-600';
+                                                }
+                                            }
+
+                                            return (
+                                                <div 
+                                                    key={i} 
+                                                    onClick={() => showData && setSelectedDateReceipt(dayObj)}
+                                                    className={`flex flex-col items-center justify-center p-2 rounded-xl border ${
+                                                    dayObj.isToday ? 'ring-2 ring-blue-400 ring-offset-1' : ''
+                                                    } ${bgClass} ${showData ? 'cursor-pointer active:scale-95 transition-transform' : ''} aspect-square relative`}
+                                                >
+                                                    <span className={`absolute top-1.5 left-2 text-[10px] font-bold ${textClass}`}>
+                                                        {dayObj.day}
+                                                    </span>
+                                                    {showData && (
+                                                        <div className="mt-3 flex flex-col items-center leading-tight">
+                                                            {dayObj.dailyExpense > 0 && <span className={`text-[10px] sm:text-[11px] font-bold tracking-tight text-red-600`}>-{formatCompact(dayObj.dailyExpense)}</span>}
+                                                            {dayObj.dailyIncome > 0 && <span className={`text-[10px] sm:text-[11px] font-bold tracking-tight text-green-600`}>+{formatCompact(dayObj.dailyIncome)}</span>}
+                                                            {dayObj.dailyExpense === 0 && dayObj.dailyIncome === 0 && <span className={`text-[11px] font-bold tracking-tight text-gray-400`}>0</span>}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                    <div className="mt-8 p-5 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-center">
+                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Pengeluaran Bulan Ini</p>
+                                        <p className="text-2xl font-bold text-red-600 tracking-tight">-Rp {formatNumber(calendarData.totalSpentMonth)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* INCOME MODAL OVERLAY */}
+                        {isIncomeModalOpen && (
+                            <div className="fixed inset-0 z-[110] bg-black/60 flex items-center justify-center p-6 animate-in fade-in duration-200" onClick={() => setIsIncomeModalOpen(false)}>
+                                <div className="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden flex flex-col p-6" onClick={e => e.stopPropagation()}>
+                                    <h3 className="font-bold text-gray-900 text-xl mb-4 text-center">Tambah Pemasukan</h3>
+                                    <form onSubmit={handleAddIncome} className="space-y-4">
+                                        <input
+                                            type="text"
+                                            value={incomeDescInput}
+                                            onChange={(e) => setIncomeDescInput(e.target.value)}
+                                            placeholder="Sumber Dana (mis. Bonus, Jual Barang)"
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-green-500 outline-none text-[16px]"
+                                            required
+                                        />
+                                        <div className="relative">
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">Rp</span>
+                                            <input
+                                                type="text"
+                                                value={incomeAmountInput}
+                                                onChange={(e) => {
+                                                    const rawValue = e.target.value.replace(/\D/g, '');
+                                                    setIncomeAmountInput(rawValue ? parseInt(rawValue).toLocaleString('id-ID') : '');
+                                                }}
+                                                placeholder="Jumlah Pemasukan"
+                                                className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-green-500 outline-none text-[16px] font-semibold text-green-700"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="flex gap-3 pt-2">
+                                            <button type="button" onClick={() => setIsIncomeModalOpen(false)} className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold">Batal</button>
+                                            <button type="submit" disabled={!incomeAmountInput || !incomeDescInput.trim()} className="flex-1 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold disabled:opacity-50">Tambah</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* RECEIPT MODAL */}
+                        {selectedDateReceipt && (
+                            <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-6 animate-in fade-in duration-200 drop-shadow-2xl" onClick={() => setSelectedDateReceipt(null)}>
+                                <div className="w-full max-w-sm" onClick={e => e.stopPropagation()}>
+                                    <div className="receipt-mask bg-white w-full flex flex-col max-h-[80vh]">
+                                        <div className="bg-white p-5 border-b border-gray-300 border-dashed shrink-0 rounded-t-xl">
+                                            <h3 className="text-center font-bold text-gray-800 uppercase tracking-widest text-lg">List Pengeluaran</h3>
+                                            <p className="text-center text-xs text-gray-500 mt-1 font-semibold">{selectedDateReceipt.dateStr}</p>
+                                        </div>
+                                        <div className="p-5 flex-1 overflow-y-auto bg-white">
+                                            {(() => {
+                                                const dayExps = expenses.filter(exp => 
+                                                    exp.type !== 'income' && 
+                                                    new Date(exp.date).toDateString() === new Date(new Date().getFullYear(), new Date().getMonth() + currentMonthOffset, selectedDateReceipt.day).toDateString()
+                                                );
+                                                return (
+                                                    <div className="space-y-3">
+                                                        {dayExps.map(exp => (
+                                                            <div key={exp.id} className="flex justify-between items-center text-sm">
+                                                                <span className="text-gray-600">{exp.description}</span>
+                                                                <span className="font-semibold text-gray-800">
+                                                                    -Rp {formatNumber(exp.amount)}
+                                                                </span>
+                                                            </div>
+                                                        ))}
+                                                        {dayExps.length === 0 && <p className="text-center text-gray-400 text-sm italic">Tidak ada transaksi.</p>}
+                                                    </div>
+                                                );
+                                            })()}
+                                        </div>
+                                        <div className="bg-white p-5 pt-0 shrink-0">
+                                            <div className="border-t border-gray-200 pt-4 flex justify-between font-bold text-sm">
+                                                <span className="text-gray-600">Total Pengeluaran</span>
+                                                <span className="text-red-600">-Rp {formatNumber(selectedDateReceipt.dailyExpense)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* SETTINGS / EDIT MODAL */}
+                        {isSettingsOpen && (
+                        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                            <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+                                
+                                <div className="flex justify-between items-center mb-6 shrink-0">
+                                    <h2 className="text-xl font-bold text-gray-900">{isEditMode ? 'Edit Transaksi' : 'Pengaturan'}</h2>
+                                    <button onClick={() => { setIsSettingsOpen(false); setIsEditMode(false); }} className="p-1 text-gray-400 hover:text-gray-800">
+                                        <X className="w-6 h-6" />
+                                    </button>
+                                </div>
+
+                                <div className="overflow-y-auto flex-1 pb-4">
+                                    {isEditMode ? (
+                                        <div className="space-y-3">
+                                            <button onClick={() => setIsEditMode(false)} className="text-blue-500 text-sm font-semibold mb-2 flex items-center"><ChevronLeft className="w-4 h-4 mr-1"/> Kembali</button>
+                                            {expenses.map(exp => (
+                                                <div key={exp.id} className="flex gap-2 items-center bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                                                    <input 
+                                                        defaultValue={exp.description} 
+                                                        onBlur={(e) => handleEditExpense(exp.id, 'description', e.target.value)} 
+                                                        className="flex-1 w-full bg-white px-2 py-1.5 rounded border border-gray-200 text-[16px]"
+                                                    />
+                                                    <input 
+                                                        defaultValue={exp.amount} 
+                                                        onBlur={(e) => handleEditExpense(exp.id, 'amount', parseInt(e.target.value.replace(/\D/g, '')) || 0)} 
+                                                        className={`w-20 bg-white px-2 py-1.5 rounded border border-gray-200 text-[16px] font-semibold ${exp.type === 'income' ? 'text-green-600' : 'text-gray-800'}`}
+                                                    />
+                                                    <button onClick={() => handleDeleteExpense(exp.id)} className="p-2 text-red-500 hover:bg-red-50 rounded">
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {expenses.length === 0 && <p className="text-center text-gray-400 text-sm mt-4">Kosong</p>}
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            <div className="bg-[#e0f2fe] rounded-lg p-5 shadow-sm border border-[#bae6fd] relative flex items-center">
+                                                <div className="flex-1 pr-4 z-10">
+                                                    <h3 className="font-bold text-[#0c4a6e] text-xl leading-tight mb-0.5 uppercase tracking-wide">
+                                                        {userProfile.name}
+                                                    </h3>
+                                                    <p className="text-[#0284c7] text-sm font-semibold mb-3">
+                                                        {userProfile.age} Tahun
+                                                    </p>
+                                                    <p className="text-[#0369a1] text-[10px] font-medium italic leading-snug border-l-2 border-[#7dd3fc] pl-2">
+                                                        "Aku adalah orang yang disiplin finansial"
+                                                    </p>
+                                                </div>
+                                                <div className="w-[60px] h-[80px] rounded-md bg-white border-2 border-[#bae6fd] flex items-center justify-center text-4xl shadow-sm z-10 shrink-0">
+                                                    {userProfile.gender === 'male' ? '👨' : '👩'}
+                                                </div>
+                                            </div>
+
+                                            <button 
+                                                onClick={() => setIsEditMode(true)}
+                                                className="w-full flex items-center justify-center gap-2 py-3 bg-blue-50 text-blue-600 rounded-xl font-semibold border border-blue-100 hover:bg-blue-100 transition-colors"
+                                            >
+                                                <Edit3 className="w-4 h-4" /> Edit Data Transaksi
+                                            </button>
+
+                                            <label className="flex flex-col p-3 bg-gray-50 rounded-xl">
+                                                <span className="text-sm font-semibold text-gray-700 mb-1">Target Harian (Rp)</span>
+                                                <input 
+                                                    type="text"
+                                                    value={userProfile.promiseBudget ? parseInt(userProfile.promiseBudget).toLocaleString('id-ID') : ''}
+                                                    onChange={(e) => {
+                                                        const rawValue = e.target.value.replace(/\D/g, '');
+                                                        setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
+                                                    }}
+                                                    onBlur={handleUpdateProfile}
+                                                    className="px-3 py-2 border border-gray-200 rounded-lg text-[16px] bg-white"
+                                                    placeholder="Contoh: 50000"
+                                                />
+                                            </label>
+
+                                            <label className="flex flex-col p-3 bg-gray-50 rounded-xl">
+                                                <span className="text-sm font-semibold text-gray-700 mb-1">Anggaran Bulanan (Rp)</span>
+                                                <input 
+                                                    type="text"
+                                                    value={budget ? parseInt(budget).toLocaleString('id-ID') : ''}
+                                                    onChange={(e) => {
+                                                        const rawValue = e.target.value.replace(/\D/g, '');
+                                                        setBudget(rawValue ? parseInt(rawValue) : 0);
+                                                    }}
+                                                    onBlur={handleUpdateProfile}
+                                                    className="px-3 py-2 border border-gray-200 rounded-lg text-[16px] bg-white"
+                                                />
+                                            </label>
+
+                                            <label className="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer">
+                                                <span className="text-sm font-semibold text-gray-700">Tampilkan Splash Screen</span>
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={appSettings.showSplash}
+                                                    onChange={(e) => setAppSettings({...appSettings, showSplash: e.target.checked})}
+                                                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+                                                />
+                                            </label>
+
+                                            <label className="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer">
+                                                <span className="text-sm font-semibold text-gray-700">Tampilkan Waktu</span>
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={appSettings.showTime}
+                                                    onChange={(e) => setAppSettings({...appSettings, showTime: e.target.checked})}
+                                                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+                                                />
+                                            </label>
+                                            
+                                            <label className="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer mb-6">
+                                                <span className="text-sm font-semibold text-gray-700">Peringatan Harian</span>
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={appSettings.showRecap}
+                                                    onChange={(e) => setAppSettings({...appSettings, showRecap: e.target.checked})}
+                                                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+                                                />
+                                            </label>
+
+                                            <button 
+                                                onClick={handleLogout}
+                                                className="w-full flex items-center justify-center gap-2 py-3 bg-red-50 text-red-600 rounded-xl font-bold border border-red-100 hover:bg-red-100 transition-colors mt-8"
+                                            >
+                                                <LogOut className="w-5 h-5" /> Log Out
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
 </html>
