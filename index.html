@@ -38,9 +38,12 @@
         .animate-breathe {
             animation: breathe 3s ease-in-out infinite;
         }
+        
+        /* Memastikan selalu ada jarak aman minimal 16px di bawah, agar tidak terlalu mepet layar */
         .pb-safe {
-            padding-bottom: env(safe-area-inset-bottom, 20px);
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
         }
+        
         ::-webkit-scrollbar {
             display: none;
         }
@@ -744,7 +747,16 @@
                     
                     setAmountInput('');
                     setDescInput('');
-                    if (document.activeElement) document.activeElement.blur();
+                    
+                    // Hilangkan fokus agar keyboard HP menutup
+                    if (document.activeElement) {
+                        document.activeElement.blur();
+                    }
+                    
+                    // Force browser untuk mengembalikan layar yang terdorong keyboard
+                    setTimeout(() => {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 50);
                 }
             };
 
@@ -1172,12 +1184,13 @@
                                 </div>
 
                                 {/* FAST ZERO-FRICTION INPUT FORM (Fixed at bottom of Home Pane) */}
-                                <div className="shrink-0 w-full bg-white border-t border-gray-100 pb-safe z-50">
+                                <div className="shrink-0 w-full bg-white border-t border-gray-200 pb-safe z-50 shadow-[0_-5px_15px_rgba(0,0,0,0.03)]">
                                     <form onSubmit={handleAddExpense} className="flex px-4 py-3 items-center">
                                         <input
                                             type="text"
                                             value={descInput}
                                             onChange={(e) => setDescInput(e.target.value)}
+                                            onBlur={() => setTimeout(() => window.scrollTo(0, 0), 50)}
                                             placeholder="Buat apa uangnya?"
                                             className="flex-1 bg-transparent border-none text-[16px] font-normal text-gray-800 outline-none placeholder-gray-400 focus:ring-0 p-0"
                                             required
@@ -1190,6 +1203,7 @@
                                                 const rawValue = e.target.value.replace(/\D/g, '');
                                                 setAmountInput(rawValue ? parseInt(rawValue).toLocaleString('id-ID') : '');
                                             }}
+                                            onBlur={() => setTimeout(() => window.scrollTo(0, 0), 50)}
                                             placeholder="Berapa?"
                                             className="w-24 bg-transparent border-none text-[16px] font-semibold text-gray-900 outline-none placeholder-gray-300 focus:ring-0 p-0 text-right mr-3"
                                             required
