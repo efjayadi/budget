@@ -7,262 +7,101 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Budget Tracker</title>
     
-    <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ffffff">
     <link rel="apple-touch-icon" href="icon-192.png">
     
-    <!-- React & ReactDOM -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    
-    <!-- Babel for in-browser JSX compilation -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <!-- Splitting.js for Splash Screen Text Animations -->
     <link rel="stylesheet" href="https://unpkg.com/splitting/dist/splitting.css" />
     <link rel="stylesheet" href="https://unpkg.com/splitting/dist/splitting-cells.css" />
     <script src="https://unpkg.com/splitting/dist/splitting.min.js"></script>
 
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: { theme: 'var(--theme-color)' }
+                }
+            }
+        }
+    </script>
     
     <style>
-        /* Mengunci layar agar tidak bounce oleh Safari/Chrome */
+        :root {
+            --theme-color: #22c55e; /* Default Green */
+            --theme-color-dark: #16a34a;
+        }
+
         html, body {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             overflow: hidden;
             width: 100%; height: 100%;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f9fafb;
             touch-action: pan-x pan-y;
             overscroll-behavior-y: none;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
+            transition: background-color 0.3s;
         }
+        
+        body { background-color: #f9fafb; }
+        html.dark body { background-color: #030712; }
 
-        #root {
-            width: 100%; height: 100%;
-        }
+        #root { width: 100%; height: 100%; }
 
         @keyframes breathe {
             0%, 100% { opacity: 0; }
             50% { opacity: 0.25; }
         }
-        .animate-breathe {
-            animation: breathe 3s ease-in-out infinite;
-        }
+        .animate-breathe { animation: breathe 3s ease-in-out infinite; }
         
-        /* Animasi iOS Dropdown PWA */
         @keyframes slideDownNotif {
             from { transform: translateY(-150%); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-        .animate-slide-down-notif {
-            animation: slideDownNotif 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
+        .animate-slide-down-notif { animation: slideDownNotif 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* Jarak aman layar bawah iPhone/Android */
-        .pb-safe {
-            padding-bottom: max(16px, env(safe-area-inset-bottom));
-        }
+        .pb-safe { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+        ::-webkit-scrollbar { display: none; }
         
-        ::-webkit-scrollbar {
-            display: none;
-        }
-        
-        /* Mencegah iOS Safari auto-zoom saat tap input */
-        input[type="text"], input[type="number"] {
-            font-size: 16px !important;
-        }
+        input[type="text"], input[type="number"], select { font-size: 16px !important; }
 
-        /* ==========================================
-           RECEIPT MASK STYLE
-           ========================================== */
         .receipt-mask {
-            background-color: #ffffff;
-            padding-top: 12px;
-            padding-bottom: 12px;
+            padding-top: 12px; padding-bottom: 12px;
             --mask: 
                 conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% 100% / 12px 51% repeat-x,
                 conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) 50% 0% / 12px 51% repeat-x;
-            -webkit-mask: var(--mask);
-                    mask: var(--mask);
+            -webkit-mask: var(--mask); mask: var(--mask);
         }
 
-        /* ==========================================
-           SPLASH SCREEN ANIMATION STYLES
-           ========================================== */
+        /* SPLASH SCREEN STYLES */
         @import url("https://fonts.googleapis.com/css2?family=Heebo:wght@900&display=swap");
-
-        :root {
-            --splash-duration: 4s;
-            --splash-wave-duration: calc(var(--splash-duration) * 0.25);
-            --splash-text-in-delay: calc(var(--splash-duration) * 0.275);
-            --splash-text-in-duration: calc(var(--splash-duration) * 0.1);
-            --splash-easing: cubic-bezier(0.5, 0, 0.5, 1);
-            --splash-dot-color: #6ee16e;
-            --splash-dot-color-dark: #2f6b2f;
-        }
-
-        .splash-wrapper {
-            height: 100dvh;
-            width: 100vw;
-            margin: 0;
-            padding: 0;
-            background: #ffffff;
-            color: black;
-            font-family: "Heebo", sans-serif;
-            overflow: hidden;
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 99999;
-        }
-
-        .splash-wrapper * {
-            box-sizing: border-box;
-            position: relative;
-        }
-
-        .splash-container {
-            display: grid;
-            align-items: center;
-            justify-items: center;
-        }
-        .splash-container > * {
-            grid-area: 1 / 1;
-        }
-
-        .splash-title {
-            font-size: 10vmin;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            font-weight: bold;
-        }
-
-        .splash-title .char {
-            --char-offset: calc(var(--char-index) - (var(--char-total) / 2));
-            --distance-percent: calc(var(--char-index) / var(--char-total));
-            --delay: calc(var(--splash-text-in-delay) + (0.25s * (1 - var(--distance-percent))));
-            
-            animation: splash-text-in var(--splash-text-in-duration) var(--splash-easing) var(--delay) backwards;
-            transform-origin: center 1em;
-            display: inline-block;
-        }
-
-        @keyframes splash-text-in {
-            0% {
-                opacity: 0;
-                transform: translateX(calc(-0.4em * var(--char-offset))) scale(0);
-            }
-            90% {
-                transform: translateX(0em) scale(1.1);
-            }
-        }
-
-        .splash-title .char[data-char="u"],
-        .splash-title .char[data-char="U"] {
-            visibility: hidden;
-            --squish-scale: 0.6;
-            --squish-y: 10%;
-        }
-
-        .splash-title .char[data-char="u"]::before,
-        .splash-title .char[data-char="U"]::before {
-            content: attr(data-char);
-            visibility: visible;
-            position: absolute;
-            left: 0;
-            top: 0;
-            animation: splash-text-squish var(--splash-duration) var(--splash-easing) forwards;
-            color: black;
-            transform-origin: center 1em;
-        }
-
-        @keyframes splash-text-squish {
-            47.5%, 52.5% { transform: none; }
-            50% { transform: translateY(calc(var(--squish-y) * 1)) scaleY(calc(var(--squish-scale) * 1)); }
-        }
-
-        .splash-title .char:last-child {
-            animation: splash-text-in var(--splash-text-in-duration) var(--splash-easing) var(--delay) backwards,
-                       splash-text-bonk var(--splash-duration) var(--splash-easing) forwards;
-        }
-
-        @keyframes splash-text-bonk {
-            80%, 85%, to { transform: none; }
-            82% { transform: translateX(-20%); }
-        }
-
-        .splash-dot {
-            font-size: 5vmin;
-            width: 1em;
-            height: 1em;
-            animation: splash-dot var(--splash-duration) var(--splash-easing) both;
-            z-index: 10;
-        }
-
-        .splash-dot-inner {
-            animation: splash-dot-inner var(--splash-duration) var(--splash-easing) both;
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            border-radius: 50%;
-            overflow: hidden;
-            display: grid;
-            align-items: center;
-            justify-items: center;
-        }
-        .splash-dot-inner > * {
-            grid-area: 1 / 1;
-        }
-
-        .splash-dot-wave {
-            width: 200%;
-            height: 200%;
-            fill: var(--splash-dot-color);
-            animation: splash-wave-in var(--splash-wave-duration) var(--splash-easing);
-            --offset-x: -110%;
-        }
-
-        @keyframes splash-wave-in {
-            0% { transform: translateY(100%) translateX(var(--offset-x)); }
-            70% { transform: translateY(30%) translateX(0%); }
-        }
-
-        .splash-dot-wave.background {
-            fill: var(--splash-dot-color-dark);
-            animation-duration: calc(0.95 * var(--splash-wave-duration));
-            --offset-x: 110%;
-        }
-
-        @keyframes splash-dot {
-            from { opacity: 0; transform: scale(3); }
-            10% { opacity: 1; transform: scale(3); }
-            15% { transform: scale(3) translateY(0.5em) scaleY(1.5); }
-            20% { transform: scale(1) translateY(-300%); }
-            30% { transform: translateY(1em) scaleY(0.5); }
-            40% { transform: translateY(-400%); }
-            50% { transform: translateY(-1em); }
-            53% { transform: translateY(-300%); }
-            56% { transform: translateY(-1em); }
-            59% { transform: translateY(-200%); }
-            62% { transform: translateY(1em); }
-            80%, 90%, to { transform: translateY(calc(0.2em + 2px)); }
-        }
-
-        @keyframes splash-dot-inner {
-            from, 45% { transform: none; }
-            70% { transform: translateX(7em); animation-timing-function: cubic-bezier(0.5, 0, 1, 0); }
-            80% { transform: translateX(5.3em); animation-timing-function: var(--splash-easing); }
-            83%, to { transform: translateX(5.4em); }
-        }
+        .splash-wrapper { height: 100dvh; width: 100vw; margin: 0; padding: 0; background: #ffffff; color: black; font-family: "Heebo", sans-serif; overflow: hidden; display: flex; flex-direction: row; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; z-index: 99999; }
+        html.dark .splash-wrapper { background: #030712; color: white; }
+        .splash-wrapper * { box-sizing: border-box; position: relative; }
+        .splash-container { display: grid; align-items: center; justify-items: center; }
+        .splash-container > * { grid-area: 1 / 1; }
+        .splash-title { font-size: 10vmin; margin: 0; font-family: Arial, sans-serif; font-weight: bold; }
+        .splash-title .char { --char-offset: calc(var(--char-index) - (var(--char-total) / 2)); --distance-percent: calc(var(--char-index) / var(--char-total)); --delay: calc(1.1s + (0.25s * (1 - var(--distance-percent)))); animation: splash-text-in 0.4s cubic-bezier(0.5, 0, 0.5, 1) var(--delay) backwards; transform-origin: center 1em; display: inline-block; }
+        @keyframes splash-text-in { 0% { opacity: 0; transform: translateX(calc(-0.4em * var(--char-offset))) scale(0); } 90% { transform: translateX(0em) scale(1.1); } }
+        .splash-title .char[data-char="u"], .splash-title .char[data-char="U"] { visibility: hidden; --squish-scale: 0.6; --squish-y: 10%; }
+        .splash-title .char[data-char="u"]::before, .splash-title .char[data-char="U"]::before { content: attr(data-char); visibility: visible; position: absolute; left: 0; top: 0; animation: splash-text-squish 4s cubic-bezier(0.5, 0, 0.5, 1) forwards; color: inherit; transform-origin: center 1em; }
+        @keyframes splash-text-squish { 47.5%, 52.5% { transform: none; } 50% { transform: translateY(calc(var(--squish-y) * 1)) scaleY(calc(var(--squish-scale) * 1)); } }
+        .splash-title .char:last-child { animation: splash-text-in 0.4s cubic-bezier(0.5, 0, 0.5, 1) var(--delay) backwards, splash-text-bonk 4s cubic-bezier(0.5, 0, 0.5, 1) forwards; }
+        @keyframes splash-text-bonk { 80%, 85%, to { transform: none; } 82% { transform: translateX(-20%); } }
+        .splash-dot { font-size: 5vmin; width: 1em; height: 1em; animation: splash-dot 4s cubic-bezier(0.5, 0, 0.5, 1) both; z-index: 10; }
+        .splash-dot-inner { animation: splash-dot-inner 4s cubic-bezier(0.5, 0, 0.5, 1) both; content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; overflow: hidden; display: grid; align-items: center; justify-items: center; }
+        .splash-dot-inner > * { grid-area: 1 / 1; }
+        .splash-dot-wave { width: 200%; height: 200%; fill: var(--theme-color); animation: splash-wave-in 1s cubic-bezier(0.5, 0, 0.5, 1); --offset-x: -110%; }
+        @keyframes splash-wave-in { 0% { transform: translateY(100%) translateX(var(--offset-x)); } 70% { transform: translateY(30%) translateX(0%); } }
+        .splash-dot-wave.background { fill: var(--theme-color-dark); animation-duration: 0.95s; --offset-x: 110%; }
+        @keyframes splash-dot { from { opacity: 0; transform: scale(3); } 10% { opacity: 1; transform: scale(3); } 15% { transform: scale(3) translateY(0.5em) scaleY(1.5); } 20% { transform: scale(1) translateY(-300%); } 30% { transform: translateY(1em) scaleY(0.5); } 40% { transform: translateY(-400%); } 50% { transform: translateY(-1em); } 53% { transform: translateY(-300%); } 56% { transform: translateY(-1em); } 59% { transform: translateY(-200%); } 62% { transform: translateY(1em); } 80%, 90%, to { transform: translateY(calc(0.2em + 2px)); } }
+        @keyframes splash-dot-inner { from, 45% { transform: none; } 70% { transform: translateX(7em); animation-timing-function: cubic-bezier(0.5, 0, 1, 0); } 80% { transform: translateX(5.3em); animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); } 83%, to { transform: translateX(5.4em); } }
     </style>
 </head>
 <body>
@@ -275,9 +114,6 @@
 
         const { useState, useEffect, useMemo, useRef } = React;
 
-        // ==========================================
-        // FIREBASE SETUP & CONFIGURATION
-        // ==========================================
         const firebaseConfig = {
           apiKey: "AIzaSyBw17dqJnfsfHwmXTIgs03_BsrNbHR3IhE",
           authDomain: "budget-dd989.firebaseapp.com",
@@ -287,7 +123,6 @@
           appId: "1:92916317003:web:e7889919c1567b319c46ce",
           measurementId: "G-5SK1M5868K"
         };
-        
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'budget-tracker';
         
         let app, auth, db;
@@ -297,94 +132,90 @@
             db = getFirestore(app);
         }
 
-        // --- Embedded SVG Icons ---
-        const Wallet = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a8 8 0 0 1-5 7H5a2 2 0 0 1-2-2V4"/></svg>;
-        const CalendarIcon = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
-        const Trash2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>;
-        const TrendingDown = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>;
-        const TrendingUp = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>;
-        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>;
-        const Sunrise = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 2v8M4.93 10.93l1.41 1.41M2 18h2M20 18h2M19.07 10.93l-1.41 1.41M22 22H2M8 6l4-4 4 4M16 18a4 4 0 0 0-8 0"/></svg>;
-        const Sunset = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 10v12M4.93 10.93l1.41 1.41M2 18h2M20 18h2M19.07 10.93l-1.41 1.41M22 22H2M16 5l-4-4-4 4M16 18a4 4 0 0 0-8 0"/></svg>;
-        const Moon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>;
-        const SettingsIcon = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>;
-        const XIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18M6 6l12 12"/></svg>;
-        const ChevronLeft = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m15 18-6-6 6-6"/></svg>;
-        const ChevronUp = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m18 15-6-6-6 6"/></svg>;
-        const ChevronDown = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m6 9 6 6 6-6"/></svg>;
-        const Edit3 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>;
-        const LogOutIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>;
+        // --- ICONS ---
+        const Wallet = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a8 8 0 0 1-5 7H5a2 2 0 0 1-2-2V4"/></svg>;
+        const CalendarIcon = ({ className, strokeWidth }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
+        const Trash2 = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>;
+        const TrendingDown = ({ className, strokeWidth }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>;
+        const TrendingUp = ({ className, strokeWidth }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>;
+        const SettingsIcon = ({ className, strokeWidth }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>;
+        const XIcon = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18M6 6l12 12"/></svg>;
+        const ChevronLeft = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m15 18-6-6 6-6"/></svg>;
+        const ChevronUp = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m18 15-6-6-6 6"/></svg>;
+        const ChevronDown = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m6 9 6 6 6-6"/></svg>;
+        const Edit3 = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>;
+        const LogOutIcon = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>;
         const GoogleIcon = ({ className }) => <svg className={className} viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>;
-        const Plus = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
-        const DownloadIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+        const Plus = ({ className, strokeWidth }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
+        const DownloadIcon = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+        const ImageInfo = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>;
 
-        // --- PWA INSTALL PROMPT COMPONENT ---
+        const generateUUID = () => {
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+            return Math.random().toString(36).substring(2) + Date.now().toString(36);
+        };
+
+        // --- EXTRACT DOMINANT COLOR FROM IMAGE ---
+        const extractDominantColor = (imageUrl) => {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width; canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    try {
+                        const data = ctx.getImageData(0,0, canvas.width, canvas.height).data;
+                        let r=0, g=0, b=0, count=0;
+                        for(let i=0; i<data.length; i+=16) { // skip pixels for speed
+                            r+=data[i]; g+=data[i+1]; b+=data[i+2]; count++;
+                        }
+                        resolve(`rgb(${~~(r/count)}, ${~~(g/count)}, ${~~(b/count)})`);
+                    } catch(e) { resolve('#22c55e'); }
+                };
+                img.onerror = () => resolve('#22c55e');
+                img.src = imageUrl;
+            });
+        };
+
         const PWANotif = ({ show, onInstall, onClose }) => {
             if (!show) return null;
-
             return (
                 <div className="fixed top-4 left-0 right-0 z-[100000] px-4 flex justify-center animate-slide-down-notif">
-                    <div className="bg-white/90 backdrop-blur-xl shadow-2xl border border-gray-200 rounded-3xl p-3 flex items-center gap-3 w-full max-w-sm cursor-pointer" onClick={onInstall}>
-                        <div className="w-12 h-12 rounded-[10px] bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-200">
+                    <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl shadow-2xl border border-gray-200 dark:border-gray-700 rounded-3xl p-3 flex items-center gap-3 w-full max-w-sm cursor-pointer" onClick={onInstall}>
+                        <div className="w-12 h-12 rounded-[10px] bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-200 dark:border-gray-700">
                             <img src="icon-512.png" alt="Icon" className="w-full h-full object-cover" onError={(e) => e.target.style.display='none'} />
                         </div>
                         <div className="flex-1 text-left">
-                            <h4 className="font-bold text-gray-900 text-[14px] leading-tight">Download this App</h4>
-                            <p className="text-[11px] text-gray-500 font-medium">Biar lebih cepat tanpa browser</p>
+                            <h4 className="font-bold text-gray-900 dark:text-white text-[14px] leading-tight">Download this App</h4>
+                            <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">Biar lebih cepat tanpa browser</p>
                         </div>
-                        <button className="bg-blue-600 hover:bg-blue-700 text-white text-[13px] font-bold py-1.5 px-4 rounded-full shadow-sm transition-colors">
-                            Get
-                        </button>
-                        <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="p-1.5 text-gray-400 hover:bg-gray-100 rounded-full ml-1 transition-colors">
-                            <XIcon className="w-4 h-4" />
-                        </button>
+                        <button className="bg-theme hover:opacity-80 text-white text-[13px] font-bold py-1.5 px-4 rounded-full shadow-sm transition-opacity">Get</button>
+                        <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full ml-1 transition-colors"><XIcon className="w-4 h-4" /></button>
                     </div>
                 </div>
             );
         };
 
-        // --- SPLASH SCREEN COMPONENT ---
         const SplashScreen = ({ onComplete }) => {
             const titleRef = useRef(null);
             const [isFading, setIsFading] = useState(false);
-
             useEffect(() => {
-                if (window.Splitting && titleRef.current) {
-                    window.Splitting({ target: titleRef.current, by: 'chars' });
-                }
-
+                if (window.Splitting && titleRef.current) window.Splitting({ target: titleRef.current, by: 'chars' });
                 const fadeTimer = setTimeout(() => setIsFading(true), 4000); 
                 const removeTimer = setTimeout(() => onComplete(), 4500); 
-
-                return () => {
-                    clearTimeout(fadeTimer);
-                    clearTimeout(removeTimer);
-                };
+                return () => { clearTimeout(fadeTimer); clearTimeout(removeTimer); };
             }, [onComplete]);
 
             return (
-                <div 
-                    className="splash-wrapper" 
-                    onClick={() => {
-                        setIsFading(true);
-                        setTimeout(onComplete, 500);
-                    }}
-                    style={{ 
-                        opacity: isFading ? 0 : 1, 
-                        transition: 'opacity 0.5s ease-in-out',
-                        cursor: 'pointer'
-                    }}
-                >
+                <div className="splash-wrapper" onClick={() => { setIsFading(true); setTimeout(onComplete, 500); }} style={{ opacity: isFading ? 0 : 1, transition: 'opacity 0.5s ease-in-out', cursor: 'pointer' }}>
                     <div className="splash-container">
                         <h1 className="splash-title" ref={titleRef}>JeStudios</h1>
                         <div className="splash-dot">
                             <div className="splash-dot-inner">
-                                <svg className="splash-dot-wave background" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
-                                    <path d="M799.09 90s11.04 0 0 0c-80.714 0-79.621-90-200-90-120.377 0-118.607 90-200 90-81.391 0-81.215-90-200-90C80.308 0 78.68 89.29-.91 90c-6.946.062 0 0 0 0v510h800V90z" />
-                                </svg>
-                                <svg className="splash-dot-wave foreground" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
-                                    <path d="M799.09 90s11.04 0 0 0c-80.714 0-79.621-90-200-90-120.377 0-118.607 90-200 90-81.391 0-81.215-90-200-90C80.308 0 78.68 89.29-.91 90c-6.946.062 0 0 0 0v510h800V90z" />
-                                </svg>
+                                <svg className="splash-dot-wave background" viewBox="0 0 800 800"><path d="M799.09 90s11.04 0 0 0c-80.714 0-79.621-90-200-90-120.377 0-118.607 90-200 90-81.391 0-81.215-90-200-90C80.308 0 78.68 89.29-.91 90c-6.946.062 0 0 0 0v510h800V90z" /></svg>
+                                <svg className="splash-dot-wave foreground" viewBox="0 0 800 800"><path d="M799.09 90s11.04 0 0 0c-80.714 0-79.621-90-200-90-120.377 0-118.607 90-200 90-81.391 0-81.215-90-200-90C80.308 0 78.68 89.29-.91 90c-6.946.062 0 0 0 0v510h800V90z" /></svg>
                             </div>
                         </div>
                     </div>
@@ -394,744 +225,391 @@
 
         const AnimatedNumber = ({ value, formatFn }) => {
             const [displayValue, setDisplayValue] = useState(value);
-            const startValue = useRef(value);
-
             useEffect(() => {
-                let start = displayValue;
-                let end = value;
-                if (start === end) return;
-
-                const duration = 2500; 
-                let startTime = null;
-                let animationFrame;
-
+                let start = displayValue; let end = value; if (start === end) return;
+                const duration = 2000; let startTime = null; let animationFrame;
                 const animate = (time) => {
                     if (!startTime) startTime = time;
                     const progress = Math.min((time - startTime) / duration, 1);
                     const easeOut = 1 - Math.pow(1 - progress, 3);
-                    const currentVal = start + (end - start) * easeOut;
-                    
-                    setDisplayValue(currentVal);
-
-                    if (progress < 1) {
-                        animationFrame = requestAnimationFrame(animate);
-                    } else {
-                        setDisplayValue(end);
-                        startValue.current = end;
-                    }
+                    setDisplayValue(start + (end - start) * easeOut);
+                    if (progress < 1) animationFrame = requestAnimationFrame(animate);
+                    else setDisplayValue(end);
                 };
-
                 animationFrame = requestAnimationFrame(animate);
                 return () => cancelAnimationFrame(animationFrame);
             }, [value]);
-
             return <span>{formatFn(Math.round(displayValue))}</span>;
         };
 
         const App = () => {
             const [appSettings, setAppSettings] = useState(() => {
                 const saved = localStorage.getItem('app_settings');
-                const parsed = saved ? JSON.parse(saved) : { showTime: false, showRecap: true, showSplash: true };
-                if (parsed.showSplash === undefined) parsed.showSplash = true;
+                const parsed = saved ? JSON.parse(saved) : { 
+                    showSplash: true, 
+                    theme: 'system', 
+                    customColor: null,
+                    tracks: { spending: true, income: false, debt: false },
+                    defaultTab: 'spending'
+                };
+                if(parsed.tracks === undefined) parsed.tracks = { spending: true, income: false, debt: false };
+                if(parsed.defaultTab === undefined) parsed.defaultTab = 'spending';
                 return parsed;
             });
             const [isSplashVisible, setIsSplashVisible] = useState(appSettings.showSplash);
 
-            // --- Cloud States ---
+            // Active Tabs Calculation
+            const activeTabs = useMemo(() => ['spending', 'income', 'debt'].filter(t => appSettings.tracks[t]), [appSettings.tracks]);
+            const [currentTab, setCurrentTab] = useState(appSettings.defaultTab && activeTabs.includes(appSettings.defaultTab) ? appSettings.defaultTab : (activeTabs[0] || 'spending'));
+
+            // Core States
             const [firebaseUser, setFirebaseUser] = useState(null);
             const [uid, setUid] = useState(''); 
             const [loginStep, setLoginStep] = useState('auth'); 
-
-            // --- Persistent States ---
             const [budget, setBudget] = useState(0);
             const [paycheckDate, setPaycheckDate] = useState('');
             const [expenses, setExpenses] = useState([]);
-            const [userProfile, setUserProfile] = useState({ name: '', age: '', gender: '', promiseBudget: '', createdAt: '' });
+            const [userProfile, setUserProfile] = useState({ name: '', age: '', gender: '', promiseBudget: '', createdAt: '', incomeGoal: '', incomeGoalDate: '', debts: [] });
 
-            // --- UI States ---
+            // UI States
             const [setupStep, setSetupStep] = useState(1);
             const [isSettingsOpen, setIsSettingsOpen] = useState(false);
             const [isEditMode, setIsEditMode] = useState(false);
             const [isScrolled, setIsScrolled] = useState(false);
             const [currentView, setCurrentView] = useState('home'); 
+            const [isDebtExpanded, setIsDebtExpanded] = useState(false);
+            const [isAddDebtModal, setIsAddDebtModal] = useState(false);
             
-            // Calendar Animation States
+            // Animation & Interaction
             const [currentMonthOffset, setCurrentMonthOffset] = useState(0); 
             const [isAnimatingMonth, setIsAnimatingMonth] = useState(false);
-            const [monthAnimDir, setMonthAnimDir] = useState(0); // -1 = up, 1 = down
-            
-            // Interaction States
+            const [monthAnimDir, setMonthAnimDir] = useState(0); 
             const [touchStartPos, setTouchStartPos] = useState({x: null, y: null});
             const [touchEndPos, setTouchEndPos] = useState({x: null, y: null});
             
-            // Input States
+            // Inputs
             const [amountInput, setAmountInput] = useState('');
             const [descInput, setDescInput] = useState('');
-
-            // Modal States
-            const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
-            const [incomeAmountInput, setIncomeAmountInput] = useState('');
-            const [incomeDescInput, setIncomeDescInput] = useState('');
             const [selectedDateReceipt, setSelectedDateReceipt] = useState(null);
             
             const [isTakingDamage, setIsTakingDamage] = useState(false);
-            const [isHealing, setIsHealing] = useState(false);
             const prevRemainingRef = useRef(0);
 
-            // ==========================================
-            // PWA GLOBAL STATE & LOGIC
-            // ==========================================
+            // PWA Logic
             const [deferredPrompt, setDeferredPrompt] = useState(null);
             const [isIOS, setIsIOS] = useState(false);
             const [isStandalone, setIsStandalone] = useState(false);
             const [showPWANotif, setShowPWANotif] = useState(false);
 
+            // ==========================================
+            // THEME ENGINE
+            // ==========================================
+            useEffect(() => {
+                const root = document.documentElement;
+                const applyTheme = () => {
+                    let isDark = appSettings.theme === 'dark' || (appSettings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                    isDark ? root.classList.add('dark') : root.classList.remove('dark');
+                    root.style.setProperty('--theme-color', appSettings.customColor || (isDark ? '#22c55e' : '#16a34a'));
+                    root.style.setProperty('--theme-color-dark', appSettings.customColor ? appSettings.customColor : (isDark ? '#16a34a' : '#15803d'));
+                };
+                applyTheme();
+                const matcher = window.matchMedia('(prefers-color-scheme: dark)');
+                matcher.addEventListener('change', applyTheme);
+                return () => matcher.removeEventListener('change', applyTheme);
+            }, [appSettings.theme, appSettings.customColor]);
+
+            useEffect(() => { localStorage.setItem('app_settings', JSON.stringify(appSettings)); }, [appSettings]);
+            useEffect(() => { if(!activeTabs.includes(currentTab)) setCurrentTab(activeTabs[0] || 'spending'); }, [activeTabs]);
+
+            // ==========================================
+            // PWA & AUTO-FOCUS RESET
+            // ==========================================
             useEffect(() => {
                 const isDeviceIOS = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
                 setIsIOS(isDeviceIOS);
-                
-                const checkStandalone = () => ('standalone' in window.navigator) && (window.navigator.standalone) || window.matchMedia('(display-mode: standalone)').matches;
+                const checkStandalone = () => ('standalone' in window.navigator) && window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
                 setIsStandalone(checkStandalone());
-
-                const handler = (e) => {
-                    e.preventDefault();
-                    setDeferredPrompt(e);
-                    // Langsung tunjukkan Notif Dropdown jika di Android dan prompt tersedia
-                    if (!checkStandalone()) setShowPWANotif(true);
-                };
+                const handler = (e) => { e.preventDefault(); setDeferredPrompt(e); if (!checkStandalone()) setShowPWANotif(true); };
                 window.addEventListener('beforeinstallprompt', handler);
-
-                // Untuk pengguna iOS, prompt otomatis tidak ada, kita beri delay lalu tampilkan notif buatan
-                if (isDeviceIOS && !checkStandalone()) {
-                    const timer = setTimeout(() => setShowPWANotif(true), 2500);
-                    return () => { clearTimeout(timer); window.removeEventListener('beforeinstallprompt', handler); };
-                }
-
+                if (isDeviceIOS && !checkStandalone()) { const timer = setTimeout(() => setShowPWANotif(true), 2500); return () => clearTimeout(timer); }
                 return () => window.removeEventListener('beforeinstallprompt', handler);
             }, []);
 
             const handleInstallApp = async () => {
-                if (isIOS) {
-                    alert('Untuk menginstal di iOS:\n1. Tap ikon Share (kotak dengan panah ke atas) di bawah layar browser.\n2. Scroll dan pilih "Add to Home Screen".');
-                    return;
-                }
-                
-                if (!deferredPrompt) {
-                    alert('Browser Anda sedang memblokir notifikasi (Anti-Spam Chrome).\n\nUntuk meng-install secara paksa:\nTekan menu (titik tiga) di pojok kanan atas browser, lalu pilih "Install App" atau "Tambahkan ke Layar Utama".');
-                    return;
-                }
-                
+                if (isIOS) { alert('Untuk menginstal di iOS:\n1. Tap ikon Share di bawah layar.\n2. Pilih "Add to Home Screen".'); return; }
+                if (!deferredPrompt) { alert('Install manual: Tekan menu titik tiga di Chrome > Install App.'); return; }
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    setShowPWANotif(false);
-                    setDeferredPrompt(null);
-                }
+                if (outcome === 'accepted') { setShowPWANotif(false); setDeferredPrompt(null); }
             };
 
-            // ==========================================
-            // GLOBAL KEYBOARD & FOCUS RESET LISTENER
-            // ==========================================
             useEffect(() => {
-                const handleFocusOut = () => {
-                    setTimeout(() => {
-                        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-                        document.body.scrollTop = 0;
-                    }, 50);
-                };
+                const handleFocusOut = () => setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
                 window.addEventListener('focusout', handleFocusOut);
                 return () => window.removeEventListener('focusout', handleFocusOut);
             }, []);
 
             // ==========================================
-            // FIREBASE INIT & AUTHENTICATION LISTENER
+            // FIREBASE DATA
             // ==========================================
             useEffect(() => {
-                if (!auth) {
-                    setLoginStep('login');
-                    return;
-                }
-
+                if (!auth) { setLoginStep('login'); return; }
                 const unsubscribe = onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        setFirebaseUser(user);
-                        await handleUserAuthSuccess(user);
-                    } else {
-                        setFirebaseUser(null);
-                        setLoginStep('login');
-                    }
+                    if (user) { setFirebaseUser(user); await handleUserAuthSuccess(user); } 
+                    else { setFirebaseUser(null); setLoginStep('login'); }
                 });
                 return () => unsubscribe();
             }, []);
 
-            // ==========================================
-            // DATA FETCHING
-            // ==========================================
             useEffect(() => {
                 if (!firebaseUser || loginStep !== 'app' || !uid || !db) return;
-                
                 const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid);
-                const unsubscribe = onSnapshot(expensesRef, (snapshot) => {
+                return onSnapshot(expensesRef, (snapshot) => {
                     const exps = [];
                     snapshot.forEach(doc => exps.push({ id: doc.id, ...doc.data() }));
                     exps.sort((a,b) => new Date(b.date) - new Date(a.date));
                     setExpenses(exps);
-                }, (err) => console.error("Error fetching expenses:", err));
-
-                return () => unsubscribe();
+                });
             }, [firebaseUser, loginStep, uid]);
 
-            // Save Settings
-            useEffect(() => {
-                localStorage.setItem('app_settings', JSON.stringify(appSettings));
-            }, [appSettings]);
+            const handleUserAuthSuccess = async (user) => {
+                setUid(user.uid);
+                if (!db) { setLoginStep('setup'); return; }
+                const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', user.uid));
+                if (snap.exists()) {
+                    const data = snap.data();
+                    setUserProfile(data); setBudget(data.budget || 0); setPaycheckDate(data.paycheckDate || 1);
+                    setLoginStep('app');
+                } else {
+                    setUserProfile(prev => ({...prev, name: user.displayName || ''}));
+                    setLoginStep('setup');
+                }
+            };
 
-            // Track account creation date safely
+            const formatNumber = (amount) => new Intl.NumberFormat('id-ID').format(amount);
+            const formatCompact = (amount) => amount === 0 ? '0' : new Intl.NumberFormat('id-ID', { notation: "compact", maximumFractionDigits: 1 }).format(amount);
+
+            // ==========================================
+            // CALCULATIONS
+            // ==========================================
             const createdAtTime = useMemo(() => {
                 if (userProfile.createdAt) return new Date(userProfile.createdAt).setHours(0,0,0,0);
-                if (expenses.length > 0) {
-                    const oldest = expenses.reduce((old, exp) => new Date(exp.date) < new Date(old.date) ? exp : old, expenses[0]);
-                    return new Date(oldest.date).setHours(0,0,0,0);
-                }
+                if (expenses.length > 0) return new Date(expenses[expenses.length-1].date).setHours(0,0,0,0);
                 return new Date().setHours(0,0,0,0);
             }, [userProfile.createdAt, expenses]);
 
-            // Calculate Totals considering Income
-            const totalSpent = useMemo(() => {
-                return expenses.reduce((sum, exp) => {
-                    if (exp.type === 'income') return sum - exp.amount;
-                    return sum + exp.amount;
-                }, 0);
-            }, [expenses]);
-
+            // SPENDING LOGIC
+            const spendingEntries = useMemo(() => expenses.filter(e => e.type === 'expense'), [expenses]);
+            const totalSpent = useMemo(() => spendingEntries.reduce((s, e) => s + e.amount, 0), [spendingEntries]);
             const remaining = budget - totalSpent;
-            const percentage = budget > 0 ? Math.max(0, Math.min(100, (remaining / budget) * 100)) : 0;
-
+            const spendPercentage = budget > 0 ? Math.max(0, Math.min(100, (remaining / budget) * 100)) : 0;
+            
             useEffect(() => {
-                if (remaining < prevRemainingRef.current) {
-                    setIsTakingDamage(true);
-                    setTimeout(() => setIsTakingDamage(false), 500); 
-                } else if (remaining > prevRemainingRef.current && prevRemainingRef.current > 0) {
-                    setIsHealing(true);
-                    setTimeout(() => setIsHealing(false), 500);
+                if (currentTab === 'spending' && remaining < prevRemainingRef.current) {
+                    setIsTakingDamage(true); setTimeout(() => setIsTakingDamage(false), 500); 
                 }
                 prevRemainingRef.current = remaining;
-            }, [remaining]);
+            }, [remaining, currentTab]);
 
-            const formatNumber = (amount) => {
-                return new Intl.NumberFormat('id-ID').format(amount);
-            };
+            // INCOME LOGIC
+            const incomeEntries = useMemo(() => expenses.filter(e => e.type === 'income_entry'), [expenses]);
+            const totalIncome = useMemo(() => incomeEntries.reduce((s, e) => s + e.amount, 0), [incomeEntries]);
+            const incomeGoal = parseInt(userProfile.incomeGoal) || 0;
+            const incomePercentage = incomeGoal > 0 ? Math.min(100, (totalIncome / incomeGoal) * 100) : 0;
 
-            const formatCompact = (amount) => {
-                if (amount === 0) return '0';
-                return new Intl.NumberFormat('id-ID', { notation: "compact", maximumFractionDigits: 1 }).format(amount);
-            };
+            // DEBT LOGIC
+            const debtPayments = useMemo(() => expenses.filter(e => e.type === 'debt_payment'), [expenses]);
+            const debts = userProfile.debts || [];
+            const totalDebtRaw = debts.reduce((s, d) => s + (parseInt(d.totalAmount)||0), 0);
+            const totalDebtPaid = debtPayments.reduce((s, e) => s + e.amount, 0);
+            const remainingDebt = Math.max(0, totalDebtRaw - totalDebtPaid);
 
-            const getBarStyle = () => {
-                if (percentage === 0) return { backgroundColor: 'transparent', width: '0%' };
-                const hue = percentage > 50 ? 120 : (percentage / 50) * 120;
-                return { 
-                    backgroundColor: `hsl(${hue}, 85%, 45%)`,
-                    width: `${percentage}%`,
-                    transitionDuration: '2.5s'
-                };
-            };
+            const debtProgressList = useMemo(() => {
+                return debts.map(d => {
+                    const paid = debtPayments.filter(p => p.debtId === d.id).reduce((s, p) => s + p.amount, 0);
+                    return { ...d, paid, remaining: Math.max(0, d.totalAmount - paid), pct: d.totalAmount > 0 ? Math.min(100, (paid/d.totalAmount)*100) : 0 };
+                });
+            }, [debts, debtPayments]);
 
-            const getTimeIcon = (dateStr) => {
-                const hour = new Date(dateStr).getHours();
-                if (hour >= 5 && hour < 11) return <Sunrise className="w-4 h-4 text-gray-400" />;
-                if (hour >= 11 && hour < 15) return <Sun className="w-4 h-4 text-gray-400" />;
-                if (hour >= 15 && hour < 18) return <Sunset className="w-4 h-4 text-gray-400" />;
-                return <Moon className="w-4 h-4 text-gray-400" />;
-            };
+            const daysLeft = useMemo(() => {
+                const today = new Date(); const actual = paycheckDate || 1;
+                let next = new Date(today.getFullYear(), today.getMonth(), actual);
+                if (today.getDate() >= actual) next.setMonth(next.getMonth() + 1);
+                return Math.max(1, Math.ceil((next.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
+            }, [paycheckDate]);
 
-            const { daysLeft, dailyAllowance, yesterdayRecap } = useMemo(() => {
-                const today = new Date();
-                const actualPaycheckDate = paycheckDate || 1;
-                let nextPaycheck = new Date(today.getFullYear(), today.getMonth(), actualPaycheckDate);
-                if (today.getDate() >= actualPaycheckDate) {
-                    nextPaycheck.setMonth(nextPaycheck.getMonth() + 1);
-                }
-                const diffTime = nextPaycheck.getTime() - today.getTime();
-                let days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                if (days === 0) days = 1; 
-                
-                const allowance = remaining / days;
-
-                const yesterday = new Date(today);
-                yesterday.setDate(yesterday.getDate() - 1);
-                
-                const yesterdayExpenses = expenses.filter(exp => new Date(exp.date).toDateString() === yesterday.toDateString());
-                
-                // Net spent yesterday
-                const yesterdaySpent = yesterdayExpenses.filter(e => e.type !== 'income').reduce((s, e) => s + e.amount, 0);
-                const yesterdayIncome = yesterdayExpenses.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
-                const yesterdayNetTotal = yesterdaySpent - yesterdayIncome;
-                
-                const yesterdayRemaining = remaining + yesterdayNetTotal;
-                const yesterdayAllowance = yesterdayRemaining / (days + 1);
-                const diff = yesterdayAllowance - yesterdayNetTotal;
-                
-                let recap = null;
-                if (yesterdaySpent > 0 || diff < 0) {
-                    recap = { overspent: diff < 0, amount: Math.abs(diff), spent: yesterdayNetTotal };
-                }
-
-                return { daysLeft: days, dailyAllowance: allowance, yesterdayRecap: recap };
-            }, [remaining, paycheckDate, expenses]);
+            // Filter lists based on tab
+            const visibleExpenses = useMemo(() => {
+                if (currentTab === 'spending') return spendingEntries;
+                if (currentTab === 'income') return incomeEntries;
+                if (currentTab === 'debt') return debtPayments;
+                return [];
+            }, [currentTab, spendingEntries, incomeEntries, debtPayments]);
 
             const groupedExpenses = useMemo(() => {
                 const groups = {};
-                expenses.filter(exp => exp.type !== 'income').forEach(exp => {
-                    const date = new Date(exp.date);
-                    const today = new Date();
-                    const yesterday = new Date(today);
-                    yesterday.setDate(yesterday.getDate() - 1);
-
+                visibleExpenses.forEach(exp => {
+                    const date = new Date(exp.date); const today = new Date(); const yest = new Date(today); yest.setDate(yest.getDate() - 1);
                     let dateKey = date.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' });
                     if (date.toDateString() === today.toDateString()) dateKey = "Hari Ini";
-                    else if (date.toDateString() === yesterday.toDateString()) dateKey = "Kemarin";
-
+                    else if (date.toDateString() === yest.toDateString()) dateKey = "Kemarin";
                     if (!groups[dateKey]) groups[dateKey] = [];
                     groups[dateKey].push(exp);
                 });
                 return groups;
-            }, [expenses]);
+            }, [visibleExpenses]);
 
             const calendarData = useMemo(() => {
                 const today = new Date();
                 const targetMonth = new Date(today.getFullYear(), today.getMonth() + currentMonthOffset, 1);
-                const year = targetMonth.getFullYear();
-                const month = targetMonth.getMonth();
+                const year = targetMonth.getFullYear(); const month = targetMonth.getMonth();
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-                const days = [];
-                let totalSpentMonth = 0;
+                const days = []; let totalMonth = 0;
 
                 for (let d = 1; d <= daysInMonth; d++) {
-                    const currentDate = new Date(year, month, d);
-                    const dateStr = currentDate.toDateString();
+                    const cd = new Date(year, month, d);
+                    const dayExps = visibleExpenses.filter(e => new Date(e.date).toDateString() === cd.toDateString());
+                    const dailyTotal = dayExps.reduce((s, e) => s + e.amount, 0);
+                    totalMonth += dailyTotal;
                     
-                    const dayExps = expenses.filter(exp => new Date(exp.date).toDateString() === dateStr);
-                    
-                    const dailyExpense = dayExps.filter(e => e.type !== 'income').reduce((sum, exp) => sum + exp.amount, 0);
-                    const dailyIncome = dayExps.filter(e => e.type === 'income').reduce((sum, exp) => sum + exp.amount, 0);
-                    
-                    totalSpentMonth += dailyExpense;
-                    
-                    const isFuture = currentDate.setHours(0,0,0,0) > new Date().setHours(0,0,0,0);
-                    const isBeforeStart = currentDate.setHours(0,0,0,0) < createdAtTime;
-                    const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-
                     days.push({
-                        day: d,
-                        dailyExpense,
-                        dailyIncome,
-                        isToday,
-                        isFuture,
-                        isBeforeStart,
-                        dateStr: currentDate.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
+                        day: d, dailyTotal, exps: dayExps,
+                        isToday: d === today.getDate() && month === today.getMonth() && year === today.getFullYear(),
+                        isFuture: cd.setHours(0,0,0,0) > new Date().setHours(0,0,0,0),
+                        isBeforeStart: cd.setHours(0,0,0,0) < createdAtTime,
+                        dateStr: cd.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'long' })
                     });
                 }
-
-                return { 
-                    days, 
-                    monthName: targetMonth.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
-                    totalSpentMonth 
-                };
-            }, [expenses, currentMonthOffset, createdAtTime]);
+                return { days, monthName: targetMonth.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }), totalMonth };
+            }, [visibleExpenses, currentMonthOffset, createdAtTime]);
 
             // ==========================================
-            // ACTIONS (Auth & Settings)
+            // MUTATIONS
             // ==========================================
-            const handleUserAuthSuccess = async (user) => {
-                try {
-                    setUid(user.uid);
-
-                    if (!db) { 
-                        setLoginStep('setup');
-                        return; 
-                    }
-
-                    const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', user.uid);
-                    const snap = await getDoc(profileRef);
-
-                    if (snap.exists()) {
-                        const data = snap.data();
-                        setUserProfile(data);
-                        setBudget(data.budget || 0);
-                        setPaycheckDate(data.paycheckDate || 1);
-                        setLoginStep('app');
-                    } else {
-                        setUserProfile(prev => ({...prev, name: user.displayName || ''}));
-                        setLoginStep('setup');
-                    }
-                } catch (error) {
-                    console.error("Auth Data Error:", error);
-                    alert("Koneksi ditolak oleh Firebase. Pastikan Rules Anda mengizinkan proses Read/Write untuk user yang telah login.");
-                    setLoginStep('setup'); 
-                }
-            };
-
-            const handleGoogleLogin = async () => {
-                if (!auth) return;
-                const provider = new GoogleAuthProvider();
-                try {
-                    setLoginStep('auth');
-                    await signInWithPopup(auth, provider);
-                } catch (error) {
-                    alert("Gagal login dengan Google: " + error.message);
-                    setLoginStep('login');
-                }
-            };
-
-            const handleGuestLogin = async () => {
-                if (!auth) return;
-                try {
-                    setLoginStep('auth');
-                    await signInAnonymously(auth);
-                } catch (error) {
-                    alert("Gagal login sebagai guest: " + error.message);
-                    setLoginStep('login');
-                }
-            };
-
-            const handleLogout = async () => {
-                if (auth) await signOut(auth);
-                setFirebaseUser(null);
-                setUid('');
-                setLoginStep('login');
-                setIsSettingsOpen(false);
-            };
-
-            const handleFinishSetup = async (e) => {
-                e.preventDefault();
-                const actualPaycheckDate = paycheckDate || 1;
-                const finalProfile = { 
-                    ...userProfile, 
-                    budget, 
-                    paycheckDate: actualPaycheckDate,
-                    createdAt: userProfile.createdAt || new Date().toISOString()
-                };
-                
-                if (db) {
-                    try {
-                        const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', uid);
-                        await setDoc(profileRef, finalProfile);
-                    } catch (e) {
-                        console.error("Set Doc Error:", e);
-                    }
-                }
-                setLoginStep('app');
-            };
-
-            const handleUpdateProfile = async () => {
-                if (db) {
-                    const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', uid);
-                    await setDoc(profileRef, { ...userProfile, budget, paycheckDate });
-                } 
-            };
-
-            // ==========================================
-            // DATA MUTATION
-            // ==========================================
-            const handleAddExpense = async (e) => {
+            const handleSubmitInput = async (e) => {
                 e.preventDefault();
                 const amount = parseFloat(amountInput.replace(/\D/g, ''));
                 if (amount > 0 && descInput.trim()) {
-                    const newExpense = {
-                        amount: amount,
-                        description: descInput.trim(),
-                        date: new Date().toISOString(),
-                        type: 'expense'
-                    };
+                    const payload = { amount, description: descInput.trim(), date: new Date().toISOString() };
                     
-                    if (db) {
-                        const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid);
-                        await addDoc(expensesRef, newExpense);
+                    if (currentTab === 'spending') payload.type = 'expense';
+                    else if (currentTab === 'income') payload.type = 'income_entry';
+                    else if (currentTab === 'debt') {
+                        payload.type = 'debt_payment';
+                        payload.debtId = descInput; 
+                        payload.description = debts.find(d=>d.id === descInput)?.name || 'Bayar Hutang';
                     }
+                    
+                    if (db) await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid), payload);
                     
                     setAmountInput('');
-                    setDescInput('');
-                    
-                    if (document.activeElement && document.activeElement.blur) {
-                        document.activeElement.blur();
-                    }
-                    setTimeout(() => {
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }, 50);
+                    if (currentTab !== 'debt') setDescInput('');
+                    if (document.activeElement) document.activeElement.blur();
                 }
             };
 
-            const handleAddIncome = async (e) => {
+            const addNewDebt = async (e) => {
                 e.preventDefault();
-                const amount = parseFloat(incomeAmountInput.replace(/\D/g, ''));
-                if (amount > 0 && incomeDescInput.trim()) {
-                    const newIncome = {
-                        amount: amount,
-                        description: incomeDescInput.trim(),
-                        date: new Date().toISOString(),
-                        type: 'income'
+                const elName = e.target.elements.debtName.value;
+                const elAmt = parseFloat(e.target.elements.debtAmount.value.replace(/\D/g, ''));
+                if(elName && elAmt) {
+                    const updated = [...debts, { id: generateUUID(), name: elName, totalAmount: elAmt }];
+                    setUserProfile({...userProfile, debts: updated});
+                    if(db) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', uid), { debts: updated });
+                    setIsAddDebtModal(false);
+                }
+            };
+
+            const handleImageUpload = (e) => {
+                const file = e.target.files[0];
+                if(file) {
+                    const reader = new FileReader();
+                    reader.onload = async (ev) => {
+                        const color = await extractDominantColor(ev.target.result);
+                        setAppSettings({...appSettings, customColor: color});
                     };
-                    
-                    if (db) {
-                        const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid);
-                        await addDoc(expensesRef, newIncome);
-                    }
-                    
-                    setIncomeAmountInput('');
-                    setIncomeDescInput('');
-                    setIsIncomeModalOpen(false);
-                }
-            };
-
-            const handleEditExpense = async (id, field, value) => {
-                if (db) {
-                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid, id);
-                    await updateDoc(ref, { [field]: value });
-                }
-            };
-
-            const handleDeleteExpense = async (id) => {
-                if (db) {
-                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid, id);
-                    await deleteDoc(ref);
+                    reader.readAsDataURL(file);
                 }
             };
 
             // ==========================================
-            // SWIPE & SCROLL LOGIC
+            // RENDERS
             // ==========================================
-            const onTouchStart = (e) => {
-                setTouchEndPos({x: null, y: null});
-                setTouchStartPos({ x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY });
-            };
-            const onTouchMove = (e) => {
-                setTouchEndPos({ x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY });
-            };
-            const onTouchEnd = () => {
-                if (!touchStartPos.x || !touchEndPos.x) return;
-                const distanceX = touchStartPos.x - touchEndPos.x;
-                const distanceY = touchStartPos.y - touchEndPos.y;
-                
-                if (Math.abs(distanceX) > Math.abs(distanceY) && Math.abs(distanceX) > 50) {
-                    if (distanceX > 0 && currentView === 'home') setCurrentView('calendar'); 
-                    else if (distanceX < 0 && currentView === 'calendar') setCurrentView('home'); 
-                }
-            };
-
-            const changeMonth = (delta) => {
-                const today = new Date();
-                const nextTarget = new Date(today.getFullYear(), today.getMonth() + currentMonthOffset + delta, 1);
-                const startLimit = new Date(createdAtTime);
-                startLimit.setDate(1);
-                startLimit.setHours(0,0,0,0);
-
-                if (nextTarget < startLimit) return;
-
-                setMonthAnimDir(delta); 
-                setIsAnimatingMonth(true);
-                setTimeout(() => {
-                    setCurrentMonthOffset(prev => prev + delta);
-                    setIsAnimatingMonth(false);
-                }, 150);
-            };
-
-            const isStartMonth = () => {
-                const today = new Date();
-                const currentRenderedMonth = new Date(today.getFullYear(), today.getMonth() + currentMonthOffset, 1);
-                const startLimit = new Date(createdAtTime);
-                startLimit.setDate(1);
-                startLimit.setHours(0,0,0,0);
-                return currentRenderedMonth <= startLimit;
-            };
-
-            const onCalendarTouchEnd = (e) => {
-                if (!touchStartPos.y || !touchEndPos.y) return;
-                const distanceX = touchStartPos.x - touchEndPos.x;
-                const distanceY = touchStartPos.y - touchEndPos.y;
-                if (Math.abs(distanceY) > Math.abs(distanceX) && Math.abs(distanceY) > 50) {
-                    if (distanceY > 0) changeMonth(1);
-                    else changeMonth(-1);
-                }
-            };
-
-            const handleHomeScroll = (e) => {
-                const scrollTop = e.target.scrollTop;
-                if (scrollTop > 80 && !isScrolled) setIsScrolled(true);
-                else if (scrollTop < 20 && isScrolled) setIsScrolled(false);
-            };
-
-            const isDangerBadge = dailyAllowance <= 20000;
-
-            // ==========================================
-            // RENDER LOGIC
-            // ==========================================
-            if (isSplashVisible) {
-                return <SplashScreen onComplete={() => setIsSplashVisible(false)} />;
-            }
-
-            if (loginStep === 'auth') {
+            if (isSplashVisible) return <SplashScreen onComplete={() => setIsSplashVisible(false)} />;
+            
+            if (loginStep === 'login' || loginStep === 'auth') {
                 return (
-                    <div className="fixed inset-0 bg-white flex flex-col items-center justify-center p-6 z-50">
-                        <div className="w-12 h-12 border-4 border-green-200 border-t-green-500 rounded-full animate-spin"></div>
-                        <p className="mt-4 text-gray-500 font-medium">Connecting...</p>
-                    </div>
-                );
-            }
-
-            if (loginStep === 'login') {
-                return (
-                    <div className="fixed inset-0 bg-white flex flex-col items-center justify-center p-6 text-center z-50">
+                    <div className="fixed inset-0 bg-white dark:bg-gray-900 flex flex-col items-center justify-center p-6 text-center z-50">
                         <PWANotif show={showPWANotif} onInstall={handleInstallApp} onClose={() => setShowPWANotif(false)} />
-                        
-                        <div className="w-full max-w-sm flex flex-col items-center">
-                            
+                        {loginStep === 'auth' ? <div className="w-12 h-12 border-4 border-theme border-t-transparent rounded-full animate-spin"></div> : (
+                        <div className="w-full max-w-sm flex flex-col items-center animate-in fade-in zoom-in-95 duration-500">
                             <div className="flex items-end mb-4">
-                                <h1 className="text-6xl font-black text-gray-900 tracking-tighter">Wang</h1>
-                                <div className="w-4 h-4 bg-green-500 rounded-full ml-1.5 mb-1.5"></div>
+                                <h1 className="text-6xl font-black text-gray-900 dark:text-white tracking-tighter">Wang</h1>
+                                <div className="w-4 h-4 bg-theme rounded-full ml-1.5 mb-1.5 shadow-[0_0_15px_rgba(34,197,94,0.6)]"></div>
                             </div>
-
-                            <p className="text-sm text-gray-500 mb-10 px-2 font-medium leading-relaxed">
-                                atur pengeluaran biar kamu selamat sampai akhir bulan, dan biar ga insomnia uang habis ke mana
-                            </p>
-
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-10 px-2 font-medium leading-relaxed">atur pengeluaran biar kamu selamat sampai akhir bulan, dan biar ga insomnia uang habis ke mana</p>
                             <div className="w-full space-y-3">
-                                <p className="text-xs font-bold text-gray-400 mb-4 uppercase tracking-widest">
-                                    Login biar pengeluaranmu tersimpan
-                                </p>
-
-                                <button 
-                                    onClick={handleGoogleLogin}
-                                    className="w-full py-4 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-2xl font-bold text-[15px] transition-transform active:scale-95 flex items-center justify-center shadow-sm"
-                                >
-                                    <GoogleIcon className="w-5 h-5 mr-3" />
-                                    Lanjutkan dengan Google
-                                </button>
-                                
-                                <div className="flex items-center py-2 opacity-50">
-                                    <div className="flex-grow border-t border-gray-300"></div>
-                                    <span className="px-4 text-xs text-gray-400 font-bold uppercase tracking-wider">atau</span>
-                                    <div className="flex-grow border-t border-gray-300"></div>
-                                </div>
-
-                                <button 
-                                    type="button"
-                                    onClick={handleGuestLogin}
-                                    className="w-full py-4 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-2xl font-bold text-[15px] transition-transform active:scale-95 shadow-sm"
-                                >
-                                    Lanjut sebagai Guest
-                                </button>
+                                <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-4 uppercase tracking-widest">Login biar datamu tersimpan</p>
+                                <button onClick={handleGoogleLogin} className="w-full py-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-white rounded-2xl font-bold text-[15px] active:scale-95 flex items-center justify-center shadow-sm transition-all"><GoogleIcon className="w-5 h-5 mr-3" /> Lanjutkan dengan Google</button>
+                                <div className="flex items-center py-2 opacity-50"><div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div><span className="px-4 text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider">atau</span><div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div></div>
+                                <button onClick={async () => { await signInAnonymously(auth); }} className="w-full py-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-2xl font-bold text-[15px] active:scale-95 shadow-sm transition-all">Lanjut sebagai Guest</button>
                             </div>
                         </div>
+                        )}
                     </div>
                 );
             }
 
             if (loginStep === 'setup') {
                 return (
-                    <div className="fixed inset-0 bg-white flex flex-col items-center justify-center p-6 z-50">
-                        <PWANotif show={showPWANotif} onInstall={handleInstallApp} onClose={() => setShowPWANotif(false)} />
+                    <div className="fixed inset-0 bg-white dark:bg-gray-900 flex flex-col items-center justify-center p-6 z-50">
                         <div className="w-full max-w-md space-y-6">
-                        
                         {setupStep === 1 && (
-                            <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                                <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">Siapa nama kamu?</h1>
+                            <div className="animate-in fade-in slide-in-from-right-4">
+                                <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-8">Siapa nama kamu?</h1>
                                 <div className="space-y-4">
-                                    <input
-                                        type="text"
-                                        value={userProfile.name}
-                                        onChange={(e) => setUserProfile({...userProfile, name: e.target.value})}
-                                        placeholder="Nama Asli"
-                                        className="w-full px-5 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-blue-500 outline-none transition-colors"
-                                    />
-                                    <input
-                                        type="number"
-                                        value={userProfile.age}
-                                        onChange={(e) => setUserProfile({...userProfile, age: e.target.value})}
-                                        placeholder="Umur"
-                                        className="w-full px-5 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-blue-500 outline-none transition-colors"
-                                    />
-                                    <div className="flex gap-4 pt-4">
-                                        <button 
-                                            onClick={() => setUserProfile({...userProfile, gender: 'male'})}
-                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'male' ? 'border-blue-500 bg-blue-50 scale-105' : 'border-gray-200 bg-white hover:bg-gray-50'}`}
-                                        >
-                                            👨
-                                        </button>
-                                        <button 
-                                            onClick={() => setUserProfile({...userProfile, gender: 'female'})}
-                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'female' ? 'border-pink-500 bg-pink-50 scale-105' : 'border-gray-200 bg-white hover:bg-gray-50'}`}
-                                        >
-                                            👩
-                                        </button>
-                                    </div>
-                                    <button 
-                                        onClick={() => setSetupStep(2)}
-                                        disabled={!userProfile.name || !userProfile.age || !userProfile.gender}
-                                        className="w-full mt-8 py-4 bg-gray-900 text-white rounded-2xl font-bold text-lg disabled:opacity-50"
-                                    >
-                                        Lanjut
-                                    </button>
+                                    <input type="text" value={userProfile.name} onChange={e=>setUserProfile({...userProfile, name: e.target.value})} placeholder="Nama Panggilan" className="w-full px-5 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-700 rounded-2xl outline-none" />
+                                    <input type="number" value={userProfile.age} onChange={e=>setUserProfile({...userProfile, age: e.target.value})} placeholder="Umur" className="w-full px-5 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-700 rounded-2xl outline-none" />
+                                    <button onClick={() => setSetupStep(2)} disabled={!userProfile.name} className="w-full mt-4 py-4 bg-theme text-white rounded-2xl font-bold text-lg disabled:opacity-50 transition-all">Lanjut</button>
                                 </div>
                             </div>
                         )}
-
                         {setupStep === 2 && (
-                            <form onSubmit={handleFinishSetup} className="animate-in fade-in slide-in-from-right-4 duration-300">
-                                <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
-                                    <Wallet className="w-8 h-8 text-green-600" />
+                            <div className="animate-in fade-in slide-in-from-right-4">
+                                <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-8">Apa yang mau dipantau?</h1>
+                                <div className="space-y-3">
+                                    {['spending', 'income', 'debt'].map(key => (
+                                        <label key={key} className={`flex items-center justify-between p-5 rounded-2xl border-2 transition-all cursor-pointer ${appSettings.tracks[key] ? 'border-theme bg-theme/10' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'}`}>
+                                            <span className="font-bold text-gray-800 dark:text-gray-100 text-lg capitalize">{key === 'spending' ? 'Pengeluaran' : key === 'income' ? 'Pemasukan / Tabungan' : 'Hutang / Cicilan'}</span>
+                                            <input type="checkbox" checked={appSettings.tracks[key]} onChange={e => setAppSettings({...appSettings, tracks:{...appSettings.tracks, [key]: e.target.checked}})} className="w-6 h-6 text-theme border-gray-300 rounded focus:ring-theme" />
+                                        </label>
+                                    ))}
+                                    <button onClick={() => setSetupStep(3)} disabled={!Object.values(appSettings.tracks).some(v=>v)} className="w-full mt-6 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl font-bold text-lg disabled:opacity-50 transition-all">Lanjut</button>
                                 </div>
-                                <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">Tentukan Anggaranmu</h1>
-                                
+                            </div>
+                        )}
+                        {setupStep === 3 && (
+                            <form onSubmit={handleFinishSetup} className="animate-in fade-in slide-in-from-right-4">
+                                <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-8">Setup Detail</h1>
                                 <div className="space-y-4">
-                                    <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">Rp</span>
-                                        <input
-                                            type="text"
-                                            value={budget ? budget.toLocaleString('id-ID') : ''}
-                                            onChange={(e) => {
-                                                const rawValue = e.target.value.replace(/\D/g, '');
-                                                setBudget(rawValue ? parseFloat(rawValue) : 0);
-                                            }}
-                                            placeholder="Total Anggaran Bulanan"
-                                            className="w-full pl-12 pr-4 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-green-500 outline-none"
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">Rp</span>
-                                        <input
-                                            type="text"
-                                            value={userProfile.promiseBudget ? parseInt(userProfile.promiseBudget).toLocaleString('id-ID') : ''}
-                                            onChange={(e) => {
-                                                const rawValue = e.target.value.replace(/\D/g, '');
-                                                setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
-                                            }}
-                                            placeholder="Target Pengeluaran Harian"
-                                            className="w-full pl-12 pr-4 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-green-500 outline-none"
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"><CalendarIcon className="w-5 h-5"/></span>
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            max="31"
-                                            value={paycheckDate}
-                                            onChange={(e) => setPaycheckDate(e.target.value ? parseInt(e.target.value) : '')}
-                                            placeholder="Tanggal Gajian (1-31)"
-                                            className="w-full pl-12 pr-4 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-green-500 outline-none"
-                                            required
-                                        />
-                                    </div>
-
-                                    <button type="submit" className="w-full py-4 bg-green-500 hover:bg-green-600 text-white rounded-2xl font-bold text-lg active:scale-95 transition-all mt-6">
-                                        Mulai Bertahan
-                                    </button>
+                                    {appSettings.tracks.spending && (
+                                        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl space-y-3 border border-gray-100 dark:border-gray-700">
+                                            <p className="font-bold text-gray-700 dark:text-gray-300 text-sm uppercase tracking-wider">Pengeluaran</p>
+                                            <input type="text" value={budget ? budget.toLocaleString('id-ID') : ''} onChange={e => setBudget(parseFloat(e.target.value.replace(/\D/g, ''))||0)} placeholder="Total Anggaran Bulanan (Rp)" className="w-full px-4 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700" required />
+                                            <input type="number" min="1" max="31" value={paycheckDate} onChange={e => setPaycheckDate(e.target.value)} placeholder="Tanggal Gajian (1-31)" className="w-full px-4 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700" required />
+                                        </div>
+                                    )}
+                                    {appSettings.tracks.income && (
+                                        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl space-y-3 border border-gray-100 dark:border-gray-700">
+                                            <p className="font-bold text-gray-700 dark:text-gray-300 text-sm uppercase tracking-wider">Target Tabungan</p>
+                                            <input type="text" value={userProfile.incomeGoal ? parseInt(userProfile.incomeGoal).toLocaleString('id-ID') : ''} onChange={e => setUserProfile({...userProfile, incomeGoal: e.target.value.replace(/\D/g, '')})} placeholder="Target Jumlah (Rp)" className="w-full px-4 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700" required />
+                                            <input type="date" value={userProfile.incomeGoalDate} onChange={e => setUserProfile({...userProfile, incomeGoalDate: e.target.value})} className="w-full px-4 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700" required />
+                                        </div>
+                                    )}
+                                    {appSettings.tracks.debt && (
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 italic text-center py-2">Catatan hutang bisa ditambahkan nanti di halaman utama.</p>
+                                    )}
+                                    <button type="submit" className="w-full py-4 bg-theme hover:opacity-90 text-white rounded-2xl font-bold text-lg active:scale-95 transition-all mt-6">Mulai Bertahan</button>
                                 </div>
                             </form>
                         )}
@@ -1141,149 +619,138 @@
             }
 
             return (
-                <div className="fixed inset-0 bg-gray-50 flex justify-center w-full overflow-hidden">
+                <div className="fixed inset-0 bg-gray-50 dark:bg-gray-950 flex justify-center w-full overflow-hidden text-gray-900 dark:text-white transition-colors duration-300">
                     <PWANotif show={showPWANotif} onInstall={handleInstallApp} onClose={() => setShowPWANotif(false)} />
                     
-                    <div className="w-full max-w-md h-full bg-gray-50 relative shadow-sm overflow-hidden flex flex-col">
+                    <div className="w-full max-w-md h-full relative shadow-sm overflow-hidden flex flex-col bg-white dark:bg-gray-900">
                         
-                        <div 
-                            className="flex w-[200%] flex-1 min-h-0 transition-transform duration-300 ease-in-out"
-                            style={{ transform: currentView === 'calendar' ? 'translateX(-50%)' : 'translateX(0)' }}
-                            onTouchStart={onTouchStart}
-                            onTouchMove={onTouchMove}
-                            onTouchEnd={onTouchEnd}
-                        >
-                        
-                            {/* ======================= HOME PANE ======================= */}
-                            <div className="w-1/2 h-full bg-white flex flex-col relative overflow-hidden">
-                                
-                                <button 
-                                    onClick={() => setCurrentView('calendar')}
-                                    className="absolute top-6 right-5 z-50 p-2 opacity-40 hover:opacity-100 transition-opacity"
-                                >
-                                    <CalendarIcon className="w-6 h-6 text-gray-800" strokeWidth={1.5} />
+                        {/* TAB BAR */}
+                        {activeTabs.length > 1 && (
+                            <div className="shrink-0 w-full flex bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 pt-safe-top z-40">
+                                {activeTabs.map(tab => (
+                                    <button key={tab} onClick={() => setCurrentTab(tab)} className={`flex-1 py-3 text-sm font-bold capitalize transition-colors border-b-2 ${currentTab === tab ? 'border-theme text-theme' : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}>
+                                        {tab === 'spending' ? 'Pengeluaran' : tab === 'income' ? 'Pemasukan' : 'Hutang'}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        <div className="flex w-[200%] flex-1 min-h-0 transition-transform duration-300 ease-in-out" style={{ transform: currentView === 'calendar' ? 'translateX(-50%)' : 'translateX(0)' }} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+                            
+                            {/* HOME PANE */}
+                            <div className="w-1/2 h-full flex flex-col relative overflow-hidden bg-white dark:bg-gray-900">
+                                <button onClick={() => setCurrentView('calendar')} className="absolute top-4 right-4 z-50 p-2 text-gray-400 hover:text-gray-800 dark:hover:text-white">
+                                    <CalendarIcon className="w-6 h-6" strokeWidth={1.5} />
                                 </button>
 
-                                <div className="flex-1 min-h-0 overflow-y-auto pb-24" onScroll={handleHomeScroll}>
-                                    
-                                    {/* UNIFIED ANIMATED STICKY HEADER */}
-                                    <div className={`sticky top-0 w-full bg-white/95 backdrop-blur-md z-40 px-5 transition-all duration-500 ease-in-out ${
-                                        isScrolled ? 'pt-6 pb-3' : 'pt-16 pb-12'
-                                    }`}>
+                                <div className="flex-1 min-h-0 overflow-y-auto pb-32" onScroll={handleHomeScroll}>
+                                    <div className={`sticky top-0 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md z-40 px-5 transition-all duration-500 ease-in-out ${isScrolled ? 'pt-4 pb-2 border-b border-gray-100 dark:border-gray-800' : 'pt-12 pb-8'}`}>
+                                        
+                                        {/* HEADER CONTENT: SPENDING */}
+                                        {currentTab === 'spending' && (
                                         <div className="flex flex-col items-center justify-center w-full relative">
-                                            <span className={`font-bold text-gray-400 uppercase tracking-widest transition-all duration-500 ${
-                                                isScrolled ? 'text-[10px] mb-0.5' : 'text-sm mb-2'
-                                            }`}>Sisa Uang</span>
-                                            
-                                            <div className={`flex items-start justify-center text-gray-900 transition-all duration-500 ${
-                                                isScrolled ? 'mb-3' : 'mb-6'
-                                            }`}>
-                                                <span className={`font-medium text-gray-500 transition-all duration-500 ${
-                                                isScrolled ? 'text-xs mt-1 mr-1' : 'text-xl mt-3 mr-1'
-                                                }`}>Rp</span>
-                                                <span className={`font-bold tracking-tight leading-none transition-all duration-500 ${
-                                                isScrolled ? 'text-3xl' : 'text-[5rem]'
-                                                }`}>
-                                                <AnimatedNumber value={remaining} formatFn={formatNumber} />
-                                                </span>
+                                            <span className={`font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest transition-all ${isScrolled ? 'text-[10px]' : 'text-sm'}`}>Sisa Uang</span>
+                                            <div className={`flex items-start justify-center transition-all ${isScrolled ? 'my-1' : 'my-4'}`}>
+                                                <span className={`font-medium text-gray-400 mt-1 mr-1 ${isScrolled ? 'text-xs' : 'text-xl'}`}>Rp</span>
+                                                <span className={`font-bold tracking-tighter leading-none ${isScrolled ? 'text-2xl' : 'text-6xl'}`}><AnimatedNumber value={remaining} formatFn={formatNumber} /></span>
                                             </div>
                                             
-                                            <div className={`overflow-hidden transition-all duration-500 flex justify-center items-center gap-2 ${
-                                                isScrolled ? 'max-h-0 opacity-0 mb-0' : 'max-h-20 opacity-100 mb-8'
-                                            }`}>
-                                                <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center border shadow-sm transition-colors ${
-                                                isDangerBadge ? 'bg-red-50 text-red-700 border-red-200 animate-pulse' : 'bg-gray-100 text-gray-600 border-gray-200'
-                                                }`}>
+                                            <div className={`overflow-hidden transition-all flex justify-center items-center ${isScrolled ? 'h-0 opacity-0' : 'h-8 opacity-100 mb-6'}`}>
+                                                <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center border transition-colors ${isDangerBadge ? 'bg-red-50 dark:bg-red-900/30 text-red-600 border-red-200 dark:border-red-800 animate-pulse' : 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700'}`}>
                                                     <span>Sisa {daysLeft} hari</span>
-                                                    <span className={`mx-2 ${isDangerBadge ? "text-red-300" : "text-gray-300"}`}>•</span>
+                                                    <span className="mx-2 opacity-50">•</span>
                                                     <span>Rp {formatNumber(Math.max(0, dailyAllowance))} / hari</span>
                                                 </div>
-                                                <button onClick={(e) => { e.stopPropagation(); setIsIncomeModalOpen(true); }} className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-500 transition-colors shadow-sm">
-                                                    <Plus className="w-4 h-4" strokeWidth={3} />
-                                                </button>
                                             </div>
 
-                                            <div 
-                                                className={`relative w-full bg-gray-200 border-[3px] ring-1 transition-all duration-500 ease-in-out ${
-                                                percentage === 0 ? 'border-red-600 animate-pulse bg-red-50 ring-red-200' : 'border-white ring-gray-200'
-                                                } ${isScrolled ? 'h-6 rounded-md' : 'h-14 rounded-xl'}`}
-                                                style={{ boxShadow: isHealing ? '0 0 25px 6px rgba(34, 197, 94, 0.8)' : (percentage === 100 ? (isScrolled ? '0 0 15px 3px rgba(34, 197, 94, 0.4)' : '0 0 25px 6px rgba(34, 197, 94, 0.5)') : 'none') }}
-                                            >
-                                                <div className={`absolute inset-0 overflow-hidden transition-all duration-500 ${isScrolled ? 'rounded-[4px]' : 'rounded-[9px]'}`}>
-                                                    <div className={`absolute inset-0 bg-red-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isTakingDamage ? 'opacity-60' : 'opacity-0'}`}></div>
-                                                    <div className={`absolute inset-0 bg-green-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isHealing ? 'opacity-60' : 'opacity-0'}`}></div>
-                                                    <div className={`h-full transition-all relative z-0`} style={getBarStyle()}>
-                                                        <div className="absolute inset-0 bg-white animate-breathe"></div>
-                                                    </div>
-                                                </div>
-
-                                                <div className={`absolute inset-0 flex items-center justify-start z-10 pointer-events-none transition-all duration-500 ${
-                                                isScrolled ? 'px-2' : 'px-4'
-                                                }`}>
-                                                <span className={`font-bold transition-all duration-500 ${
-                                                    percentage < 40 && percentage > 0 ? 'text-gray-800' : percentage === 0 ? 'text-red-500' : 'text-white/90'
-                                                } ${isScrolled ? 'text-[10px]' : 'text-sm'}`}>
-                                                    {percentage.toFixed(0)}%
-                                                </span>
+                                            <div className={`relative w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden transition-all ${isScrolled ? 'h-1.5' : 'h-4'}`}>
+                                                <div className="h-full transition-all bg-theme relative" style={{ width: `${percentage}%`, backgroundColor: percentage === 0 ? 'red' : 'var(--theme-color)' }}>
+                                                    <div className="absolute inset-0 bg-white/20 animate-breathe"></div>
                                                 </div>
                                             </div>
-
-                                            {appSettings.showRecap && yesterdayRecap && (
-                                                <div className={`overflow-hidden transition-all duration-500 w-full ${
-                                                isScrolled ? 'max-h-20 opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'
-                                                }`}>
-                                                    <div className={`p-2 rounded-lg text-[11px] font-bold flex items-center justify-between border ${
-                                                        yesterdayRecap.overspent 
-                                                        ? 'bg-red-50 border-red-200 text-red-700 animate-pulse' 
-                                                        : 'bg-green-50 border-green-200 text-green-700'
-                                                    }`}>
-                                                        <span>{yesterdayRecap.overspent ? '⚠️ Kemarin Overbudget!' : '🔥 Kemarin Hemat!'}</span>
-                                                        <span>{yesterdayRecap.overspent ? '-' : '+'} Rp {formatNumber(yesterdayRecap.amount)}</span>
-                                                    </div>
-                                                </div>
-                                            )}
                                         </div>
-                                        <div className={`absolute top-full left-0 w-full h-8 bg-gradient-to-b from-white/95 to-transparent pointer-events-none transition-opacity duration-500 ${isScrolled ? 'opacity-100' : 'opacity-0'}`}></div>
+                                        )}
+
+                                        {/* HEADER CONTENT: INCOME */}
+                                        {currentTab === 'income' && (
+                                        <div className="flex flex-col items-center justify-center w-full relative">
+                                            <span className={`font-bold text-theme uppercase tracking-widest transition-all ${isScrolled ? 'text-[10px]' : 'text-sm'}`}>Total Terkumpul</span>
+                                            <div className={`flex items-start justify-center transition-all text-theme ${isScrolled ? 'my-1' : 'my-4'}`}>
+                                                <span className={`font-medium mt-1 mr-1 ${isScrolled ? 'text-xs' : 'text-xl'}`}>Rp</span>
+                                                <span className={`font-bold tracking-tighter leading-none ${isScrolled ? 'text-2xl' : 'text-6xl'}`}><AnimatedNumber value={totalIncome} formatFn={formatNumber} /></span>
+                                            </div>
+                                            
+                                            <div className={`overflow-hidden transition-all flex flex-col justify-center items-center ${isScrolled ? 'h-0 opacity-0' : 'h-12 opacity-100 mb-6'}`}>
+                                                <p className="text-xs font-bold text-gray-400 uppercase">Target: Rp {formatNumber(incomeGoal)}</p>
+                                                {userProfile.incomeGoalDate && <p className="text-[10px] text-gray-500 mt-1">Tenggat: {new Date(userProfile.incomeGoalDate).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}</p>}
+                                            </div>
+
+                                            <div className={`relative w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden transition-all ${isScrolled ? 'h-1.5' : 'h-4'}`}>
+                                                <div className="h-full transition-all bg-theme relative" style={{ width: `${incomePercentage}%` }}>
+                                                    <div className="absolute inset-0 bg-white/20 animate-breathe"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        )}
+
+                                        {/* HEADER CONTENT: DEBT */}
+                                        {currentTab === 'debt' && (
+                                        <div className="flex flex-col w-full relative">
+                                            <div className="text-center" onClick={() => setIsDebtExpanded(!isDebtExpanded)}>
+                                                <span className={`font-bold text-red-500 uppercase tracking-widest transition-all flex items-center justify-center gap-1 cursor-pointer ${isScrolled ? 'text-[10px]' : 'text-sm'}`}>
+                                                    Sisa Hutang {isDebtExpanded ? <ChevronUp className="w-3 h-3"/> : <ChevronDown className="w-3 h-3"/>}
+                                                </span>
+                                                <div className={`flex items-start justify-center transition-all text-red-600 ${isScrolled ? 'my-1' : 'my-4'}`}>
+                                                    <span className={`font-medium mt-1 mr-1 ${isScrolled ? 'text-xs' : 'text-xl'}`}>Rp</span>
+                                                    <span className={`font-bold tracking-tighter leading-none ${isScrolled ? 'text-2xl' : 'text-6xl'}`}><AnimatedNumber value={remainingDebt} formatFn={formatNumber} /></span>
+                                                </div>
+                                            </div>
+
+                                            {/* Expandable Debt List */}
+                                            <div className={`overflow-hidden transition-all duration-300 w-full ${isDebtExpanded && !isScrolled ? 'max-h-[400px] opacity-100 mt-4' : 'max-h-0 opacity-0 mt-0'}`}>
+                                                <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 space-y-4 shadow-inner border border-gray-100 dark:border-gray-700">
+                                                    {debtProgressList.map(d => (
+                                                        <div key={d.id} className="space-y-1">
+                                                            <div className="flex justify-between text-sm font-bold">
+                                                                <span className="text-gray-700 dark:text-gray-200">{d.name}</span>
+                                                                <span className="text-red-500">Rp {formatNumber(d.remaining)}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                                                    <div className="h-full bg-theme" style={{width: `${d.pct}%`}}></div>
+                                                                </div>
+                                                                <span className="text-[10px] font-bold text-gray-400 w-8 text-right">{Math.floor(d.pct)}%</span>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                    {debtProgressList.length === 0 && <p className="text-xs text-center text-gray-400 italic">Belum ada hutang tercatat.</p>}
+                                                    <button onClick={() => setIsAddDebtModal(true)} className="w-full py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 rounded-xl text-sm font-bold hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">+ Tambah Hutang Baru</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        )}
                                     </div>
 
-                                    {/* CONTENT (Expenses List) */}
-                                    <div className="px-5 pt-4 flex-1 pb-10">
+                                    {/* LIST CONTENT */}
+                                    <div className="px-5 pt-4 pb-10">
                                         {Object.keys(groupedExpenses).length === 0 ? (
-                                        <div className="text-center py-10 text-gray-300 flex flex-col items-center">
-                                            <p className="font-semibold text-sm">Belum ada pengeluaran.</p>
+                                        <div className="text-center py-10 text-gray-300 dark:text-gray-600">
+                                            <p className="font-semibold text-sm">Belum ada {currentTab === 'spending'?'pengeluaran':currentTab==='income'?'pemasukan':'pembayaran hutang'}.</p>
                                         </div>
                                         ) : (
                                         <div className="pb-6">
                                             {Object.entries(groupedExpenses).map(([dateStr, dayExpenses]) => (
                                             <div key={dateStr} className="mb-6 relative">
-                                                <div className="py-1 mb-2">
-                                                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{dateStr}</span>
-                                                </div>
-                                                
+                                                <div className="py-1 mb-2"><span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{dateStr}</span></div>
                                                 <div className="space-y-3 mt-1">
                                                 {dayExpenses.map((expense) => {
-                                                    const pctNum = parseFloat(((expense.amount / budget) * 100).toFixed(1));
                                                     return (
-                                                    <div key={expense.id} className="group flex items-center py-1 relative animate-in fade-in duration-300">
-                                                        {appSettings.showTime && (
-                                                        <div className="flex-shrink-0 mr-2 opacity-50" title={new Date(expense.date).toLocaleTimeString()}>
-                                                            {getTimeIcon(expense.date)}
-                                                        </div>
-                                                        )}
-                                                        <div className="text-[15px] text-gray-700 font-normal">
-                                                            {expense.description}
-                                                        </div>
-                                                        <div className="flex-1 border-b border-dashed border-gray-300 mx-2 mt-2 opacity-60"></div>
+                                                    <div key={expense.id} className="flex items-center py-1 animate-in fade-in duration-300">
+                                                        <div className="text-[15px] text-gray-700 dark:text-gray-200 font-medium">{expense.description}</div>
+                                                        <div className="flex-1 border-b border-dashed border-gray-200 dark:border-gray-800 mx-3 mt-2"></div>
                                                         <div className="flex items-center">
-                                                            <span className="text-[11px] text-gray-400 mr-0.5">Rp</span>
-                                                            <span className="text-[15px] text-gray-900 font-medium tracking-tight mr-2">
-                                                                {formatNumber(expense.amount)}
-                                                            </span>
-                                                            <div className="bg-red-100/80 px-1.5 py-0.5 rounded flex items-center justify-center min-w-[34px]">
-                                                                <span className="text-[10px] font-bold text-red-800">
-                                                                    {pctNum}%
-                                                                </span>
-                                                            </div>
+                                                            <span className="text-[11px] text-gray-400 dark:text-gray-500 mr-0.5">Rp</span>
+                                                            <span className={`text-[15px] font-bold tracking-tight ${currentTab==='income'?'text-theme':currentTab==='debt'?'text-blue-500':'text-gray-900 dark:text-white'}`}>{formatNumber(expense.amount)}</span>
                                                         </div>
                                                     </div>
                                                     );
@@ -1296,334 +763,208 @@
                                     </div>
                                 </div>
 
-                                <div className="absolute bottom-0 left-0 w-full bg-white border-t border-gray-200 pb-safe z-50 shadow-[0_-5px_15px_rgba(0,0,0,0.03)]">
-                                    <form onSubmit={handleAddExpense} className="flex px-4 py-3 items-center">
-                                        <input
-                                            type="text"
-                                            value={descInput}
-                                            onChange={(e) => setDescInput(e.target.value)}
-                                            placeholder="Buat apa uangnya?"
-                                            className="flex-1 bg-transparent border-none text-[16px] font-normal text-gray-800 outline-none placeholder-gray-400 focus:ring-0 p-0"
-                                            required
-                                        />
-                                        <div className="w-px h-6 bg-gray-200 mx-3"></div>
-                                        <input
-                                            type="text"
-                                            value={amountInput}
-                                            onChange={(e) => {
-                                                const rawValue = e.target.value.replace(/\D/g, '');
-                                                setAmountInput(rawValue ? parseInt(rawValue).toLocaleString('id-ID') : '');
-                                            }}
-                                            placeholder="Berapa?"
-                                            className="w-24 bg-transparent border-none text-[16px] font-semibold text-gray-900 outline-none placeholder-gray-300 focus:ring-0 p-0 text-right mr-3"
-                                            required
-                                        />
-                                        <button 
-                                            type="submit"
-                                            disabled={!amountInput || !descInput.trim()}
-                                            className="bg-red-700 hover:bg-red-800 text-white rounded-full p-2.5 flex items-center justify-center transition-all active:scale-90 disabled:opacity-30 disabled:active:scale-100"
-                                        >
-                                            <TrendingDown className="w-4 h-4" strokeWidth={3} />
+                                {/* FLOATING CAPSULE INPUT FORM */}
+                                <div className="absolute bottom-6 left-4 right-4 z-50">
+                                    <form onSubmit={handleSubmitInput} className="flex items-center bg-white dark:bg-gray-800 p-1.5 rounded-full shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] border border-gray-100 dark:border-gray-700 backdrop-blur-lg">
+                                        
+                                        {currentTab === 'debt' ? (
+                                            <select value={descInput} onChange={e=>setDescInput(e.target.value)} className="flex-1 bg-transparent border-none text-[15px] font-medium text-gray-800 dark:text-white outline-none pl-3 appearance-none" required>
+                                                <option value="" disabled className="text-gray-400">Pilih Hutang...</option>
+                                                {debts.filter(d => { const paid = debtPayments.filter(p=>p.debtId===d.id).reduce((s,p)=>s+p.amount,0); return d.totalAmount > paid; }).map(d => (
+                                                    <option key={d.id} value={d.id} className="text-black">{d.name}</option>
+                                                ))}
+                                            </select>
+                                        ) : (
+                                            <input type="text" value={descInput} onChange={e=>setDescInput(e.target.value)} placeholder={currentTab==='income'?"Sumber dana?":"Beli apa?"} className="flex-1 w-0 bg-transparent border-none text-[15px] font-medium text-gray-800 dark:text-white outline-none placeholder-gray-400 dark:placeholder-gray-500 px-3 focus:ring-0" required />
+                                        )}
+                                        
+                                        <div className="w-[1px] h-5 bg-gray-200 dark:bg-gray-700 mx-1"></div>
+                                        
+                                        <input type="text" value={amountInput} onChange={(e) => { const r=e.target.value.replace(/\D/g, ''); setAmountInput(r?parseInt(r).toLocaleString('id-ID'):''); }} placeholder="Rp 0" className="w-24 bg-transparent border-none text-[15px] font-bold text-gray-900 dark:text-white outline-none placeholder-gray-300 dark:placeholder-gray-600 focus:ring-0 text-right px-2" required />
+                                        
+                                        <button type="submit" disabled={!amountInput || !descInput.trim()} className="bg-theme hover:opacity-80 text-white rounded-full p-3 ml-1 flex items-center justify-center transition-all active:scale-90 disabled:opacity-30 disabled:active:scale-100 shrink-0 shadow-sm">
+                                            {currentTab === 'spending' ? <TrendingDown className="w-4 h-4" strokeWidth={3} /> : currentTab === 'income' ? <TrendingUp className="w-4 h-4" strokeWidth={3} /> : <Wallet className="w-4 h-4" />}
                                         </button>
                                     </form>
                                 </div>
                             </div>
 
-                            {/* ===================== CALENDAR PANE ===================== */}
-                            <div className="w-1/2 h-full bg-gray-50 flex flex-col relative overflow-hidden shadow-[inset_10px_0_20px_-10px_rgba(0,0,0,0.05)]">
-                                <div className="shrink-0 flex items-center justify-between px-4 pt-6 pb-4 bg-white border-b border-gray-100 shadow-sm z-10">
+                            {/* CALENDAR PANE */}
+                            <div className="w-1/2 h-full bg-gray-50 dark:bg-gray-950 flex flex-col relative overflow-hidden shadow-[inset_10px_0_20px_-10px_rgba(0,0,0,0.05)] dark:shadow-[inset_10px_0_20px_-10px_rgba(0,0,0,0.2)] border-l border-gray-200 dark:border-gray-800">
+                                <div className="shrink-0 flex items-center justify-between px-4 pt-4 pb-3 bg-white dark:bg-gray-900 shadow-sm z-10 border-b border-gray-100 dark:border-gray-800">
                                     <div className="flex items-center">
-                                        <button 
-                                            onClick={() => setCurrentView('home')} 
-                                            className="p-2 -ml-2 bg-gray-100 rounded-full text-gray-500 hover:text-gray-900 transition-colors"
-                                        >
-                                            <ChevronLeft className="w-6 h-6" />
-                                        </button>
-                                        <div className="ml-3">
-                                            <h2 className="text-lg font-bold text-gray-900 whitespace-nowrap">{calendarData.monthName}</h2>
-                                        </div>
+                                        <button onClick={() => setCurrentView('home')} className="p-2 -ml-2 text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors"><ChevronLeft className="w-6 h-6" /></button>
+                                        <h2 className="text-lg font-bold ml-1">{calendarData.monthName}</h2>
                                     </div>
-                                    <div className="text-right flex items-center gap-1">
-                                        <button onClick={() => changeMonth(-1)} disabled={isStartMonth()} className={`p-2 rounded-full transition-colors ${isStartMonth() ? 'text-gray-300 opacity-50 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-100'}`}><ChevronUp className="w-5 h-5" /></button>
-                                        <button onClick={() => changeMonth(1)} className="p-2 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"><ChevronDown className="w-5 h-5" /></button>
-                                        <div className="w-px h-5 bg-gray-200 mx-1"></div>
-                                        <button onClick={() => setIsSettingsOpen(true)} className="p-2 rounded-full text-gray-500 hover:bg-gray-100 transition-colors">
-                                            <SettingsIcon className="w-5 h-5" />
-                                        </button>
+                                    <div className="flex items-center gap-1">
+                                        <button onClick={() => changeMonth(-1)} disabled={isStartMonth()} className={`p-2 rounded-full transition-colors ${isStartMonth() ? 'text-gray-300 dark:text-gray-700' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}`}><ChevronUp className="w-5 h-5" /></button>
+                                        <button onClick={() => changeMonth(1)} className="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"><ChevronDown className="w-5 h-5" /></button>
+                                        <div className="w-px h-5 bg-gray-200 dark:bg-gray-700 mx-1"></div>
+                                        <button onClick={() => setIsSettingsOpen(true)} className="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"><SettingsIcon className="w-5 h-5" /></button>
                                     </div>
                                 </div>
 
-                                <div 
-                                    className={`flex-1 min-h-0 overflow-y-auto p-5 pb-20 transition-all duration-150 ${isAnimatingMonth ? `opacity-0 ${monthAnimDir > 0 ? '-translate-y-4' : 'translate-y-4'}` : 'opacity-100 translate-y-0'}`}
-                                    onTouchEnd={(e) => {
-                                        e.stopPropagation(); 
-                                        onCalendarTouchEnd(e);
-                                    }}
-                                >
-                                    <div className="grid grid-cols-5 gap-2">
+                                <div className={`flex-1 min-h-0 overflow-y-auto p-4 pb-20 transition-all duration-150 ${isAnimatingMonth ? `opacity-0 ${monthAnimDir > 0 ? '-translate-y-4' : 'translate-y-4'}` : 'opacity-100 translate-y-0'}`} onTouchEnd={(e) => { e.stopPropagation(); onCalendarTouchEnd(e); }}>
+                                    <div className="grid grid-cols-5 gap-1.5">
                                         {calendarData.days.map((dayObj, i) => {
-                                            const targetBudget = parseInt(userProfile.promiseBudget) || 0;
-                                            let bgClass = '';
-                                            let textClass = '';
-                                            let showData = false;
-
-                                            if (dayObj.isFuture || dayObj.isBeforeStart) {
-                                                bgClass = 'bg-gray-100 border-gray-200 opacity-50';
-                                                textClass = 'text-gray-400';
-                                            } else {
-                                                showData = true;
-                                                if (dayObj.dailyExpense <= targetBudget) {
-                                                    bgClass = 'bg-green-50 border-green-200';
-                                                    textClass = 'text-green-600';
-                                                } else {
-                                                    bgClass = 'bg-red-50 border-red-200';
-                                                    textClass = 'text-red-600';
-                                                }
+                                            const target = parseInt(userProfile.promiseBudget) || 0;
+                                            let bg = 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800';
+                                            let text = 'text-gray-600 dark:text-gray-400';
+                                            if (dayObj.isFuture || dayObj.isBeforeStart) { bg = 'bg-gray-50 dark:bg-gray-950 opacity-40 border-transparent'; text = 'text-gray-400 dark:text-gray-600'; }
+                                            else if (dayObj.dailyTotal > 0) {
+                                                if(currentTab === 'spending') {
+                                                    if(dayObj.dailyTotal <= target) { bg = 'bg-theme/10 border-theme/20'; text = 'text-theme'; }
+                                                    else { bg = 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-900/50'; text = 'text-red-500'; }
+                                                } else if (currentTab === 'income') { bg = 'bg-theme/10 border-theme/20'; text = 'text-theme'; }
+                                                else { bg = 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-900/50'; text = 'text-blue-500'; }
                                             }
 
                                             return (
-                                                <div 
-                                                    key={i} 
-                                                    onClick={() => showData && setSelectedDateReceipt(dayObj)}
-                                                    className={`flex flex-col items-center justify-center p-2 rounded-xl border ${
-                                                    dayObj.isToday ? 'ring-2 ring-blue-400 ring-offset-1' : ''
-                                                    } ${bgClass} ${showData ? 'cursor-pointer active:scale-95 transition-transform' : ''} aspect-square relative`}
-                                                >
-                                                    <span className={`absolute top-1.5 left-2 text-[10px] font-bold ${textClass}`}>
-                                                        {dayObj.day}
-                                                    </span>
-                                                    {showData && (
-                                                        <div className="mt-3 flex flex-col items-center leading-tight">
-                                                            {dayObj.dailyExpense > 0 && <span className={`text-[10px] sm:text-[11px] font-bold tracking-tight text-red-600`}>-{formatCompact(dayObj.dailyExpense)}</span>}
-                                                            {dayObj.dailyExpense === 0 && <span className={`text-[11px] font-bold tracking-tight text-gray-400`}>0</span>}
-                                                        </div>
+                                                <div key={i} onClick={() => !dayObj.isFuture && !dayObj.isBeforeStart && setSelectedDateReceipt(dayObj)} className={`flex flex-col items-center justify-center p-1.5 rounded-lg border ${dayObj.isToday ? 'ring-2 ring-blue-400 ring-offset-1 dark:ring-offset-gray-900' : ''} ${bg} aspect-square relative cursor-pointer active:scale-95 transition-transform`}>
+                                                    <span className={`absolute top-1 left-1.5 text-[9px] font-bold ${text}`}>{dayObj.day}</span>
+                                                    {!dayObj.isFuture && !dayObj.isBeforeStart && dayObj.dailyTotal > 0 && (
+                                                        <span className={`mt-3 text-[9px] font-bold tracking-tighter ${currentTab==='spending'?'text-red-500':currentTab==='income'?'text-theme':'text-blue-500'}`}>{formatCompact(dayObj.dailyTotal)}</span>
                                                     )}
                                                 </div>
                                             )
                                         })}
                                     </div>
-                                    <div className="mt-8 p-5 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-center">
-                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Pengeluaran Bulan Ini</p>
-                                        <p className="text-2xl font-bold text-red-600 tracking-tight">-Rp {formatNumber(calendarData.totalSpentMonth)}</p>
+                                    <div className="mt-6 p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm text-center">
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total {currentTab==='spending'?'Pengeluaran':currentTab==='income'?'Pemasukan':'Pembayaran'} Bulan Ini</p>
+                                        <p className={`text-2xl font-bold tracking-tight ${currentTab==='spending'?'text-red-500':currentTab==='income'?'text-theme':'text-blue-500'}`}>{currentTab==='spending'?'-':'+'}Rp {formatNumber(calendarData.totalMonth)}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* INCOME MODAL OVERLAY */}
-                        {isIncomeModalOpen && (
-                            <div className="fixed inset-0 z-[110] bg-black/60 flex items-center justify-center p-6 animate-in fade-in duration-200" onClick={() => setIsIncomeModalOpen(false)}>
-                                <div className="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden flex flex-col p-6" onClick={e => e.stopPropagation()}>
-                                    <h3 className="font-bold text-gray-900 text-xl mb-4 text-center">Tambah Pemasukan</h3>
-                                    <form onSubmit={handleAddIncome} className="space-y-4">
-                                        <input
-                                            type="text"
-                                            value={incomeDescInput}
-                                            onChange={(e) => setIncomeDescInput(e.target.value)}
-                                            placeholder="Sumber Dana (mis. Bonus, Jual Barang)"
-                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-green-500 outline-none text-[16px]"
-                                            required
-                                        />
-                                        <div className="relative">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">Rp</span>
-                                            <input
-                                                type="text"
-                                                value={incomeAmountInput}
-                                                onChange={(e) => {
-                                                    const rawValue = e.target.value.replace(/\D/g, '');
-                                                    setIncomeAmountInput(rawValue ? parseInt(rawValue).toLocaleString('id-ID') : '');
-                                                }}
-                                                placeholder="Jumlah Pemasukan"
-                                                className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-green-500 outline-none text-[16px] font-semibold text-green-700"
-                                                required
-                                            />
+                        {/* RECEIPT MODAL */}
+                        {selectedDateReceipt && (
+                            <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 animate-in fade-in duration-200" onClick={() => setSelectedDateReceipt(null)}>
+                                <div className="w-full max-w-sm drop-shadow-2xl" onClick={e => e.stopPropagation()}>
+                                    <div className="receipt-mask bg-white dark:bg-gray-100 w-full flex flex-col max-h-[80vh] text-black">
+                                        <div className="p-5 border-b border-gray-300 border-dashed shrink-0">
+                                            <h3 className="text-center font-black uppercase tracking-widest text-lg">Catatan {currentTab}</h3>
+                                            <p className="text-center text-xs text-gray-500 mt-1 font-semibold">{selectedDateReceipt.dateStr}</p>
                                         </div>
+                                        <div className="p-5 flex-1 overflow-y-auto">
+                                            <div className="space-y-3">
+                                                {selectedDateReceipt.exps.map(exp => (
+                                                    <div key={exp.id} className="flex justify-between items-center text-sm border-b border-gray-100 pb-2 last:border-0">
+                                                        <span className="text-gray-700 font-medium">{exp.description}</span>
+                                                        <span className="font-bold text-gray-900">{formatNumber(exp.amount)}</span>
+                                                    </div>
+                                                ))}
+                                                {selectedDateReceipt.exps.length === 0 && <p className="text-center text-gray-400 text-sm italic">Kosong.</p>}
+                                            </div>
+                                        </div>
+                                        <div className="p-5 pt-0 shrink-0">
+                                            <div className="border-t-2 border-black pt-3 flex justify-between font-black text-sm">
+                                                <span>TOTAL</span>
+                                                <span>Rp {formatNumber(selectedDateReceipt.dailyTotal)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ADD DEBT MODAL */}
+                        {isAddDebtModal && (
+                            <div className="fixed inset-0 z-[110] bg-black/60 flex items-center justify-center p-6 animate-in fade-in" onClick={() => setIsAddDebtModal(false)}>
+                                <div className="bg-white dark:bg-gray-800 w-full max-w-sm rounded-3xl shadow-xl overflow-hidden flex flex-col p-6" onClick={e => e.stopPropagation()}>
+                                    <h3 className="font-bold text-gray-900 dark:text-white text-xl mb-4 text-center">Tambah Hutang Baru</h3>
+                                    <form onSubmit={addNewDebt} className="space-y-4">
+                                        <input name="debtName" type="text" placeholder="Nama Hutang (mis. Paylater, Pinjaman Bank)" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl outline-none" required />
+                                        <input name="debtAmount" type="text" onChange={(e)=>{const v=e.target.value.replace(/\D/g,''); e.target.value=v?parseInt(v).toLocaleString('id-ID'):'';}} placeholder="Total Jumlah (Rp)" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl outline-none font-bold text-red-600" required />
                                         <div className="flex gap-3 pt-2">
-                                            <button type="button" onClick={() => setIsIncomeModalOpen(false)} className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold">Batal</button>
-                                            <button type="submit" disabled={!incomeAmountInput || !incomeDescInput.trim()} className="flex-1 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold disabled:opacity-50">Tambah</button>
+                                            <button type="button" onClick={() => setIsAddDebtModal(false)} className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 rounded-xl font-bold">Batal</button>
+                                            <button type="submit" className="flex-1 py-3 bg-theme text-white rounded-xl font-bold">Tambah</button>
                                         </div>
                                     </form>
                                 </div>
                             </div>
                         )}
 
-                        {/* RECEIPT MODAL */}
-                        {selectedDateReceipt && (
-                            <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-6 animate-in fade-in duration-200 drop-shadow-2xl" onClick={() => setSelectedDateReceipt(null)}>
-                                <div className="w-full max-w-sm" onClick={e => e.stopPropagation()}>
-                                    <div className="receipt-mask bg-white w-full flex flex-col max-h-[80vh]">
-                                        <div className="bg-white p-5 border-b border-gray-300 border-dashed shrink-0 rounded-t-xl">
-                                            <h3 className="text-center font-bold text-gray-800 uppercase tracking-widest text-lg">List Pengeluaran</h3>
-                                            <p className="text-center text-xs text-gray-500 mt-1 font-semibold">{selectedDateReceipt.dateStr}</p>
-                                        </div>
-                                        <div className="p-5 flex-1 overflow-y-auto bg-white">
-                                            {(() => {
-                                                const dayExps = expenses.filter(exp => 
-                                                    exp.type !== 'income' && 
-                                                    new Date(exp.date).toDateString() === new Date(new Date().getFullYear(), new Date().getMonth() + currentMonthOffset, selectedDateReceipt.day).toDateString()
-                                                );
-                                                return (
-                                                    <div className="space-y-3">
-                                                        {dayExps.map(exp => (
-                                                            <div key={exp.id} className="flex justify-between items-center text-sm">
-                                                                <span className="text-gray-600">{exp.description}</span>
-                                                                <span className="font-semibold text-gray-800">
-                                                                    -Rp {formatNumber(exp.amount)}
-                                                                </span>
-                                                            </div>
-                                                        ))}
-                                                        {dayExps.length === 0 && <p className="text-center text-gray-400 text-sm italic">Tidak ada transaksi.</p>}
-                                                    </div>
-                                                );
-                                            })()}
-                                        </div>
-                                        <div className="bg-white p-5 pt-0 shrink-0">
-                                            <div className="border-t border-gray-200 pt-4 flex justify-between font-bold text-sm">
-                                                <span className="text-gray-600">Total Pengeluaran</span>
-                                                <span className="text-red-600">-Rp {formatNumber(selectedDateReceipt.dailyExpense)}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* SETTINGS / EDIT MODAL */}
+                        {/* SETTINGS MODAL */}
                         {isSettingsOpen && (
-                        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                            <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
-                                
+                        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in">
+                            <div className="bg-white dark:bg-gray-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl flex flex-col max-h-[90vh] border border-gray-100 dark:border-gray-800">
                                 <div className="flex justify-between items-center mb-6 shrink-0">
-                                    <h2 className="text-xl font-bold text-gray-900">{isEditMode ? 'Edit Transaksi' : 'Pengaturan'}</h2>
-                                    <button onClick={() => { setIsSettingsOpen(false); setIsEditMode(false); }} className="p-1 text-gray-400 hover:text-gray-800">
-                                        <XIcon className="w-6 h-6" />
-                                    </button>
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">{isEditMode ? 'Edit Data' : 'Pengaturan'}</h2>
+                                    <button onClick={() => { setIsSettingsOpen(false); setIsEditMode(false); }} className="p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-gray-800 rounded-full transition-colors"><XIcon className="w-5 h-5" /></button>
                                 </div>
 
-                                <div className="overflow-y-auto flex-1 pb-4">
+                                <div className="overflow-y-auto flex-1 pb-4 pr-1">
                                     {isEditMode ? (
                                         <div className="space-y-3">
-                                            <button onClick={() => setIsEditMode(false)} className="text-blue-500 text-sm font-semibold mb-2 flex items-center"><ChevronLeft className="w-4 h-4 mr-1"/> Kembali</button>
+                                            <button onClick={() => setIsEditMode(false)} className="text-blue-500 text-sm font-semibold mb-4 flex items-center"><ChevronLeft className="w-4 h-4 mr-1"/> Kembali</button>
                                             {expenses.map(exp => (
-                                                <div key={exp.id} className="flex gap-2 items-center bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-                                                    <input 
-                                                        defaultValue={exp.description} 
-                                                        onBlur={(e) => handleEditExpense(exp.id, 'description', e.target.value)} 
-                                                        className="flex-1 w-full bg-white px-2 py-1.5 rounded border border-gray-200 text-[16px]"
-                                                    />
-                                                    <input 
-                                                        defaultValue={exp.amount} 
-                                                        onBlur={(e) => handleEditExpense(exp.id, 'amount', parseInt(e.target.value.replace(/\D/g, '')) || 0)} 
-                                                        className={`w-20 bg-white px-2 py-1.5 rounded border border-gray-200 text-[16px] font-semibold ${exp.type === 'income' ? 'text-green-600' : 'text-gray-800'}`}
-                                                    />
-                                                    <button onClick={() => handleDeleteExpense(exp.id)} className="p-2 text-red-500 hover:bg-red-50 rounded">
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
+                                                <div key={exp.id} className="flex gap-2 items-center bg-gray-50 dark:bg-gray-800 p-2.5 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                    <input defaultValue={exp.description} onBlur={(e) => handleEditExpense(exp.id, 'description', e.target.value)} className="flex-1 w-full bg-white dark:bg-gray-900 px-2 py-1.5 rounded border border-gray-200 dark:border-gray-700 text-sm" />
+                                                    <input defaultValue={exp.amount} onBlur={(e) => handleEditExpense(exp.id, 'amount', parseInt(e.target.value.replace(/\D/g, '')) || 0)} className="w-20 bg-white dark:bg-gray-900 px-2 py-1.5 rounded border border-gray-200 dark:border-gray-700 text-sm font-bold" />
+                                                    <button onClick={() => handleDeleteExpense(exp.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"><Trash2 className="w-4 h-4" /></button>
                                                 </div>
                                             ))}
-                                            {expenses.length === 0 && <p className="text-center text-gray-400 text-sm mt-4">Kosong</p>}
+                                            {expenses.length === 0 && <p className="text-center text-gray-400 text-sm italic">Kosong</p>}
                                         </div>
                                     ) : (
-                                        <div className="space-y-4">
-                                            
-                                            {/* PWA Download Banner inside Settings (Sembunyi kalau sudah Fullscreen/Standalone) */}
+                                        <div className="space-y-5">
                                             {!isStandalone && (
-                                                <button 
-                                                    onClick={handleInstallApp}
-                                                    className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl font-bold shadow-md hover:from-blue-700 hover:to-blue-600 transition-all mb-4"
-                                                >
-                                                    <DownloadIcon className="w-5 h-5" />
-                                                    Download Web App
+                                                <button onClick={handleInstallApp} className="w-full flex items-center justify-center gap-2 py-3.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-bold shadow-lg hover:scale-[0.98] transition-all mb-2">
+                                                    <DownloadIcon className="w-5 h-5" /> Download Web App
                                                 </button>
                                             )}
 
-                                            <div className="bg-[#e0f2fe] rounded-lg p-5 shadow-sm border border-[#bae6fd] relative flex items-center">
-                                                <div className="flex-1 pr-4 z-10">
-                                                    <h3 className="font-bold text-[#0c4a6e] text-xl leading-tight mb-0.5 uppercase tracking-wide">
-                                                        {userProfile.name}
-                                                    </h3>
-                                                    <p className="text-[#0284c7] text-sm font-semibold mb-3">
-                                                        {userProfile.age} Tahun
-                                                    </p>
-                                                    <p className="text-[#0369a1] text-[10px] font-medium italic leading-snug border-l-2 border-[#7dd3fc] pl-2">
-                                                        "Aku adalah orang yang disiplin finansial"
-                                                    </p>
+                                            <div className="bg-theme/10 rounded-2xl p-4 border border-theme/20 flex items-center gap-4">
+                                                <div className="flex-1">
+                                                    <h3 className="font-black text-theme text-xl leading-tight mb-1 uppercase tracking-wide">{userProfile.name}</h3>
+                                                    <p className="text-theme/70 text-sm font-semibold mb-2">{userProfile.age} Tahun</p>
                                                 </div>
-                                                <div className="w-[60px] h-[80px] rounded-md bg-white border-2 border-[#bae6fd] flex items-center justify-center text-4xl shadow-sm z-10 shrink-0">
-                                                    {userProfile.gender === 'male' ? '👨' : '👩'}
-                                                </div>
+                                                <div className="w-[60px] h-[80px] rounded-lg bg-white dark:bg-gray-800 border-2 border-theme/30 flex items-center justify-center text-3xl shadow-sm shrink-0">{userProfile.gender === 'male' ? '👨' : '👩'}</div>
                                             </div>
 
-                                            <button 
-                                                onClick={() => setIsEditMode(true)}
-                                                className="w-full flex items-center justify-center gap-2 py-3 bg-blue-50 text-blue-600 rounded-xl font-semibold border border-blue-100 hover:bg-blue-100 transition-colors"
-                                            >
+                                            <button onClick={() => setIsEditMode(true)} className="w-full flex items-center justify-center gap-2 py-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl font-bold border border-blue-100 dark:border-blue-800 transition-colors">
                                                 <Edit3 className="w-4 h-4" /> Edit Data Transaksi
                                             </button>
 
-                                            <label className="flex flex-col p-3 bg-gray-50 rounded-xl">
-                                                <span className="text-sm font-semibold text-gray-700 mb-1">Target Harian (Rp)</span>
-                                                <input 
-                                                    type="text"
-                                                    value={userProfile.promiseBudget ? parseInt(userProfile.promiseBudget).toLocaleString('id-ID') : ''}
-                                                    onChange={(e) => {
-                                                        const rawValue = e.target.value.replace(/\D/g, '');
-                                                        setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
-                                                    }}
-                                                    onBlur={handleUpdateProfile}
-                                                    className="px-3 py-2 border border-gray-200 rounded-lg text-[16px] bg-white"
-                                                    placeholder="Contoh: 50000"
-                                                />
-                                            </label>
+                                            <div className="space-y-3 pt-2">
+                                                <h4 className="font-bold text-gray-900 dark:text-white text-sm uppercase">Tampilan & Tema</h4>
+                                                
+                                                <div className="flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
+                                                    {['light', 'system', 'dark'].map(t => (
+                                                        <button key={t} onClick={() => setAppSettings({...appSettings, theme: t})} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all capitalize ${appSettings.theme === t ? 'bg-white dark:bg-gray-600 shadow-sm text-theme' : 'text-gray-500'}`}>{t}</button>
+                                                    ))}
+                                                </div>
 
-                                            <label className="flex flex-col p-3 bg-gray-50 rounded-xl">
-                                                <span className="text-sm font-semibold text-gray-700 mb-1">Anggaran Bulanan (Rp)</span>
-                                                <input 
-                                                    type="text"
-                                                    value={budget ? parseInt(budget).toLocaleString('id-ID') : ''}
-                                                    onChange={(e) => {
-                                                        const rawValue = e.target.value.replace(/\D/g, '');
-                                                        setBudget(rawValue ? parseInt(rawValue) : 0);
-                                                    }}
-                                                    onBlur={handleUpdateProfile}
-                                                    className="px-3 py-2 border border-gray-200 rounded-lg text-[16px] bg-white"
-                                                />
-                                            </label>
+                                                <label className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 cursor-pointer overflow-hidden relative">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full bg-theme flex items-center justify-center text-white"><ImageInfo className="w-4 h-4" /></div>
+                                                        <span className="text-sm font-semibold">Tema Kustom (Galeri)</span>
+                                                    </div>
+                                                    <input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                                </label>
+                                                {appSettings.customColor && (
+                                                    <button onClick={() => setAppSettings({...appSettings, customColor: null})} className="text-[11px] text-red-500 font-bold w-full text-right pr-2">Reset Warna Tema</button>
+                                                )}
+                                            </div>
 
-                                            <label className="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer">
-                                                <span className="text-sm font-semibold text-gray-700">Tampilkan Splash Screen</span>
-                                                <input 
-                                                    type="checkbox" 
-                                                    checked={appSettings.showSplash}
-                                                    onChange={(e) => setAppSettings({...appSettings, showSplash: e.target.checked})}
-                                                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                                                />
-                                            </label>
+                                            <div className="space-y-3 pt-2">
+                                                <h4 className="font-bold text-gray-900 dark:text-white text-sm uppercase">Fitur Tab</h4>
+                                                {['spending', 'income', 'debt'].map(key => (
+                                                    <label key={key} className="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-xl cursor-pointer">
+                                                        <span className="text-sm font-medium capitalize">{key === 'spending' ? 'Pengeluaran' : key === 'income' ? 'Pemasukan' : 'Hutang'}</span>
+                                                        <input type="checkbox" checked={appSettings.tracks[key]} onChange={e => setAppSettings({...appSettings, tracks:{...appSettings.tracks, [key]: e.target.checked}})} className="w-5 h-5 text-theme rounded focus:ring-theme" />
+                                                    </label>
+                                                ))}
+                                                <label className="flex flex-col px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                                    <span className="text-xs font-bold text-gray-500 mb-1">Tab Utama (Default)</span>
+                                                    <select value={appSettings.defaultTab} onChange={e=>setAppSettings({...appSettings, defaultTab: e.target.value})} className="bg-transparent font-bold text-theme outline-none">
+                                                        {activeTabs.map(t => <option key={t} value={t} className="text-black">{t}</option>)}
+                                                    </select>
+                                                </label>
+                                            </div>
 
-                                            <label className="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer">
-                                                <span className="text-sm font-semibold text-gray-700">Tampilkan Waktu</span>
-                                                <input 
-                                                    type="checkbox" 
-                                                    checked={appSettings.showTime}
-                                                    onChange={(e) => setAppSettings({...appSettings, showTime: e.target.checked})}
-                                                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                                                />
-                                            </label>
-                                            
-                                            <label className="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer mb-6">
-                                                <span className="text-sm font-semibold text-gray-700">Peringatan Harian</span>
-                                                <input 
-                                                    type="checkbox" 
-                                                    checked={appSettings.showRecap}
-                                                    onChange={(e) => setAppSettings({...appSettings, showRecap: e.target.checked})}
-                                                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                                                />
-                                            </label>
-
-                                            <button 
-                                                onClick={handleLogout}
-                                                className="w-full flex items-center justify-center gap-2 py-3 bg-red-50 text-red-600 rounded-xl font-bold border border-red-100 hover:bg-red-100 transition-colors mt-8"
-                                            >
+                                            <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 py-4 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl font-bold border border-red-100 dark:border-red-900 mt-8 transition-colors">
                                                 <LogOutIcon className="w-5 h-5" /> Log Out
                                             </button>
                                         </div>
@@ -1639,17 +980,6 @@
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
-    </script>
-
-    <!-- Service Worker Registration for PWA -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(registration => console.log('ServiceWorker terdaftar'))
-                    .catch(err => console.log('ServiceWorker gagal terdaftar: ', err));
-            });
-        }
     </script>
 </body>
 </html>
