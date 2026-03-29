@@ -1407,140 +1407,140 @@
                                     <CalendarIcon className="w-6 h-6" strokeWidth={1.5} />
                                 </button>
 
-                                <div className="flex-1 min-h-0 overflow-y-auto pb-32" onScroll={handleHomeScroll}>
-                                    
-                                    {/* UNIFIED ANIMATED STICKY HEADER */}
-                                    <div className={`sticky top-0 w-full z-40 px-5 transition-all duration-500 ease-in-out ${
-                                        isScrolled ? `pt-6 pb-3 ${uiStyle.header}` : 'pt-16 pb-12 bg-transparent'
-                                    }`}>
-                                        <div className="flex flex-col items-center justify-center w-full relative">
-                                            <span className={`font-bold ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-800' : 'text-gray-400 dark:text-gray-400'} uppercase tracking-widest transition-all duration-500 ${
-                                                isScrolled ? 'text-[10px] mb-0.5' : 'text-sm mb-2'
-                                            }`}>Sisa Uang</span>
-                                            
-                                            <div className={`flex items-start justify-center ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-900 dark:text-white'} transition-all duration-500 ${
-                                                isScrolled ? 'mb-3' : 'mb-6'
+                                {/* HEADER */}
+                                <div className={`w-full z-40 px-5 transition-all duration-500 ease-in-out shrink-0 relative ${
+                                    isScrolled ? `pt-6 pb-3 ${uiStyle.header}` : 'pt-16 pb-12 bg-transparent'
+                                }`}>
+                                    <div className="flex flex-col items-center justify-center w-full relative">
+                                        <span className={`font-bold ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-800' : 'text-gray-400 dark:text-gray-400'} uppercase tracking-widest transition-all duration-500 ${
+                                            isScrolled ? 'text-[10px] mb-0.5' : 'text-sm mb-2'
+                                        }`}>Sisa Uang</span>
+                                        
+                                        <div className={`flex items-start justify-center ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-900 dark:text-white'} transition-all duration-500 ${
+                                            isScrolled ? 'mb-3' : 'mb-6'
+                                        }`}>
+                                            <span className={`font-medium ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'} transition-all duration-500 ${
+                                            isScrolled ? 'text-xs mt-1 mr-1' : 'text-xl mt-3 mr-1'
+                                            }`}>Rp</span>
+                                            <span className={`font-bold tracking-tight leading-none transition-all duration-500 ${
+                                            isScrolled ? 'text-3xl' : 'text-[5rem]'
                                             }`}>
-                                                <span className={`font-medium ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'} transition-all duration-500 ${
-                                                isScrolled ? 'text-xs mt-1 mr-1' : 'text-xl mt-3 mr-1'
-                                                }`}>Rp</span>
-                                                <span className={`font-bold tracking-tight leading-none transition-all duration-500 ${
-                                                isScrolled ? 'text-3xl' : 'text-[5rem]'
-                                                }`}>
-                                                <AnimatedNumber value={remaining} formatFn={formatNumber} />
-                                                </span>
-                                            </div>
-                                            
-                                            <div className={`overflow-hidden transition-all duration-500 flex justify-center items-center gap-2 ${
-                                                isScrolled ? 'max-h-0 opacity-0 mb-0' : 'max-h-20 opacity-100 mb-8'
+                                            <AnimatedNumber value={remaining} formatFn={formatNumber} />
+                                            </span>
+                                        </div>
+                                        
+                                        <div className={`overflow-hidden transition-all duration-500 flex justify-center items-center gap-2 ${
+                                            isScrolled ? 'max-h-0 opacity-0 mb-0' : 'max-h-20 opacity-100 mb-8'
+                                        }`}>
+                                            <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center shadow-sm transition-colors ${
+                                            isDangerBadge ? `bg-red-50/80 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50 animate-pulse ${isGlass ? 'shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'backdrop-blur-md'}` : `${uiStyle.cardSoft}`
                                             }`}>
-                                                <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center shadow-sm transition-colors ${
-                                                isDangerBadge ? `bg-red-50/80 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50 animate-pulse ${isGlass ? 'shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'backdrop-blur-md'}` : `${uiStyle.cardSoft}`
-                                                }`}>
-                                                    <span>Sisa {daysLeft} hari</span>
-                                                    <span className={`mx-2 ${isDangerBadge ? "text-red-300 dark:text-red-800" : "text-gray-300 dark:text-gray-500"}`}>•</span>
-                                                    <span>Rp {formatNumber(Math.round(Math.max(0, dailyAllowance)))} / hari</span>
-                                                </div>
-                                                <button onClick={(e) => { e.stopPropagation(); setIsIncomeModalOpen(true); }} className={`p-2 rounded-full hover:opacity-80 transition-colors shadow-sm ${uiStyle.cardSoft}`}>
-                                                    <Plus className="w-4 h-4" strokeWidth={3} />
-                                                </button>
+                                                <span>Sisa {daysLeft} hari</span>
+                                                <span className={`mx-2 ${isDangerBadge ? "text-red-300 dark:text-red-800" : "text-gray-300 dark:text-gray-500"}`}>•</span>
+                                                <span>Rp {formatNumber(Math.round(Math.max(0, dailyAllowance)))} / hari</span>
                                             </div>
+                                            <button onClick={(e) => { e.stopPropagation(); setIsIncomeModalOpen(true); }} className={`p-2 rounded-full hover:opacity-80 transition-colors shadow-sm ${uiStyle.cardSoft}`}>
+                                                <Plus className="w-4 h-4" strokeWidth={3} />
+                                            </button>
+                                        </div>
 
-                                            <div 
-                                                className={`relative w-full border-[3px] ring-1 transition-all duration-500 ease-in-out ${
-                                                percentage === 0 ? 'border-red-600 dark:border-red-500 animate-pulse bg-red-50 dark:bg-red-900/20 ring-red-200 dark:ring-red-900/50' : (isGlass ? 'border-white/50 dark:border-white/10 ring-white/20 dark:ring-white/5' : 'border-white dark:border-gray-900 ring-gray-200 dark:ring-gray-700')
-                                                } ${isScrolled ? 'h-6 rounded-md' : 'h-14 rounded-xl'} ${isGlass ? 'bg-white/20 dark:bg-black/20' : 'bg-gray-200 dark:bg-gray-800'}`}
-                                                style={{ boxShadow: getGlowStyle() }}
-                                            >
-                                                <div className={`absolute inset-0 overflow-hidden transition-all duration-500 ${isScrolled ? 'rounded-[4px]' : 'rounded-[9px]'}`}>
-                                                    <div className={`absolute inset-0 bg-red-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isTakingDamage ? 'opacity-60' : 'opacity-0'}`}></div>
-                                                    <div className={`absolute inset-0 bg-green-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isHealing ? 'opacity-60' : 'opacity-0'}`}></div>
-                                                    <div className={`h-full transition-all relative z-0`} style={getBarStyle()}>
-                                                        <div className="absolute inset-0 bg-white/30 dark:bg-white/10 animate-breathe"></div>
-                                                    </div>
-                                                </div>
-
-                                                <div className={`absolute inset-0 flex items-center justify-start z-10 pointer-events-none transition-all duration-500 ${
-                                                isScrolled ? 'px-2' : 'px-4'
-                                                }`}>
-                                                <span className={`font-bold transition-all duration-500 ${
-                                                    percentage < 40 && percentage > 0 ? (isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-800 dark:text-gray-200') : percentage === 0 ? 'text-red-500' : 'text-white/90'
-                                                } ${isScrolled ? 'text-[10px]' : 'text-sm'}`}>
-                                                    {percentage.toFixed(0)}%
-                                                </span>
+                                        <div 
+                                            className={`relative w-full border-[3px] ring-1 transition-all duration-500 ease-in-out ${
+                                            percentage === 0 ? 'border-red-600 dark:border-red-500 animate-pulse bg-red-50 dark:bg-red-900/20 ring-red-200 dark:ring-red-900/50' : (isGlass ? 'border-white/50 dark:border-white/10 ring-white/20 dark:ring-white/5' : 'border-white dark:border-gray-900 ring-gray-200 dark:ring-gray-700')
+                                            } ${isScrolled ? 'h-6 rounded-md' : 'h-14 rounded-xl'} ${isGlass ? 'bg-white/20 dark:bg-black/20' : 'bg-gray-200 dark:bg-gray-800'}`}
+                                            style={{ boxShadow: getGlowStyle() }}
+                                        >
+                                            <div className={`absolute inset-0 overflow-hidden transition-all duration-500 ${isScrolled ? 'rounded-[4px]' : 'rounded-[9px]'}`}>
+                                                <div className={`absolute inset-0 bg-red-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isTakingDamage ? 'opacity-60' : 'opacity-0'}`}></div>
+                                                <div className={`absolute inset-0 bg-green-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isHealing ? 'opacity-60' : 'opacity-0'}`}></div>
+                                                <div className={`h-full transition-all relative z-0`} style={getBarStyle()}>
+                                                    <div className="absolute inset-0 bg-white/30 dark:bg-white/10 animate-breathe"></div>
                                                 </div>
                                             </div>
 
-                                            {appSettings.showRecap && yesterdayRecap && (
-                                                <div className={`overflow-hidden transition-all duration-500 w-full ${
-                                                isScrolled ? 'max-h-20 opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'
-                                                }`}>
-                                                    <div className={`p-2 rounded-lg text-[11px] font-bold flex items-center justify-between ${
-                                                        yesterdayRecap.overspent 
-                                                        ? `bg-red-50/80 dark:bg-red-900/40 border border-red-200 dark:border-red-800/50 text-red-700 dark:text-red-400 animate-pulse ${isGlass ? 'shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'backdrop-blur-md'}` 
-                                                        : `theme-bg-light theme-border theme-text ${uiStyle.cardSoft}`
-                                                    }`}>
-                                                        <span>{yesterdayRecap.overspent ? '⚠️ Kemarin Overbudget!' : '🔥 Kemarin Hemat!'}</span>
-                                                        <span>{yesterdayRecap.overspent ? '-' : '+'} Rp {formatNumber(yesterdayRecap.amount)}</span>
-                                                    </div>
-                                                </div>
-                                            )}
+                                            <div className={`absolute inset-0 flex items-center justify-start z-10 pointer-events-none transition-all duration-500 ${
+                                            isScrolled ? 'px-2' : 'px-4'
+                                            }`}>
+                                            <span className={`font-bold transition-all duration-500 ${
+                                                percentage < 40 && percentage > 0 ? (isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-800 dark:text-gray-200') : percentage === 0 ? 'text-red-500' : 'text-white/90'
+                                            } ${isScrolled ? 'text-[10px]' : 'text-sm'}`}>
+                                                {percentage.toFixed(0)}%
+                                            </span>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    {/* CONTENT (Expenses List) */}
-                                    <div className="px-5 pt-4 flex-1 pb-16">
-                                        {Object.keys(groupedExpenses).length === 0 ? (
-                                        <div className={`text-center py-10 flex flex-col items-center ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-600' : 'text-gray-400 dark:text-gray-500'}`}>
-                                            <p className="font-semibold text-sm">Belum ada pengeluaran.</p>
-                                        </div>
-                                        ) : (
-                                        <div className="pb-6">
-                                            {Object.entries(groupedExpenses).map(([dateStr, dayExpenses]) => (
-                                            <div key={dateStr} className="mb-6 relative">
-                                                <div className="py-1 mb-2">
-                                                <span className={`text-[11px] font-bold uppercase tracking-widest ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>{dateStr}</span>
-                                                </div>
-                                                
-                                                <div className="space-y-3 mt-1">
-                                                {dayExpenses.map((expense) => {
-                                                    const pctNum = parseFloat(((expense.amount / budget) * 100).toFixed(1));
-                                                    return (
-                                                    <div key={expense.id} className={`group flex items-center py-2 px-3 rounded-xl relative animate-in fade-in duration-300 ${isGlass ? 'bg-white/30 dark:bg-black/40 border border-white/40 dark:border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : ''}`}>
-                                                        {appSettings.showTime && (
-                                                        <div className="flex-shrink-0 mr-2 opacity-60" title={new Date(expense.date).toLocaleTimeString()}>
-                                                            {getTimeIcon(expense.date)}
-                                                        </div>
-                                                        )}
-                                                        <div className={`text-[15px] font-medium ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-800 dark:text-gray-200'}`}>
-                                                            {expense.description}
-                                                        </div>
-                                                        <div className={`flex-1 border-b border-dashed mx-3 opacity-40 ${isGlass && appSettings.themeLuminance === 'light' ? 'border-gray-500' : 'border-gray-300 dark:border-gray-600'}`}></div>
-                                                        <div className="flex items-center">
-                                                            <span className={`text-[11px] mr-0.5 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>Rp</span>
-                                                            <span className={`text-[15px] font-bold tracking-tight mr-2 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
-                                                                {formatNumber(expense.amount)}
-                                                            </span>
-                                                            <div className="bg-red-100/80 dark:bg-red-900/40 px-1.5 py-0.5 rounded flex items-center justify-center min-w-[34px]">
-                                                                <span className="text-[10px] font-bold text-red-800 dark:text-red-300">
-                                                                    {pctNum}%
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    );
-                                                })}
+                                        {appSettings.showRecap && yesterdayRecap && (
+                                            <div className={`overflow-hidden transition-all duration-500 w-full ${
+                                            isScrolled ? 'max-h-20 opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'
+                                            }`}>
+                                                <div className={`p-2 rounded-lg text-[11px] font-bold flex items-center justify-between ${
+                                                    yesterdayRecap.overspent 
+                                                    ? `bg-red-50/80 dark:bg-red-900/40 border border-red-200 dark:border-red-800/50 text-red-700 dark:text-red-400 animate-pulse ${isGlass ? 'shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'backdrop-blur-md'}` 
+                                                    : `theme-bg-light theme-border theme-text ${uiStyle.cardSoft}`
+                                                }`}>
+                                                    <span>{yesterdayRecap.overspent ? '⚠️ Kemarin Overbudget!' : '🔥 Kemarin Hemat!'}</span>
+                                                    <span>{yesterdayRecap.overspent ? '-' : '+'} Rp {formatNumber(yesterdayRecap.amount)}</span>
                                                 </div>
                                             </div>
-                                            ))}
-                                        </div>
                                         )}
                                     </div>
+                                    {!isGlass && (
+                                        <div className={`absolute top-full left-0 w-full h-8 bg-gradient-to-b from-white/95 dark:from-gray-900/95 to-transparent pointer-events-none transition-opacity duration-500 ${isScrolled ? 'opacity-100' : 'opacity-0'}`}></div>
+                                    )}
                                 </div>
 
-                                {/* Floating Capsule Input Form */}
-                                <div className="absolute left-0 right-0 mx-auto w-[90%] z-50 bottom-safe-capsule pointer-events-none transition-all duration-300">
-                                    <form onSubmit={handleAddExpense} className={`flex px-4 py-2.5 items-center rounded-full pointer-events-auto ${uiStyle.capsule}`}>
+                                {/* CONTENT (Expenses List) */}
+                                <div className="flex-1 min-h-0 overflow-y-auto px-5 pt-4 pb-4" onScroll={handleHomeScroll}>
+                                    {Object.keys(groupedExpenses).length === 0 ? (
+                                    <div className={`text-center py-10 flex flex-col items-center ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-600' : 'text-gray-400 dark:text-gray-500'}`}>
+                                        <p className="font-semibold text-sm">Belum ada pengeluaran.</p>
+                                    </div>
+                                    ) : (
+                                    <div className="pb-6">
+                                        {Object.entries(groupedExpenses).map(([dateStr, dayExpenses]) => (
+                                        <div key={dateStr} className="mb-6 relative">
+                                            <div className="py-1 mb-2">
+                                            <span className={`text-[11px] font-bold uppercase tracking-widest ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>{dateStr}</span>
+                                            </div>
+                                            
+                                            <div className="space-y-3 mt-1">
+                                            {dayExpenses.map((expense) => {
+                                                const pctNum = parseFloat(((expense.amount / budget) * 100).toFixed(1));
+                                                return (
+                                                <div key={expense.id} className={`group flex items-center py-2 px-3 rounded-xl relative animate-in fade-in duration-300 ${isGlass ? 'bg-white/30 dark:bg-black/40 border border-white/40 dark:border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : ''}`}>
+                                                    {appSettings.showTime && (
+                                                    <div className="flex-shrink-0 mr-2 opacity-60" title={new Date(expense.date).toLocaleTimeString()}>
+                                                        {getTimeIcon(expense.date)}
+                                                    </div>
+                                                    )}
+                                                    <div className={`text-[15px] font-medium ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-800 dark:text-gray-200'}`}>
+                                                        {expense.description}
+                                                    </div>
+                                                    <div className={`flex-1 border-b border-dashed mx-3 opacity-40 ${isGlass && appSettings.themeLuminance === 'light' ? 'border-gray-500' : 'border-gray-300 dark:border-gray-600'}`}></div>
+                                                    <div className="flex items-center">
+                                                        <span className={`text-[11px] mr-0.5 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>Rp</span>
+                                                        <span className={`text-[15px] font-bold tracking-tight mr-2 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                                                            {formatNumber(expense.amount)}
+                                                        </span>
+                                                        <div className="bg-red-100/80 dark:bg-red-900/40 px-1.5 py-0.5 rounded flex items-center justify-center min-w-[34px]">
+                                                            <span className="text-[10px] font-bold text-red-800 dark:text-red-300">
+                                                                {pctNum}%
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                );
+                                            })}
+                                            </div>
+                                        </div>
+                                        ))}
+                                    </div>
+                                    )}
+                                </div>
+
+                                {/* Floating Capsule Input Form Container */}
+                                <div className="w-full shrink-0 z-50 flex justify-center bg-transparent" style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))', paddingTop: '12px' }}>
+                                    <form onSubmit={handleAddExpense} className={`flex px-4 py-2.5 items-center rounded-full pointer-events-auto w-[90%] transition-all duration-300 ${uiStyle.capsule}`}>
                                         <input
                                             type="text"
                                             value={descInput}
