@@ -26,6 +26,31 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              /* Override default cool gray to pure neutral gray for the CorelDRAW dark look */
+              gray: {
+                50: '#fafafa',
+                100: '#f5f5f5',
+                200: '#e5e5e5',
+                300: '#d4d4d4',
+                400: '#a3a3a3',
+                500: '#737373',
+                600: '#525252',
+                700: '#404040',
+                800: '#262626',
+                900: '#171717',
+                950: '#0a0a0a',
+              }
+            }
+          }
+        }
+      }
+    </script>
     
     <style>
         /* Mengunci layar agar tidak bounce oleh Safari/Chrome */
@@ -40,6 +65,11 @@
             overscroll-behavior-y: none;
             margin: 0;
             padding: 0;
+            transition: background-color 0.3s ease;
+        }
+
+        .dark body {
+            background-color: #0a0a0a; /* neutral-950 */
         }
 
         #root {
@@ -95,6 +125,9 @@
             -webkit-mask: var(--mask);
                     mask: var(--mask);
         }
+        .dark .receipt-mask {
+            background-color: #171717; /* neutral-900 */
+        }
 
         /* ==========================================
            SPLASH SCREEN ANIMATION STYLES
@@ -128,6 +161,12 @@
             top: 0;
             left: 0;
             z-index: 99999;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .splash-wrapper { background: #0a0a0a; color: white; }
+            .splash-title .char[data-char="u"]::before,
+            .splash-title .char[data-char="U"]::before { color: white !important; }
         }
 
         .splash-wrapper * {
@@ -322,6 +361,7 @@
         const GoogleIcon = ({ className }) => <svg className={className} viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>;
         const Plus = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
         const DownloadIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+        const ImageIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>;
 
         // --- PWA INSTALL PROMPT COMPONENT ---
         const PWANotif = ({ show, onInstall, onClose }) => {
@@ -329,18 +369,18 @@
 
             return (
                 <div className="fixed top-4 left-0 right-0 z-[100000] px-4 flex justify-center animate-slide-down-notif">
-                    <div className="bg-white/90 backdrop-blur-xl shadow-2xl border border-gray-200 rounded-3xl p-3 flex items-center gap-3 w-full max-w-sm cursor-pointer" onClick={onInstall}>
-                        <div className="w-12 h-12 rounded-[10px] bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-200">
+                    <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl shadow-2xl border border-gray-200 dark:border-gray-700 rounded-3xl p-3 flex items-center gap-3 w-full max-w-sm cursor-pointer" onClick={onInstall}>
+                        <div className="w-12 h-12 rounded-[10px] bg-gray-100 dark:bg-gray-900 overflow-hidden flex-shrink-0 border border-gray-200 dark:border-gray-700">
                             <img src="icon-512.png" alt="Icon" className="w-full h-full object-cover" onError={(e) => e.target.style.display='none'} />
                         </div>
                         <div className="flex-1 text-left">
-                            <h4 className="font-bold text-gray-900 text-[14px] leading-tight">Download this App</h4>
-                            <p className="text-[11px] text-gray-500 font-medium">Biar lebih cepat tanpa browser</p>
+                            <h4 className="font-bold text-gray-900 dark:text-white text-[14px] leading-tight">Download this App</h4>
+                            <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">Biar lebih cepat tanpa browser</p>
                         </div>
                         <button className="bg-blue-600 hover:bg-blue-700 text-white text-[13px] font-bold py-1.5 px-4 rounded-full shadow-sm transition-colors">
                             Get
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="p-1.5 text-gray-400 hover:bg-gray-100 rounded-full ml-1 transition-colors">
+                        <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="p-1.5 text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full ml-1 transition-colors">
                             <XIcon className="w-4 h-4" />
                         </button>
                     </div>
@@ -436,11 +476,38 @@
         const App = () => {
             const [appSettings, setAppSettings] = useState(() => {
                 const saved = localStorage.getItem('app_settings');
-                const parsed = saved ? JSON.parse(saved) : { showTime: false, showRecap: true, showSplash: true };
+                const parsed = saved ? JSON.parse(saved) : { showTime: false, showRecap: true, showSplash: true, themeMode: 'system', customTheme: null };
                 if (parsed.showSplash === undefined) parsed.showSplash = true;
+                if (!parsed.themeMode) parsed.themeMode = 'system';
                 return parsed;
             });
             const [isSplashVisible, setIsSplashVisible] = useState(appSettings.showSplash);
+
+            // --- Theme Enforcement Logic ---
+            useEffect(() => {
+                const root = document.documentElement;
+                const applyDark = () => root.classList.add('dark');
+                const applyLight = () => root.classList.remove('dark');
+
+                if (appSettings.themeMode === 'dark') {
+                    applyDark();
+                } else if (appSettings.themeMode === 'light') {
+                    applyLight();
+                } else {
+                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) applyDark();
+                    else applyLight();
+                }
+
+                const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+                const handleChange = (e) => {
+                    if (appSettings.themeMode === 'system') {
+                        if (e.matches) applyDark();
+                        else applyLight();
+                    }
+                };
+                mediaQuery.addEventListener('change', handleChange);
+                return () => mediaQuery.removeEventListener('change', handleChange);
+            }, [appSettings.themeMode]);
 
             // --- Cloud States ---
             const [firebaseUser, setFirebaseUser] = useState(null);
@@ -478,6 +545,7 @@
             const [incomeAmountInput, setIncomeAmountInput] = useState('');
             const [incomeDescInput, setIncomeDescInput] = useState('');
             const [selectedDateReceipt, setSelectedDateReceipt] = useState(null);
+            const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
             
             const [isTakingDamage, setIsTakingDamage] = useState(false);
             const [isHealing, setIsHealing] = useState(false);
@@ -634,6 +702,15 @@
 
             const getBarStyle = () => {
                 if (percentage === 0) return { backgroundColor: 'transparent', width: '0%' };
+                
+                if (appSettings.customTheme && percentage > 20) {
+                    return {
+                        backgroundColor: 'var(--theme-main)',
+                        width: `${percentage}%`,
+                        transitionDuration: '2.5s'
+                    };
+                }
+
                 const hue = percentage > 50 ? 120 : (percentage / 50) * 120;
                 return { 
                     backgroundColor: `hsl(${hue}, 85%, 45%)`,
@@ -642,12 +719,24 @@
                 };
             };
 
+            const getGlowStyle = () => {
+                let defaultGlow = isScrolled ? 'rgba(34, 197, 94, 0.4)' : 'rgba(34, 197, 94, 0.5)';
+                let activeGlow = percentage === 100 ? defaultGlow : 'none';
+                if (isHealing) activeGlow = 'rgba(34, 197, 94, 0.8)';
+                
+                if (appSettings.customTheme && percentage > 20) {
+                    if (percentage === 100) activeGlow = 'var(--theme-glow)';
+                    if (isHealing) activeGlow = 'var(--theme-glow-strong)';
+                }
+                return activeGlow !== 'none' ? `0 0 25px 6px ${activeGlow}` : 'none';
+            };
+
             const getTimeIcon = (dateStr) => {
                 const hour = new Date(dateStr).getHours();
-                if (hour >= 5 && hour < 11) return <Sunrise className="w-4 h-4 text-gray-400" />;
-                if (hour >= 11 && hour < 15) return <Sun className="w-4 h-4 text-gray-400" />;
-                if (hour >= 15 && hour < 18) return <Sunset className="w-4 h-4 text-gray-400" />;
-                return <Moon className="w-4 h-4 text-gray-400" />;
+                if (hour >= 5 && hour < 11) return <Sunrise className="w-4 h-4 text-gray-400 dark:text-gray-500" />;
+                if (hour >= 11 && hour < 15) return <Sun className="w-4 h-4 text-gray-400 dark:text-gray-500" />;
+                if (hour >= 15 && hour < 18) return <Sunset className="w-4 h-4 text-gray-400 dark:text-gray-500" />;
+                return <Moon className="w-4 h-4 text-gray-400 dark:text-gray-500" />;
             };
 
             const { daysLeft, dailyAllowance, yesterdayRecap } = useMemo(() => {
@@ -837,6 +926,65 @@
                 } 
             };
 
+            // Custom Theme Uploader
+            const handleImageUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        const MAX_SIZE = 100; // Small size for faster processing
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > height && width > MAX_SIZE) {
+                            height *= MAX_SIZE / width;
+                            width = MAX_SIZE;
+                        } else if (height > MAX_SIZE) {
+                            width *= MAX_SIZE / height;
+                            height = MAX_SIZE;
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        const data = ctx.getImageData(0, 0, width, height).data;
+                        let maxScore = 0;
+                        let bestR = 34, bestG = 197, bestB = 94; // fallback to generic green
+                        
+                        for (let i = 0; i < data.length; i += 4) {
+                            let r = data[i];
+                            let g = data[i+1];
+                            let b = data[i+2];
+                            let a = data[i+3];
+                            
+                            if (a < 255) continue;
+                            
+                            let max = Math.max(r, g, b);
+                            let min = Math.min(r, g, b);
+                            let sat = max === 0 ? 0 : (max - min) / max;
+                            let val = max / 255;
+                            
+                            let score = sat * val * 100;
+                            
+                            if (sat > 0.15 && val > 0.15 && score > maxScore) {
+                                maxScore = score;
+                                bestR = r; bestG = g; bestB = b;
+                            }
+                        }
+                        
+                        setAppSettings({...appSettings, customTheme: `rgb(${bestR}, ${bestG}, ${bestB})`});
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            };
+
             // ==========================================
             // DATA MUTATION
             // ==========================================
@@ -978,52 +1126,52 @@
 
             if (loginStep === 'auth') {
                 return (
-                    <div className="fixed inset-0 bg-white flex flex-col items-center justify-center p-6 z-50">
+                    <div className="fixed inset-0 bg-white dark:bg-gray-950 flex flex-col items-center justify-center p-6 z-50">
                         <div className="w-12 h-12 border-4 border-green-200 border-t-green-500 rounded-full animate-spin"></div>
-                        <p className="mt-4 text-gray-500 font-medium">Connecting...</p>
+                        <p className="mt-4 text-gray-500 dark:text-gray-400 font-medium">Connecting...</p>
                     </div>
                 );
             }
 
             if (loginStep === 'login') {
                 return (
-                    <div className="fixed inset-0 bg-white flex flex-col items-center justify-center p-6 text-center z-50">
+                    <div className="fixed inset-0 bg-white dark:bg-gray-950 flex flex-col items-center justify-center p-6 text-center z-50">
                         <PWANotif show={showPWANotif} onInstall={handleInstallApp} onClose={() => setShowPWANotif(false)} />
                         
                         <div className="w-full max-w-sm flex flex-col items-center">
                             
                             <div className="flex items-end mb-4">
-                                <h1 className="text-6xl font-black text-gray-900 tracking-tighter">Wang</h1>
+                                <h1 className="text-6xl font-black text-gray-900 dark:text-white tracking-tighter">Wang</h1>
                                 <div className="w-4 h-4 bg-green-500 rounded-full ml-1.5 mb-1.5"></div>
                             </div>
 
-                            <p className="text-sm text-gray-500 mb-10 px-2 font-medium leading-relaxed">
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-10 px-2 font-medium leading-relaxed">
                                 atur pengeluaran biar kamu selamat sampai akhir bulan, dan biar ga insomnia uang habis ke mana
                             </p>
 
                             <div className="w-full space-y-3">
-                                <p className="text-xs font-bold text-gray-400 mb-4 uppercase tracking-widest">
+                                <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-4 uppercase tracking-widest">
                                     Login biar pengeluaranmu tersimpan
                                 </p>
 
                                 <button 
                                     onClick={handleGoogleLogin}
-                                    className="w-full py-4 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-2xl font-bold text-[15px] transition-transform active:scale-95 flex items-center justify-center shadow-sm"
+                                    className="w-full py-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-2xl font-bold text-[15px] transition-transform active:scale-95 flex items-center justify-center shadow-sm"
                                 >
                                     <GoogleIcon className="w-5 h-5 mr-3" />
                                     Lanjutkan dengan Google
                                 </button>
                                 
                                 <div className="flex items-center py-2 opacity-50">
-                                    <div className="flex-grow border-t border-gray-300"></div>
+                                    <div className="flex-grow border-t border-gray-300 dark:border-gray-700"></div>
                                     <span className="px-4 text-xs text-gray-400 font-bold uppercase tracking-wider">atau</span>
-                                    <div className="flex-grow border-t border-gray-300"></div>
+                                    <div className="flex-grow border-t border-gray-300 dark:border-gray-700"></div>
                                 </div>
 
                                 <button 
                                     type="button"
                                     onClick={handleGuestLogin}
-                                    className="w-full py-4 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-2xl font-bold text-[15px] transition-transform active:scale-95 shadow-sm"
+                                    className="w-full py-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-2xl font-bold text-[15px] transition-transform active:scale-95 shadow-sm"
                                 >
                                     Lanjut sebagai Guest
                                 </button>
@@ -1035,38 +1183,53 @@
 
             if (loginStep === 'setup') {
                 return (
-                    <div className="fixed inset-0 bg-white flex flex-col items-center justify-center p-6 z-50">
+                    <div className="fixed inset-0 bg-white dark:bg-gray-950 flex flex-col items-center justify-center p-6 z-50">
                         <PWANotif show={showPWANotif} onInstall={handleInstallApp} onClose={() => setShowPWANotif(false)} />
+                        {appSettings.customTheme && (
+                            <style>{`
+                                :root {
+                                    --theme-main: ${appSettings.customTheme};
+                                    --theme-glow: ${appSettings.customTheme.replace('rgb', 'rgba').replace(')', ', 0.5)')};
+                                    --theme-glow-strong: ${appSettings.customTheme.replace('rgb', 'rgba').replace(')', ', 0.8)')};
+                                    --theme-light: ${appSettings.customTheme.replace('rgb', 'rgba').replace(')', ', 0.15)')};
+                                }
+                                .theme-bg { background-color: var(--theme-main) !important; color: white !important; }
+                                .theme-text { color: var(--theme-main) !important; }
+                                .theme-border { border-color: var(--theme-main) !important; }
+                                .theme-ring { --tw-ring-color: var(--theme-main) !important; }
+                                .theme-bg-light { background-color: var(--theme-light) !important; }
+                            `}</style>
+                        )}
                         <div className="w-full max-w-md space-y-6">
                         
                         {setupStep === 1 && (
                             <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                                <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">Siapa nama kamu?</h1>
+                                <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-8">Siapa nama kamu?</h1>
                                 <div className="space-y-4">
                                     <input
                                         type="text"
                                         value={userProfile.name}
                                         onChange={(e) => setUserProfile({...userProfile, name: e.target.value})}
                                         placeholder="Nama Asli"
-                                        className="w-full px-5 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-blue-500 outline-none transition-colors"
+                                        className="w-full px-5 py-4 text-[16px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-blue-500 outline-none transition-colors"
                                     />
                                     <input
                                         type="number"
                                         value={userProfile.age}
                                         onChange={(e) => setUserProfile({...userProfile, age: e.target.value})}
                                         placeholder="Umur"
-                                        className="w-full px-5 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-blue-500 outline-none transition-colors"
+                                        className="w-full px-5 py-4 text-[16px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-blue-500 outline-none transition-colors"
                                     />
                                     <div className="flex gap-4 pt-4">
                                         <button 
                                             onClick={() => setUserProfile({...userProfile, gender: 'male'})}
-                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'male' ? 'border-blue-500 bg-blue-50 scale-105' : 'border-gray-200 bg-white hover:bg-gray-50'}`}
+                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'male' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 scale-105' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
                                         >
                                             👨
                                         </button>
                                         <button 
                                             onClick={() => setUserProfile({...userProfile, gender: 'female'})}
-                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'female' ? 'border-pink-500 bg-pink-50 scale-105' : 'border-gray-200 bg-white hover:bg-gray-50'}`}
+                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'female' ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/30 scale-105' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
                                         >
                                             👩
                                         </button>
@@ -1074,7 +1237,7 @@
                                     <button 
                                         onClick={() => setSetupStep(2)}
                                         disabled={!userProfile.name || !userProfile.age || !userProfile.gender}
-                                        className="w-full mt-8 py-4 bg-gray-900 text-white rounded-2xl font-bold text-lg disabled:opacity-50"
+                                        className="w-full mt-8 py-4 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-2xl font-bold text-lg disabled:opacity-50"
                                     >
                                         Lanjut
                                     </button>
@@ -1084,14 +1247,14 @@
 
                         {setupStep === 2 && (
                             <form onSubmit={handleFinishSetup} className="animate-in fade-in slide-in-from-right-4 duration-300">
-                                <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
-                                    <Wallet className="w-8 h-8 text-green-600" />
+                                <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mb-6">
+                                    <Wallet className="w-8 h-8 text-green-600 dark:text-green-400" />
                                 </div>
-                                <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">Tentukan Anggaranmu</h1>
+                                <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-8">Tentukan Anggaranmu</h1>
                                 
                                 <div className="space-y-4">
                                     <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">Rp</span>
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-bold">Rp</span>
                                         <input
                                             type="text"
                                             value={budget ? budget.toLocaleString('id-ID') : ''}
@@ -1100,13 +1263,13 @@
                                                 setBudget(rawValue ? parseFloat(rawValue) : 0);
                                             }}
                                             placeholder="Total Anggaran Bulanan"
-                                            className="w-full pl-12 pr-4 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-green-500 outline-none"
+                                            className="w-full pl-12 pr-4 py-4 text-[16px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-green-500 outline-none"
                                             required
                                         />
                                     </div>
 
                                     <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">Rp</span>
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-bold">Rp</span>
                                         <input
                                             type="text"
                                             value={userProfile.promiseBudget ? parseInt(userProfile.promiseBudget).toLocaleString('id-ID') : ''}
@@ -1115,13 +1278,13 @@
                                                 setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
                                             }}
                                             placeholder="Target Pengeluaran Harian"
-                                            className="w-full pl-12 pr-4 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-green-500 outline-none"
+                                            className="w-full pl-12 pr-4 py-4 text-[16px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-green-500 outline-none"
                                             required
                                         />
                                     </div>
 
                                     <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"><CalendarIcon className="w-5 h-5"/></span>
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400"><CalendarIcon className="w-5 h-5"/></span>
                                         <input
                                             type="number"
                                             min="1"
@@ -1129,12 +1292,12 @@
                                             value={paycheckDate}
                                             onChange={(e) => setPaycheckDate(e.target.value ? parseInt(e.target.value) : '')}
                                             placeholder="Tanggal Gajian (1-31)"
-                                            className="w-full pl-12 pr-4 py-4 text-[16px] border-2 border-gray-200 rounded-2xl focus:border-green-500 outline-none"
+                                            className="w-full pl-12 pr-4 py-4 text-[16px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-green-500 outline-none"
                                             required
                                         />
                                     </div>
 
-                                    <button type="submit" className="w-full py-4 bg-green-500 hover:bg-green-600 text-white rounded-2xl font-bold text-lg active:scale-95 transition-all mt-6">
+                                    <button type="submit" className="w-full py-4 bg-green-500 hover:bg-green-600 theme-bg text-white rounded-2xl font-bold text-lg active:scale-95 transition-all mt-6">
                                         Mulai Bertahan
                                     </button>
                                 </div>
@@ -1146,10 +1309,26 @@
             }
 
             return (
-                <div className="fixed inset-0 bg-gray-50 flex justify-center w-full overflow-hidden">
+                <div className="fixed inset-0 bg-gray-50 dark:bg-gray-950 flex justify-center w-full overflow-hidden transition-colors duration-300">
                     <PWANotif show={showPWANotif} onInstall={handleInstallApp} onClose={() => setShowPWANotif(false)} />
                     
-                    <div className="w-full max-w-md h-full bg-gray-50 relative shadow-sm overflow-hidden flex flex-col">
+                    {appSettings.customTheme && (
+                        <style>{`
+                            :root {
+                                --theme-main: ${appSettings.customTheme};
+                                --theme-glow: ${appSettings.customTheme.replace('rgb', 'rgba').replace(')', ', 0.5)')};
+                                --theme-glow-strong: ${appSettings.customTheme.replace('rgb', 'rgba').replace(')', ', 0.8)')};
+                                --theme-light: ${appSettings.customTheme.replace('rgb', 'rgba').replace(')', ', 0.15)')};
+                            }
+                            .theme-bg { background-color: var(--theme-main) !important; color: white !important; }
+                            .theme-text { color: var(--theme-main) !important; }
+                            .theme-border { border-color: var(--theme-main) !important; }
+                            .theme-ring { --tw-ring-color: var(--theme-main) !important; }
+                            .theme-bg-light { background-color: var(--theme-light) !important; }
+                        `}</style>
+                    )}
+
+                    <div className="w-full max-w-md h-full bg-gray-50 dark:bg-gray-950 relative shadow-sm overflow-hidden flex flex-col transition-colors duration-300">
                         
                         <div 
                             className="flex w-[200%] flex-1 min-h-0 transition-transform duration-300 ease-in-out"
@@ -1160,30 +1339,30 @@
                         >
                         
                             {/* ======================= HOME PANE ======================= */}
-                            <div className="w-1/2 h-full bg-white flex flex-col relative overflow-hidden">
+                            <div className="w-1/2 h-full bg-white dark:bg-gray-900 flex flex-col relative overflow-hidden transition-colors duration-300">
                                 
                                 <button 
                                     onClick={() => setCurrentView('calendar')}
-                                    className="absolute top-6 right-5 z-50 p-2 opacity-40 hover:opacity-100 transition-opacity"
+                                    className="absolute top-6 right-5 z-50 p-2 opacity-40 hover:opacity-100 transition-opacity text-gray-800 dark:text-white"
                                 >
-                                    <CalendarIcon className="w-6 h-6 text-gray-800" strokeWidth={1.5} />
+                                    <CalendarIcon className="w-6 h-6" strokeWidth={1.5} />
                                 </button>
 
                                 <div className="flex-1 min-h-0 overflow-y-auto pb-32" onScroll={handleHomeScroll}>
                                     
                                     {/* UNIFIED ANIMATED STICKY HEADER */}
-                                    <div className={`sticky top-0 w-full bg-white/95 backdrop-blur-md z-40 px-5 transition-all duration-500 ease-in-out ${
+                                    <div className={`sticky top-0 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md z-40 px-5 transition-all duration-500 ease-in-out ${
                                         isScrolled ? 'pt-6 pb-3' : 'pt-16 pb-12'
                                     }`}>
                                         <div className="flex flex-col items-center justify-center w-full relative">
-                                            <span className={`font-bold text-gray-400 uppercase tracking-widest transition-all duration-500 ${
+                                            <span className={`font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest transition-all duration-500 ${
                                                 isScrolled ? 'text-[10px] mb-0.5' : 'text-sm mb-2'
                                             }`}>Sisa Uang</span>
                                             
-                                            <div className={`flex items-start justify-center text-gray-900 transition-all duration-500 ${
+                                            <div className={`flex items-start justify-center text-gray-900 dark:text-white transition-all duration-500 ${
                                                 isScrolled ? 'mb-3' : 'mb-6'
                                             }`}>
-                                                <span className={`font-medium text-gray-500 transition-all duration-500 ${
+                                                <span className={`font-medium text-gray-500 dark:text-gray-400 transition-all duration-500 ${
                                                 isScrolled ? 'text-xs mt-1 mr-1' : 'text-xl mt-3 mr-1'
                                                 }`}>Rp</span>
                                                 <span className={`font-bold tracking-tight leading-none transition-all duration-500 ${
@@ -1197,28 +1376,28 @@
                                                 isScrolled ? 'max-h-0 opacity-0 mb-0' : 'max-h-20 opacity-100 mb-8'
                                             }`}>
                                                 <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center border shadow-sm transition-colors ${
-                                                isDangerBadge ? 'bg-red-50 text-red-700 border-red-200 animate-pulse' : 'bg-gray-100 text-gray-600 border-gray-200'
+                                                isDangerBadge ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/50 animate-pulse' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700'
                                                 }`}>
                                                     <span>Sisa {daysLeft} hari</span>
-                                                    <span className={`mx-2 ${isDangerBadge ? "text-red-300" : "text-gray-300"}`}>•</span>
-                                                    <span>Rp {formatNumber(Math.max(0, dailyAllowance))} / hari</span>
+                                                    <span className={`mx-2 ${isDangerBadge ? "text-red-300 dark:text-red-800" : "text-gray-300 dark:text-gray-600"}`}>•</span>
+                                                    <span>Rp {formatNumber(Math.round(Math.max(0, dailyAllowance)))} / hari</span>
                                                 </div>
-                                                <button onClick={(e) => { e.stopPropagation(); setIsIncomeModalOpen(true); }} className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-500 transition-colors shadow-sm">
+                                                <button onClick={(e) => { e.stopPropagation(); setIsIncomeModalOpen(true); }} className="p-2 rounded-full bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors shadow-sm">
                                                     <Plus className="w-4 h-4" strokeWidth={3} />
                                                 </button>
                                             </div>
 
                                             <div 
-                                                className={`relative w-full bg-gray-200 border-[3px] ring-1 transition-all duration-500 ease-in-out ${
-                                                percentage === 0 ? 'border-red-600 animate-pulse bg-red-50 ring-red-200' : 'border-white ring-gray-200'
+                                                className={`relative w-full bg-gray-200 dark:bg-gray-800 border-[3px] ring-1 transition-all duration-500 ease-in-out ${
+                                                percentage === 0 ? 'border-red-600 dark:border-red-500 animate-pulse bg-red-50 dark:bg-red-900/20 ring-red-200 dark:ring-red-900/50' : 'border-white dark:border-gray-900 ring-gray-200 dark:ring-gray-700'
                                                 } ${isScrolled ? 'h-6 rounded-md' : 'h-14 rounded-xl'}`}
-                                                style={{ boxShadow: isHealing ? '0 0 25px 6px rgba(34, 197, 94, 0.8)' : (percentage === 100 ? (isScrolled ? '0 0 15px 3px rgba(34, 197, 94, 0.4)' : '0 0 25px 6px rgba(34, 197, 94, 0.5)') : 'none') }}
+                                                style={{ boxShadow: getGlowStyle() }}
                                             >
                                                 <div className={`absolute inset-0 overflow-hidden transition-all duration-500 ${isScrolled ? 'rounded-[4px]' : 'rounded-[9px]'}`}>
                                                     <div className={`absolute inset-0 bg-red-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isTakingDamage ? 'opacity-60' : 'opacity-0'}`}></div>
                                                     <div className={`absolute inset-0 bg-green-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isHealing ? 'opacity-60' : 'opacity-0'}`}></div>
                                                     <div className={`h-full transition-all relative z-0`} style={getBarStyle()}>
-                                                        <div className="absolute inset-0 bg-white animate-breathe"></div>
+                                                        <div className="absolute inset-0 bg-white dark:bg-white/20 animate-breathe"></div>
                                                     </div>
                                                 </div>
 
@@ -1226,7 +1405,7 @@
                                                 isScrolled ? 'px-2' : 'px-4'
                                                 }`}>
                                                 <span className={`font-bold transition-all duration-500 ${
-                                                    percentage < 40 && percentage > 0 ? 'text-gray-800' : percentage === 0 ? 'text-red-500' : 'text-white/90'
+                                                    percentage < 40 && percentage > 0 ? 'text-gray-800 dark:text-gray-200' : percentage === 0 ? 'text-red-500' : 'text-white/90'
                                                 } ${isScrolled ? 'text-[10px]' : 'text-sm'}`}>
                                                     {percentage.toFixed(0)}%
                                                 </span>
@@ -1239,8 +1418,8 @@
                                                 }`}>
                                                     <div className={`p-2 rounded-lg text-[11px] font-bold flex items-center justify-between border ${
                                                         yesterdayRecap.overspent 
-                                                        ? 'bg-red-50 border-red-200 text-red-700 animate-pulse' 
-                                                        : 'bg-green-50 border-green-200 text-green-700'
+                                                        ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/50 text-red-700 dark:text-red-400 animate-pulse' 
+                                                        : 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/50 text-green-700 dark:text-green-400 theme-bg-light theme-border theme-text'
                                                     }`}>
                                                         <span>{yesterdayRecap.overspent ? '⚠️ Kemarin Overbudget!' : '🔥 Kemarin Hemat!'}</span>
                                                         <span>{yesterdayRecap.overspent ? '-' : '+'} Rp {formatNumber(yesterdayRecap.amount)}</span>
@@ -1248,13 +1427,13 @@
                                                 </div>
                                             )}
                                         </div>
-                                        <div className={`absolute top-full left-0 w-full h-8 bg-gradient-to-b from-white/95 to-transparent pointer-events-none transition-opacity duration-500 ${isScrolled ? 'opacity-100' : 'opacity-0'}`}></div>
+                                        <div className={`absolute top-full left-0 w-full h-8 bg-gradient-to-b from-white/95 dark:from-gray-900/95 to-transparent pointer-events-none transition-opacity duration-500 ${isScrolled ? 'opacity-100' : 'opacity-0'}`}></div>
                                     </div>
 
                                     {/* CONTENT (Expenses List) */}
                                     <div className="px-5 pt-4 flex-1 pb-16">
                                         {Object.keys(groupedExpenses).length === 0 ? (
-                                        <div className="text-center py-10 text-gray-300 flex flex-col items-center">
+                                        <div className="text-center py-10 text-gray-300 dark:text-gray-600 flex flex-col items-center">
                                             <p className="font-semibold text-sm">Belum ada pengeluaran.</p>
                                         </div>
                                         ) : (
@@ -1262,7 +1441,7 @@
                                             {Object.entries(groupedExpenses).map(([dateStr, dayExpenses]) => (
                                             <div key={dateStr} className="mb-6 relative">
                                                 <div className="py-1 mb-2">
-                                                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{dateStr}</span>
+                                                <span className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{dateStr}</span>
                                                 </div>
                                                 
                                                 <div className="space-y-3 mt-1">
@@ -1275,17 +1454,17 @@
                                                             {getTimeIcon(expense.date)}
                                                         </div>
                                                         )}
-                                                        <div className="text-[15px] text-gray-700 font-normal">
+                                                        <div className="text-[15px] text-gray-700 dark:text-gray-300 font-normal">
                                                             {expense.description}
                                                         </div>
-                                                        <div className="flex-1 border-b border-dashed border-gray-300 mx-2 mt-2 opacity-60"></div>
+                                                        <div className="flex-1 border-b border-dashed border-gray-300 dark:border-gray-700 mx-2 mt-2 opacity-60"></div>
                                                         <div className="flex items-center">
-                                                            <span className="text-[11px] text-gray-400 mr-0.5">Rp</span>
-                                                            <span className="text-[15px] text-gray-900 font-medium tracking-tight mr-2">
+                                                            <span className="text-[11px] text-gray-400 dark:text-gray-500 mr-0.5">Rp</span>
+                                                            <span className="text-[15px] text-gray-900 dark:text-gray-100 font-medium tracking-tight mr-2">
                                                                 {formatNumber(expense.amount)}
                                                             </span>
-                                                            <div className="bg-red-100/80 px-1.5 py-0.5 rounded flex items-center justify-center min-w-[34px]">
-                                                                <span className="text-[10px] font-bold text-red-800">
+                                                            <div className="bg-red-100/80 dark:bg-red-900/30 px-1.5 py-0.5 rounded flex items-center justify-center min-w-[34px]">
+                                                                <span className="text-[10px] font-bold text-red-800 dark:text-red-400">
                                                                     {pctNum}%
                                                                 </span>
                                                             </div>
@@ -1303,16 +1482,16 @@
 
                                 {/* Floating Capsule Input Form */}
                                 <div className="absolute left-0 right-0 mx-auto w-[90%] z-50 bottom-safe-capsule pointer-events-none transition-all duration-300">
-                                    <form onSubmit={handleAddExpense} className="flex px-4 py-2.5 items-center bg-white/95 backdrop-blur-xl border border-gray-200/80 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] pointer-events-auto">
+                                    <form onSubmit={handleAddExpense} className="flex px-4 py-2.5 items-center bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/80 dark:border-gray-700/80 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] pointer-events-auto">
                                         <input
                                             type="text"
                                             value={descInput}
                                             onChange={(e) => setDescInput(e.target.value)}
                                             placeholder="Buat apa uangnya?"
-                                            className="flex-1 min-w-0 bg-transparent border-none text-[16px] font-medium text-gray-800 outline-none placeholder-gray-400 focus:ring-0 p-0"
+                                            className="flex-1 min-w-0 bg-transparent border-none text-[16px] font-medium text-gray-800 dark:text-gray-200 outline-none placeholder-gray-400 dark:placeholder-gray-500 focus:ring-0 p-0"
                                             required
                                         />
-                                        <div className="w-px h-6 bg-gray-200 mx-3 shrink-0"></div>
+                                        <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-3 shrink-0"></div>
                                         <input
                                             type="text"
                                             value={amountInput}
@@ -1321,13 +1500,13 @@
                                                 setAmountInput(rawValue ? parseInt(rawValue).toLocaleString('id-ID') : '');
                                             }}
                                             placeholder="Berapa?"
-                                            className="w-20 sm:w-24 bg-transparent border-none text-[16px] font-bold text-gray-900 outline-none placeholder-gray-400 focus:ring-0 p-0 text-right mr-3 shrink-0"
+                                            className="w-20 sm:w-24 bg-transparent border-none text-[16px] font-bold text-gray-900 dark:text-gray-100 outline-none placeholder-gray-400 dark:placeholder-gray-500 focus:ring-0 p-0 text-right mr-3 shrink-0"
                                             required
                                         />
                                         <button 
                                             type="submit"
                                             disabled={!amountInput || !descInput.trim()}
-                                            className="bg-red-600 hover:bg-red-700 text-white rounded-full w-10 h-10 flex items-center justify-center transition-transform active:scale-90 disabled:opacity-30 disabled:active:scale-100 shrink-0 shadow-sm"
+                                            className="bg-red-600 hover:bg-red-700 theme-bg text-white rounded-full w-10 h-10 flex items-center justify-center transition-transform active:scale-90 disabled:opacity-30 disabled:active:scale-100 shrink-0 shadow-sm"
                                         >
                                             <TrendingDown className="w-5 h-5" strokeWidth={2.5} />
                                         </button>
@@ -1336,24 +1515,24 @@
                             </div>
 
                             {/* ===================== CALENDAR PANE ===================== */}
-                            <div className="w-1/2 h-full bg-gray-50 flex flex-col relative overflow-hidden shadow-[inset_10px_0_20px_-10px_rgba(0,0,0,0.05)]">
-                                <div className="shrink-0 flex items-center justify-between px-4 pt-6 pb-4 bg-white border-b border-gray-100 shadow-sm z-10">
+                            <div className="w-1/2 h-full bg-gray-50 dark:bg-gray-950 flex flex-col relative overflow-hidden shadow-[inset_10px_0_20px_-10px_rgba(0,0,0,0.05)] transition-colors duration-300">
+                                <div className="shrink-0 flex items-center justify-between px-4 pt-6 pb-4 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm z-10 transition-colors duration-300">
                                     <div className="flex items-center">
                                         <button 
                                             onClick={() => setCurrentView('home')} 
-                                            className="p-2 -ml-2 bg-gray-100 rounded-full text-gray-500 hover:text-gray-900 transition-colors"
+                                            className="p-2 -ml-2 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
                                         >
                                             <ChevronLeft className="w-6 h-6" />
                                         </button>
                                         <div className="ml-3">
-                                            <h2 className="text-lg font-bold text-gray-900 whitespace-nowrap">{calendarData.monthName}</h2>
+                                            <h2 className="text-lg font-bold text-gray-900 dark:text-white whitespace-nowrap">{calendarData.monthName}</h2>
                                         </div>
                                     </div>
                                     <div className="text-right flex items-center gap-1">
-                                        <button onClick={() => changeMonth(-1)} disabled={isStartMonth()} className={`p-2 rounded-full transition-colors ${isStartMonth() ? 'text-gray-300 opacity-50 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-100'}`}><ChevronUp className="w-5 h-5" /></button>
-                                        <button onClick={() => changeMonth(1)} className="p-2 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"><ChevronDown className="w-5 h-5" /></button>
-                                        <div className="w-px h-5 bg-gray-200 mx-1"></div>
-                                        <button onClick={() => setIsSettingsOpen(true)} className="p-2 rounded-full text-gray-500 hover:bg-gray-100 transition-colors">
+                                        <button onClick={() => changeMonth(-1)} disabled={isStartMonth()} className={`p-2 rounded-full transition-colors ${isStartMonth() ? 'text-gray-300 dark:text-gray-700 opacity-50 cursor-not-allowed' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}><ChevronUp className="w-5 h-5" /></button>
+                                        <button onClick={() => changeMonth(1)} className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"><ChevronDown className="w-5 h-5" /></button>
+                                        <div className="w-px h-5 bg-gray-200 dark:bg-gray-700 mx-1"></div>
+                                        <button onClick={() => setIsSettingsOpen(true)} className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                                             <SettingsIcon className="w-5 h-5" />
                                         </button>
                                     </div>
@@ -1374,16 +1553,16 @@
                                             let showData = false;
 
                                             if (dayObj.isFuture || dayObj.isBeforeStart) {
-                                                bgClass = 'bg-gray-100 border-gray-200 opacity-50';
-                                                textClass = 'text-gray-400';
+                                                bgClass = 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 opacity-50';
+                                                textClass = 'text-gray-400 dark:text-gray-500';
                                             } else {
                                                 showData = true;
                                                 if (dayObj.dailyExpense <= targetBudget) {
-                                                    bgClass = 'bg-green-50 border-green-200';
-                                                    textClass = 'text-green-600';
+                                                    bgClass = 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800 theme-bg-light theme-border';
+                                                    textClass = 'text-green-600 dark:text-green-400 theme-text';
                                                 } else {
-                                                    bgClass = 'bg-red-50 border-red-200';
-                                                    textClass = 'text-red-600';
+                                                    bgClass = 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800';
+                                                    textClass = 'text-red-600 dark:text-red-400';
                                                 }
                                             }
 
@@ -1392,7 +1571,7 @@
                                                     key={i} 
                                                     onClick={() => showData && setSelectedDateReceipt(dayObj)}
                                                     className={`flex flex-col items-center justify-center p-2 rounded-xl border ${
-                                                    dayObj.isToday ? 'ring-2 ring-blue-400 ring-offset-1' : ''
+                                                    dayObj.isToday ? 'ring-2 ring-blue-400 theme-ring ring-offset-1 dark:ring-offset-gray-950' : ''
                                                     } ${bgClass} ${showData ? 'cursor-pointer active:scale-95 transition-transform' : ''} aspect-square relative`}
                                                 >
                                                     <span className={`absolute top-1.5 left-2 text-[10px] font-bold ${textClass}`}>
@@ -1400,17 +1579,17 @@
                                                     </span>
                                                     {showData && (
                                                         <div className="mt-3 flex flex-col items-center leading-tight">
-                                                            {dayObj.dailyExpense > 0 && <span className={`text-[10px] sm:text-[11px] font-bold tracking-tight text-red-600`}>-{formatCompact(dayObj.dailyExpense)}</span>}
-                                                            {dayObj.dailyExpense === 0 && <span className={`text-[11px] font-bold tracking-tight text-gray-400`}>0</span>}
+                                                            {dayObj.dailyExpense > 0 && <span className={`text-[10px] sm:text-[11px] font-bold tracking-tight text-red-600 dark:text-red-400`}>-{formatCompact(dayObj.dailyExpense)}</span>}
+                                                            {dayObj.dailyExpense === 0 && <span className={`text-[11px] font-bold tracking-tight text-gray-400 dark:text-gray-500`}>0</span>}
                                                         </div>
                                                     )}
                                                 </div>
                                             )
                                         })}
                                     </div>
-                                    <div className="mt-8 p-5 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-center">
-                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Pengeluaran Bulan Ini</p>
-                                        <p className="text-2xl font-bold text-red-600 tracking-tight">-Rp {formatNumber(calendarData.totalSpentMonth)}</p>
+                                    <div className="mt-8 p-5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col justify-center">
+                                        <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Total Pengeluaran Bulan Ini</p>
+                                        <p className="text-2xl font-bold text-red-600 dark:text-red-400 tracking-tight">-Rp {formatNumber(calendarData.totalSpentMonth)}</p>
                                     </div>
                                 </div>
                             </div>
@@ -1419,19 +1598,19 @@
                         {/* INCOME MODAL OVERLAY */}
                         {isIncomeModalOpen && (
                             <div className="fixed inset-0 z-[110] bg-black/60 flex items-center justify-center p-6 animate-in fade-in duration-200" onClick={() => setIsIncomeModalOpen(false)}>
-                                <div className="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden flex flex-col p-6" onClick={e => e.stopPropagation()}>
-                                    <h3 className="font-bold text-gray-900 text-xl mb-4 text-center">Tambah Pemasukan</h3>
+                                <div className="bg-white dark:bg-gray-900 w-full max-w-sm rounded-2xl shadow-xl overflow-hidden flex flex-col p-6" onClick={e => e.stopPropagation()}>
+                                    <h3 className="font-bold text-gray-900 dark:text-white text-xl mb-4 text-center">Tambah Pemasukan</h3>
                                     <form onSubmit={handleAddIncome} className="space-y-4">
                                         <input
                                             type="text"
                                             value={incomeDescInput}
                                             onChange={(e) => setIncomeDescInput(e.target.value)}
                                             placeholder="Sumber Dana (mis. Bonus, Jual Barang)"
-                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-green-500 outline-none text-[16px]"
+                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl focus:border-green-500 outline-none text-[16px]"
                                             required
                                         />
                                         <div className="relative">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">Rp</span>
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-bold">Rp</span>
                                             <input
                                                 type="text"
                                                 value={incomeAmountInput}
@@ -1440,13 +1619,13 @@
                                                     setIncomeAmountInput(rawValue ? parseInt(rawValue).toLocaleString('id-ID') : '');
                                                 }}
                                                 placeholder="Jumlah Pemasukan"
-                                                className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-green-500 outline-none text-[16px] font-semibold text-green-700"
+                                                className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 outline-none text-[16px] font-semibold text-green-700 dark:text-green-400 theme-text"
                                                 required
                                             />
                                         </div>
                                         <div className="flex gap-3 pt-2">
-                                            <button type="button" onClick={() => setIsIncomeModalOpen(false)} className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold">Batal</button>
-                                            <button type="submit" disabled={!incomeAmountInput || !incomeDescInput.trim()} className="flex-1 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold disabled:opacity-50">Tambah</button>
+                                            <button type="button" onClick={() => setIsIncomeModalOpen(false)} className="flex-1 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-bold">Batal</button>
+                                            <button type="submit" disabled={!incomeAmountInput || !incomeDescInput.trim()} className="flex-1 py-3 bg-green-600 hover:bg-green-700 theme-bg text-white rounded-xl font-bold disabled:opacity-50">Tambah</button>
                                         </div>
                                     </form>
                                 </div>
@@ -1455,14 +1634,14 @@
 
                         {/* RECEIPT MODAL */}
                         {selectedDateReceipt && (
-                            <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-6 animate-in fade-in duration-200 drop-shadow-2xl" onClick={() => setSelectedDateReceipt(null)}>
+                            <div className="fixed inset-0 z-[100] bg-black/60 dark:bg-black/80 flex items-center justify-center p-6 animate-in fade-in duration-200 drop-shadow-2xl" onClick={() => setSelectedDateReceipt(null)}>
                                 <div className="w-full max-w-sm" onClick={e => e.stopPropagation()}>
-                                    <div className="receipt-mask bg-white w-full flex flex-col max-h-[80vh]">
-                                        <div className="bg-white p-5 border-b border-gray-300 border-dashed shrink-0 rounded-t-xl">
-                                            <h3 className="text-center font-bold text-gray-800 uppercase tracking-widest text-lg">List Pengeluaran</h3>
-                                            <p className="text-center text-xs text-gray-500 mt-1 font-semibold">{selectedDateReceipt.dateStr}</p>
+                                    <div className="receipt-mask w-full flex flex-col max-h-[80vh]">
+                                        <div className="p-5 border-b border-gray-300 dark:border-gray-700 border-dashed shrink-0 rounded-t-xl">
+                                            <h3 className="text-center font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest text-lg">List Pengeluaran</h3>
+                                            <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-1 font-semibold">{selectedDateReceipt.dateStr}</p>
                                         </div>
-                                        <div className="p-5 flex-1 overflow-y-auto bg-white">
+                                        <div className="p-5 flex-1 overflow-y-auto">
                                             {(() => {
                                                 const dayExps = expenses.filter(exp => 
                                                     exp.type !== 'income' && 
@@ -1472,21 +1651,21 @@
                                                     <div className="space-y-3">
                                                         {dayExps.map(exp => (
                                                             <div key={exp.id} className="flex justify-between items-center text-sm">
-                                                                <span className="text-gray-600">{exp.description}</span>
-                                                                <span className="font-semibold text-gray-800">
+                                                                <span className="text-gray-600 dark:text-gray-300">{exp.description}</span>
+                                                                <span className="font-semibold text-gray-800 dark:text-gray-100">
                                                                     -Rp {formatNumber(exp.amount)}
                                                                 </span>
                                                             </div>
                                                         ))}
-                                                        {dayExps.length === 0 && <p className="text-center text-gray-400 text-sm italic">Tidak ada transaksi.</p>}
+                                                        {dayExps.length === 0 && <p className="text-center text-gray-400 dark:text-gray-500 text-sm italic">Tidak ada transaksi.</p>}
                                                     </div>
                                                 );
                                             })()}
                                         </div>
-                                        <div className="bg-white p-5 pt-0 shrink-0">
-                                            <div className="border-t border-gray-200 pt-4 flex justify-between font-bold text-sm">
-                                                <span className="text-gray-600">Total Pengeluaran</span>
-                                                <span className="text-red-600">-Rp {formatNumber(selectedDateReceipt.dailyExpense)}</span>
+                                        <div className="p-5 pt-0 shrink-0">
+                                            <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex justify-between font-bold text-sm">
+                                                <span className="text-gray-600 dark:text-gray-300">Total Pengeluaran</span>
+                                                <span className="text-red-600 dark:text-red-400">-Rp {formatNumber(selectedDateReceipt.dailyExpense)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1496,147 +1675,200 @@
 
                         {/* SETTINGS / EDIT MODAL */}
                         {isSettingsOpen && (
-                        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                            <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+                        <div className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                            <div className="bg-white dark:bg-gray-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
                                 
                                 <div className="flex justify-between items-center mb-6 shrink-0">
-                                    <h2 className="text-xl font-bold text-gray-900">{isEditMode ? 'Edit Transaksi' : 'Pengaturan'}</h2>
-                                    <button onClick={() => { setIsSettingsOpen(false); setIsEditMode(false); }} className="p-1 text-gray-400 hover:text-gray-800">
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">{isEditMode ? 'Edit Transaksi' : 'Pengaturan'}</h2>
+                                    <button onClick={() => { setIsSettingsOpen(false); setIsEditMode(false); }} className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-800 dark:hover:text-white">
                                         <XIcon className="w-6 h-6" />
                                     </button>
                                 </div>
 
-                                <div className="overflow-y-auto flex-1 pb-4">
+                                <div className="overflow-y-auto flex-1 pb-4 pr-1">
                                     {isEditMode ? (
                                         <div className="space-y-3">
-                                            <button onClick={() => setIsEditMode(false)} className="text-blue-500 text-sm font-semibold mb-2 flex items-center"><ChevronLeft className="w-4 h-4 mr-1"/> Kembali</button>
+                                            <button onClick={() => setIsEditMode(false)} className="text-blue-500 dark:text-blue-400 text-sm font-semibold mb-2 flex items-center"><ChevronLeft className="w-4 h-4 mr-1"/> Kembali</button>
                                             {expenses.map(exp => (
-                                                <div key={exp.id} className="flex gap-2 items-center bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                                                <div key={exp.id} className="flex gap-2 items-center bg-gray-50 dark:bg-gray-800 p-2.5 rounded-xl border border-gray-100 dark:border-gray-700">
                                                     <input 
                                                         defaultValue={exp.description} 
                                                         onBlur={(e) => handleEditExpense(exp.id, 'description', e.target.value)} 
-                                                        className="flex-1 w-full bg-white px-2 py-1.5 rounded border border-gray-200 text-[16px]"
+                                                        className="flex-1 w-full bg-white dark:bg-gray-900 text-gray-900 dark:text-white px-2 py-1.5 rounded border border-gray-200 dark:border-gray-700 text-[16px]"
                                                     />
                                                     <input 
                                                         defaultValue={exp.amount} 
                                                         onBlur={(e) => handleEditExpense(exp.id, 'amount', parseInt(e.target.value.replace(/\D/g, '')) || 0)} 
-                                                        className={`w-20 bg-white px-2 py-1.5 rounded border border-gray-200 text-[16px] font-semibold ${exp.type === 'income' ? 'text-green-600' : 'text-gray-800'}`}
+                                                        className={`w-20 bg-white dark:bg-gray-900 px-2 py-1.5 rounded border border-gray-200 dark:border-gray-700 text-[16px] font-semibold ${exp.type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-gray-800 dark:text-gray-200'}`}
                                                     />
-                                                    <button onClick={() => handleDeleteExpense(exp.id)} className="p-2 text-red-500 hover:bg-red-50 rounded">
+                                                    <button onClick={() => handleDeleteExpense(exp.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded">
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
                                                 </div>
                                             ))}
-                                            {expenses.length === 0 && <p className="text-center text-gray-400 text-sm mt-4">Kosong</p>}
+                                            {expenses.length === 0 && <p className="text-center text-gray-400 dark:text-gray-500 text-sm mt-4">Kosong</p>}
                                         </div>
                                     ) : (
-                                        <div className="space-y-4">
+                                        <div className="space-y-6">
                                             
-                                            {/* PWA Download Banner inside Settings (Sembunyi kalau sudah Fullscreen/Standalone) */}
-                                            {!isStandalone && (
-                                                <button 
-                                                    onClick={handleInstallApp}
-                                                    className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl font-bold shadow-md hover:from-blue-700 hover:to-blue-600 transition-all mb-4"
-                                                >
-                                                    <DownloadIcon className="w-5 h-5" />
-                                                    Download Web App
-                                                </button>
-                                            )}
-
-                                            <div className="bg-[#e0f2fe] rounded-lg p-5 shadow-sm border border-[#bae6fd] relative flex items-center">
+                                            <div className="bg-[#e0f2fe] dark:bg-[#082f49] rounded-lg p-5 shadow-sm border border-[#bae6fd] dark:border-[#0c4a6e] relative flex items-center">
                                                 <div className="flex-1 pr-4 z-10">
-                                                    <h3 className="font-bold text-[#0c4a6e] text-xl leading-tight mb-0.5 uppercase tracking-wide">
+                                                    <h3 className="font-bold text-[#0c4a6e] dark:text-[#7dd3fc] text-xl leading-tight mb-0.5 uppercase tracking-wide">
                                                         {userProfile.name}
                                                     </h3>
-                                                    <p className="text-[#0284c7] text-sm font-semibold mb-3">
+                                                    <p className="text-[#0284c7] dark:text-[#38bdf8] text-sm font-semibold mb-3">
                                                         {userProfile.age} Tahun
                                                     </p>
-                                                    <p className="text-[#0369a1] text-[10px] font-medium italic leading-snug border-l-2 border-[#7dd3fc] pl-2">
+                                                    <p className="text-[#0369a1] dark:text-[#bae6fd] text-[10px] font-medium italic leading-snug border-l-2 border-[#7dd3fc] dark:border-[#0284c7] pl-2">
                                                         "Aku adalah orang yang disiplin finansial"
                                                     </p>
                                                 </div>
-                                                <div className="w-[60px] h-[80px] rounded-md bg-white border-2 border-[#bae6fd] flex items-center justify-center text-4xl shadow-sm z-10 shrink-0">
+                                                <div className="w-[60px] h-[80px] rounded-md bg-white dark:bg-[#0f172a] border-2 border-[#bae6fd] dark:border-[#0c4a6e] flex items-center justify-center text-4xl shadow-sm z-10 shrink-0">
                                                     {userProfile.gender === 'male' ? '👨' : '👩'}
                                                 </div>
                                             </div>
 
                                             <button 
                                                 onClick={() => setIsEditMode(true)}
-                                                className="w-full flex items-center justify-center gap-2 py-3 bg-blue-50 text-blue-600 rounded-xl font-semibold border border-blue-100 hover:bg-blue-100 transition-colors"
+                                                className="w-full flex items-center justify-center gap-2 py-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl font-semibold border border-blue-100 dark:border-blue-800/50 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
                                             >
                                                 <Edit3 className="w-4 h-4" /> Edit Data Transaksi
                                             </button>
 
-                                            <label className="flex flex-col p-3 bg-gray-50 rounded-xl">
-                                                <span className="text-sm font-semibold text-gray-700 mb-1">Target Harian (Rp)</span>
-                                                <input 
-                                                    type="text"
-                                                    value={userProfile.promiseBudget ? parseInt(userProfile.promiseBudget).toLocaleString('id-ID') : ''}
-                                                    onChange={(e) => {
-                                                        const rawValue = e.target.value.replace(/\D/g, '');
-                                                        setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
-                                                    }}
-                                                    onBlur={handleUpdateProfile}
-                                                    className="px-3 py-2 border border-gray-200 rounded-lg text-[16px] bg-white"
-                                                    placeholder="Contoh: 50000"
-                                                />
-                                            </label>
+                                            <div className="space-y-3">
+                                                <h3 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Tampilan</h3>
+                                                
+                                                <div>
+                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Tema Aplikasi</span>
+                                                    <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
+                                                        {['system', 'light', 'dark'].map(t => (
+                                                            <button 
+                                                                key={t}
+                                                                onClick={() => setAppSettings({...appSettings, themeMode: t})}
+                                                                className={`flex-1 py-2 text-sm font-semibold rounded-lg capitalize transition-colors ${appSettings.themeMode === t ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                                                            >
+                                                                {t}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                
+                                                <div>
+                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Tema Kustom (Ekstrak Gambar)</span>
+                                                    <label className={`flex items-center justify-center w-full py-3 border-2 border-dashed ${appSettings.customTheme ? 'border-green-400 bg-green-50 dark:bg-green-900/20' : 'border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'} rounded-xl cursor-pointer transition-colors`}>
+                                                        <ImageIcon className={`w-5 h-5 mr-2 ${appSettings.customTheme ? 'text-green-600 dark:text-green-400' : 'text-gray-400'}`} />
+                                                        <span className={`text-sm font-medium ${appSettings.customTheme ? 'text-green-700 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
+                                                            {appSettings.customTheme ? 'Gambar Tema Diterapkan' : 'Upload Gambar'}
+                                                        </span>
+                                                        <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                                                    </label>
+                                                    {appSettings.customTheme && (
+                                                        <button onClick={() => setAppSettings({...appSettings, customTheme: null})} className="text-xs text-red-500 hover:text-red-600 mt-2 font-medium w-full text-center">Hapus Tema Kustom</button>
+                                                    )}
+                                                </div>
+                                            </div>
 
-                                            <label className="flex flex-col p-3 bg-gray-50 rounded-xl">
-                                                <span className="text-sm font-semibold text-gray-700 mb-1">Anggaran Bulanan (Rp)</span>
-                                                <input 
-                                                    type="text"
-                                                    value={budget ? parseInt(budget).toLocaleString('id-ID') : ''}
-                                                    onChange={(e) => {
-                                                        const rawValue = e.target.value.replace(/\D/g, '');
-                                                        setBudget(rawValue ? parseInt(rawValue) : 0);
-                                                    }}
-                                                    onBlur={handleUpdateProfile}
-                                                    className="px-3 py-2 border border-gray-200 rounded-lg text-[16px] bg-white"
-                                                />
-                                            </label>
+                                            <div className="space-y-3">
+                                                <h3 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-4">Preferensi</h3>
+                                                
+                                                <label className="flex flex-col p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Budget Max Per-Hari (Rp)</span>
+                                                    <input 
+                                                        type="text"
+                                                        value={userProfile.promiseBudget ? parseInt(userProfile.promiseBudget).toLocaleString('id-ID') : ''}
+                                                        onChange={(e) => {
+                                                            const rawValue = e.target.value.replace(/\D/g, '');
+                                                            setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
+                                                        }}
+                                                        onBlur={handleUpdateProfile}
+                                                        className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-[16px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                                        placeholder="Contoh: 50000"
+                                                    />
+                                                </label>
 
-                                            <label className="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer">
-                                                <span className="text-sm font-semibold text-gray-700">Tampilkan Splash Screen</span>
-                                                <input 
-                                                    type="checkbox" 
-                                                    checked={appSettings.showSplash}
-                                                    onChange={(e) => setAppSettings({...appSettings, showSplash: e.target.checked})}
-                                                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                                                />
-                                            </label>
+                                                <label className="flex flex-col p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Budget spending untuk 1 bulan (Rp)</span>
+                                                    <input 
+                                                        type="text"
+                                                        value={budget ? parseInt(budget).toLocaleString('id-ID') : ''}
+                                                        onChange={(e) => {
+                                                            const rawValue = e.target.value.replace(/\D/g, '');
+                                                            setBudget(rawValue ? parseInt(rawValue) : 0);
+                                                        }}
+                                                        onBlur={handleUpdateProfile}
+                                                        className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-[16px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                                    />
+                                                </label>
 
-                                            <label className="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer">
-                                                <span className="text-sm font-semibold text-gray-700">Tampilkan Waktu</span>
-                                                <input 
-                                                    type="checkbox" 
-                                                    checked={appSettings.showTime}
-                                                    onChange={(e) => setAppSettings({...appSettings, showTime: e.target.checked})}
-                                                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                                                />
-                                            </label>
-                                            
-                                            <label className="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer mb-6">
-                                                <span className="text-sm font-semibold text-gray-700">Peringatan Harian</span>
-                                                <input 
-                                                    type="checkbox" 
-                                                    checked={appSettings.showRecap}
-                                                    onChange={(e) => setAppSettings({...appSettings, showRecap: e.target.checked})}
-                                                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                                                />
-                                            </label>
+                                                <label className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl cursor-pointer">
+                                                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Intro JeStudios</span>
+                                                    <input 
+                                                        type="checkbox" 
+                                                        checked={appSettings.showSplash}
+                                                        onChange={(e) => setAppSettings({...appSettings, showSplash: e.target.checked})}
+                                                        className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                                    />
+                                                </label>
 
-                                            <button 
-                                                onClick={handleLogout}
-                                                className="w-full flex items-center justify-center gap-2 py-3 bg-red-50 text-red-600 rounded-xl font-bold border border-red-100 hover:bg-red-100 transition-colors mt-8"
-                                            >
-                                                <LogOutIcon className="w-5 h-5" /> Log Out
-                                            </button>
+                                                <label className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl cursor-pointer">
+                                                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Ikon Waktu</span>
+                                                    <input 
+                                                        type="checkbox" 
+                                                        checked={appSettings.showTime}
+                                                        onChange={(e) => setAppSettings({...appSettings, showTime: e.target.checked})}
+                                                        className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                                    />
+                                                </label>
+                                                
+                                                <label className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl cursor-pointer mb-6">
+                                                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Teguran</span>
+                                                    <input 
+                                                        type="checkbox" 
+                                                        checked={appSettings.showRecap}
+                                                        onChange={(e) => setAppSettings({...appSettings, showRecap: e.target.checked})}
+                                                        className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                                    />
+                                                </label>
+                                            </div>
+
+                                            <div className="space-y-4 mt-8 pt-4 border-t border-gray-200 dark:border-gray-800">
+                                                {/* PWA Download Banner inside Settings (Sembunyi kalau sudah Fullscreen/Standalone) */}
+                                                {!isStandalone && (
+                                                    <button 
+                                                        onClick={handleInstallApp}
+                                                        className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl font-bold shadow-md hover:from-blue-700 hover:to-blue-600 transition-all"
+                                                    >
+                                                        <DownloadIcon className="w-5 h-5" />
+                                                        Install Wang
+                                                    </button>
+                                                )}
+
+                                                <button 
+                                                    onClick={() => setShowLogoutConfirm(true)}
+                                                    className="w-full flex items-center justify-center gap-2 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl font-bold border border-red-100 dark:border-red-800/50 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                                                >
+                                                    <LogOutIcon className="w-5 h-5" /> Log Out
+                                                </button>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
                             </div>
                         </div>
+                        )}
+
+                        {/* LOGOUT CONFIRMATION MODAL */}
+                        {showLogoutConfirm && (
+                            <div className="fixed inset-0 z-[120] bg-black/60 dark:bg-black/80 flex items-center justify-center p-6 animate-in fade-in duration-200 drop-shadow-2xl" onClick={() => setShowLogoutConfirm(false)}>
+                                <div className="bg-white dark:bg-gray-900 w-full max-w-sm rounded-2xl shadow-xl overflow-hidden flex flex-col p-6" onClick={e => e.stopPropagation()}>
+                                    <h3 className="font-bold text-gray-900 dark:text-white text-xl mb-2 text-center">Konfirmasi Keluar</h3>
+                                    <p className="text-center text-gray-500 dark:text-gray-400 text-sm mb-6">Yakin ingin keluar dari akun ini?</p>
+                                    <div className="flex gap-3">
+                                        <button type="button" onClick={() => setShowLogoutConfirm(false)} className="flex-1 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-bold">Batal</button>
+                                        <button type="button" onClick={() => { setShowLogoutConfirm(false); handleLogout(); }} className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-colors">Keluar</button>
+                                    </div>
+                                </div>
+                            </div>
                         )}
                     </div>
                 </div>
