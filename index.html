@@ -116,7 +116,6 @@
            RECEIPT MASK STYLE
            ========================================== */
         .receipt-mask {
-            background-color: #ffffff;
             padding-top: 12px;
             padding-bottom: 12px;
             --mask: 
@@ -124,9 +123,6 @@
                 conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) 50% 0% / 12px 51% repeat-x;
             -webkit-mask: var(--mask);
                     mask: var(--mask);
-        }
-        .dark .receipt-mask {
-            background-color: #171717; /* neutral-900 */
         }
 
         /* ==========================================
@@ -351,6 +347,7 @@
         const Sunrise = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 2v8M4.93 10.93l1.41 1.41M2 18h2M20 18h2M19.07 10.93l-1.41 1.41M22 22H2M8 6l4-4 4 4M16 18a4 4 0 0 0-8 0"/></svg>;
         const Sunset = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 10v12M4.93 10.93l1.41 1.41M2 18h2M20 18h2M19.07 10.93l-1.41 1.41M22 22H2M16 5l-4-4-4 4M16 18a4 4 0 0 0-8 0"/></svg>;
         const Moon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>;
+        const SystemIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" /></svg>;
         const SettingsIcon = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={strokeWidth || "1.5"} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
         const XIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18M6 6l12 12"/></svg>;
         const ChevronLeft = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m15 18-6-6 6-6"/></svg>;
@@ -374,7 +371,7 @@
                             <img src="icon-512.png" alt="Icon" className="w-full h-full object-cover" onError={(e) => e.target.style.display='none'} />
                         </div>
                         <div className="flex-1 text-left">
-                            <h4 className="font-bold text-gray-900 dark:text-white text-[14px] leading-tight">Download this App</h4>
+                            <h4 className="font-bold text-gray-900 dark:text-white text-[14px] leading-tight">Install Wang</h4>
                             <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">Biar lebih cepat tanpa browser</p>
                         </div>
                         <button className="bg-blue-600 hover:bg-blue-700 text-white text-[13px] font-bold py-1.5 px-4 rounded-full shadow-sm transition-colors">
@@ -476,7 +473,7 @@
         const App = () => {
             const [appSettings, setAppSettings] = useState(() => {
                 const saved = localStorage.getItem('app_settings');
-                const parsed = saved ? JSON.parse(saved) : { showTime: false, showRecap: true, showSplash: true, themeMode: 'system', customTheme: null };
+                const parsed = saved ? JSON.parse(saved) : { showTime: false, showRecap: true, showSplash: true, themeMode: 'system', customTheme: null, customThemeImage: null, themeLuminance: null };
                 if (parsed.showSplash === undefined) parsed.showSplash = true;
                 if (!parsed.themeMode) parsed.themeMode = 'system';
                 return parsed;
@@ -489,13 +486,19 @@
                 const applyDark = () => root.classList.add('dark');
                 const applyLight = () => root.classList.remove('dark');
 
-                if (appSettings.themeMode === 'dark') {
-                    applyDark();
-                } else if (appSettings.themeMode === 'light') {
-                    applyLight();
-                } else {
-                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) applyDark();
+                if (appSettings.themeMode === 'custom' && appSettings.customThemeImage && appSettings.themeLuminance) {
+                    // Make custom theme totally independent: force text color mode based on image brightness
+                    if (appSettings.themeLuminance === 'dark') applyDark();
                     else applyLight();
+                } else {
+                    if (appSettings.themeMode === 'dark') {
+                        applyDark();
+                    } else if (appSettings.themeMode === 'light') {
+                        applyLight();
+                    } else {
+                        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) applyDark();
+                        else applyLight();
+                    }
                 }
 
                 const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -507,7 +510,7 @@
                 };
                 mediaQuery.addEventListener('change', handleChange);
                 return () => mediaQuery.removeEventListener('change', handleChange);
-            }, [appSettings.themeMode]);
+            }, [appSettings.themeMode, appSettings.customThemeImage, appSettings.themeLuminance]);
 
             // --- Cloud States ---
             const [firebaseUser, setFirebaseUser] = useState(null);
@@ -700,10 +703,25 @@
                 return new Intl.NumberFormat('id-ID', { notation: "compact", maximumFractionDigits: 1 }).format(amount);
             };
 
+            const isGlass = appSettings.themeMode === 'custom' && !!appSettings.customThemeImage;
+
+            // Comprehensive mapping of pure liquid glass & frosted styles
+            const uiStyle = {
+                paneHome: isGlass ? 'bg-white/10 dark:bg-black/20' : 'bg-white dark:bg-[#171717]',
+                paneCalendar: isGlass ? 'bg-white/10 dark:bg-black/20 backdrop-blur-xl' : 'bg-white dark:bg-[#171717]',
+                header: isGlass ? 'bg-white/20 dark:bg-black/30 border-b border-white/40 dark:border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)]' : 'bg-white/95 dark:bg-[#171717]/95 backdrop-blur-md',
+                card: isGlass ? 'bg-white/20 dark:bg-black/30 border border-white/50 dark:border-white/20 shadow-[inset_0_1px_2px_rgba(255,255,255,0.4),0_4px_16px_rgba(0,0,0,0.1)]' : 'bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-800',
+                cardSoft: isGlass ? 'bg-white/20 dark:bg-black/30 border border-white/40 dark:border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)] text-gray-900 dark:text-gray-100' : 'bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200',
+                capsule: isGlass ? 'bg-white/30 dark:bg-black/40 border border-white/50 dark:border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.2),inset_0_1px_2px_rgba(255,255,255,0.5)]' : 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/80 dark:border-gray-700/80 shadow-[0_8px_30px_rgb(0,0,0,0.12)]',
+                modalFrosted: isGlass ? 'bg-white/20 dark:bg-black/40 backdrop-blur-2xl border border-white/50 dark:border-white/20 shadow-[0_16px_40px_rgba(0,0,0,0.3),inset_0_1px_2px_rgba(255,255,255,0.5)]' : 'bg-white dark:bg-[#171717] shadow-2xl',
+                input: isGlass ? 'bg-white/30 dark:bg-black/30 border border-white/50 dark:border-white/20 placeholder-gray-600 dark:placeholder-gray-400 focus:bg-white/40 dark:focus:bg-black/40 text-gray-900 dark:text-white shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]' : 'bg-gray-50 dark:bg-[#171717] border border-gray-200 dark:border-gray-700',
+                divider: isGlass ? 'bg-white/40 dark:bg-white/20' : 'bg-gray-300 dark:bg-gray-600'
+            };
+
             const getBarStyle = () => {
                 if (percentage === 0) return { backgroundColor: 'transparent', width: '0%' };
                 
-                if (appSettings.customTheme && percentage > 20) {
+                if (isGlass && percentage > 20) {
                     return {
                         backgroundColor: 'var(--theme-main)',
                         width: `${percentage}%`,
@@ -724,7 +742,7 @@
                 let activeGlow = percentage === 100 ? defaultGlow : 'none';
                 if (isHealing) activeGlow = 'rgba(34, 197, 94, 0.8)';
                 
-                if (appSettings.customTheme && percentage > 20) {
+                if (isGlass && percentage > 20) {
                     if (percentage === 100) activeGlow = 'var(--theme-glow)';
                     if (isHealing) activeGlow = 'var(--theme-glow-strong)';
                 }
@@ -733,10 +751,13 @@
 
             const getTimeIcon = (dateStr) => {
                 const hour = new Date(dateStr).getHours();
-                if (hour >= 5 && hour < 11) return <Sunrise className="w-4 h-4 text-gray-400 dark:text-gray-500" />;
-                if (hour >= 11 && hour < 15) return <Sun className="w-4 h-4 text-gray-400 dark:text-gray-500" />;
-                if (hour >= 15 && hour < 18) return <Sunset className="w-4 h-4 text-gray-400 dark:text-gray-500" />;
-                return <Moon className="w-4 h-4 text-gray-400 dark:text-gray-500" />;
+                const isBrightCustom = isGlass && appSettings.themeLuminance === 'light';
+                const iconColor = isBrightCustom ? "text-gray-900" : "text-gray-400 dark:text-gray-500";
+                
+                if (hour >= 5 && hour < 11) return <Sunrise className={`w-4 h-4 ${iconColor}`} />;
+                if (hour >= 11 && hour < 15) return <Sun className={`w-4 h-4 ${iconColor}`} />;
+                if (hour >= 15 && hour < 18) return <Sunset className={`w-4 h-4 ${iconColor}`} />;
+                return <Moon className={`w-4 h-4 ${iconColor}`} />;
             };
 
             const { daysLeft, dailyAllowance, yesterdayRecap } = useMemo(() => {
@@ -926,7 +947,7 @@
                 } 
             };
 
-            // Custom Theme Uploader
+            // Custom Theme Uploader with Image Extraction and Compression
             const handleImageUpload = (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -938,32 +959,42 @@
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
                         
-                        const MAX_SIZE = 100; // Small size for faster processing
+                        // Limit size to max 800px to ensure it stays well within localStorage quota
+                        const MAX_DIM = 800; 
                         let width = img.width;
                         let height = img.height;
-                        if (width > height && width > MAX_SIZE) {
-                            height *= MAX_SIZE / width;
-                            width = MAX_SIZE;
-                        } else if (height > MAX_SIZE) {
-                            width *= MAX_SIZE / height;
-                            height = MAX_SIZE;
+                        if (width > height && width > MAX_DIM) {
+                            height *= MAX_DIM / width;
+                            width = MAX_DIM;
+                        } else if (height > MAX_DIM) {
+                            width *= MAX_DIM / height;
+                            height = MAX_DIM;
                         }
                         
                         canvas.width = width;
                         canvas.height = height;
                         ctx.drawImage(img, 0, 0, width, height);
                         
+                        // Extract base64 image (heavily compressed for local storage safety)
+                        const wallpaperDataUrl = canvas.toDataURL('image/jpeg', 0.5);
+                        
+                        // Extract dominant color & average luminance
                         const data = ctx.getImageData(0, 0, width, height).data;
                         let maxScore = 0;
-                        let bestR = 34, bestG = 197, bestB = 94; // fallback to generic green
+                        let bestR = 34, bestG = 197, bestB = 94; // fallback
                         
-                        for (let i = 0; i < data.length; i += 4) {
+                        let sumR = 0, sumG = 0, sumB = 0, count = 0;
+
+                        for (let i = 0; i < data.length; i += 40) { // Jump 10 pixels (4 channels * 10) for performance
                             let r = data[i];
                             let g = data[i+1];
                             let b = data[i+2];
                             let a = data[i+3];
                             
-                            if (a < 255) continue;
+                            if (a < 128) continue;
+                            
+                            sumR += r; sumG += g; sumB += b;
+                            count++;
                             
                             let max = Math.max(r, g, b);
                             let min = Math.min(r, g, b);
@@ -978,7 +1009,27 @@
                             }
                         }
                         
-                        setAppSettings({...appSettings, customTheme: `rgb(${bestR}, ${bestG}, ${bestB})`});
+                        let avgR = count > 0 ? sumR / count : 255;
+                        let avgG = count > 0 ? sumG / count : 255;
+                        let avgB = count > 0 ? sumB / count : 255;
+                        
+                        // Calculate luminance to decide dark/light text
+                        let luminance = 0.299 * avgR + 0.587 * avgG + 0.114 * avgB;
+                        // If wallpaper is bright (luminance > 128), we use light mode (dark text).
+                        let detectedTheme = luminance > 128 ? 'light' : 'dark';
+                        
+                        try {
+                            setAppSettings({
+                                ...appSettings, 
+                                themeMode: 'custom',
+                                customTheme: `rgb(${bestR}, ${bestG}, ${bestB})`, 
+                                customThemeImage: wallpaperDataUrl,
+                                themeLuminance: detectedTheme
+                            });
+                        } catch(err) {
+                            console.error(err);
+                            alert("Gambar terlalu besar untuk disimpan, coba gunakan gambar lain.");
+                        }
                     };
                     img.src = event.target.result;
                 };
@@ -1126,7 +1177,7 @@
 
             if (loginStep === 'auth') {
                 return (
-                    <div className="fixed inset-0 bg-white dark:bg-gray-950 flex flex-col items-center justify-center p-6 z-50">
+                    <div className="fixed inset-0 bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center p-6 z-50">
                         <div className="w-12 h-12 border-4 border-green-200 border-t-green-500 rounded-full animate-spin"></div>
                         <p className="mt-4 text-gray-500 dark:text-gray-400 font-medium">Connecting...</p>
                     </div>
@@ -1135,7 +1186,7 @@
 
             if (loginStep === 'login') {
                 return (
-                    <div className="fixed inset-0 bg-white dark:bg-gray-950 flex flex-col items-center justify-center p-6 text-center z-50">
+                    <div className="fixed inset-0 bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center p-6 text-center z-50">
                         <PWANotif show={showPWANotif} onInstall={handleInstallApp} onClose={() => setShowPWANotif(false)} />
                         
                         <div className="w-full max-w-sm flex flex-col items-center">
@@ -1156,7 +1207,7 @@
 
                                 <button 
                                     onClick={handleGoogleLogin}
-                                    className="w-full py-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-2xl font-bold text-[15px] transition-transform active:scale-95 flex items-center justify-center shadow-sm"
+                                    className="w-full py-4 bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#262626] text-gray-700 dark:text-gray-200 rounded-2xl font-bold text-[15px] transition-transform active:scale-95 flex items-center justify-center shadow-sm"
                                 >
                                     <GoogleIcon className="w-5 h-5 mr-3" />
                                     Lanjutkan dengan Google
@@ -1171,7 +1222,7 @@
                                 <button 
                                     type="button"
                                     onClick={handleGuestLogin}
-                                    className="w-full py-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-2xl font-bold text-[15px] transition-transform active:scale-95 shadow-sm"
+                                    className="w-full py-4 bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-2xl font-bold text-[15px] transition-transform active:scale-95 shadow-sm"
                                 >
                                     Lanjut sebagai Guest
                                 </button>
@@ -1183,9 +1234,9 @@
 
             if (loginStep === 'setup') {
                 return (
-                    <div className="fixed inset-0 bg-white dark:bg-gray-950 flex flex-col items-center justify-center p-6 z-50">
+                    <div className="fixed inset-0 bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center p-6 z-50">
                         <PWANotif show={showPWANotif} onInstall={handleInstallApp} onClose={() => setShowPWANotif(false)} />
-                        {appSettings.customTheme && (
+                        {isGlass && (
                             <style>{`
                                 :root {
                                     --theme-main: ${appSettings.customTheme};
@@ -1211,25 +1262,25 @@
                                         value={userProfile.name}
                                         onChange={(e) => setUserProfile({...userProfile, name: e.target.value})}
                                         placeholder="Nama Asli"
-                                        className="w-full px-5 py-4 text-[16px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-blue-500 outline-none transition-colors"
+                                        className="w-full px-5 py-4 text-[16px] bg-white dark:bg-[#171717] text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-blue-500 outline-none transition-colors"
                                     />
                                     <input
                                         type="number"
                                         value={userProfile.age}
                                         onChange={(e) => setUserProfile({...userProfile, age: e.target.value})}
                                         placeholder="Umur"
-                                        className="w-full px-5 py-4 text-[16px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-blue-500 outline-none transition-colors"
+                                        className="w-full px-5 py-4 text-[16px] bg-white dark:bg-[#171717] text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-blue-500 outline-none transition-colors"
                                     />
                                     <div className="flex gap-4 pt-4">
                                         <button 
                                             onClick={() => setUserProfile({...userProfile, gender: 'male'})}
-                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'male' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 scale-105' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'male' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 scale-105' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-[#171717] hover:bg-gray-50 dark:hover:bg-gray-800'}`}
                                         >
                                             👨
                                         </button>
                                         <button 
                                             onClick={() => setUserProfile({...userProfile, gender: 'female'})}
-                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'female' ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/30 scale-105' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'female' ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/30 scale-105' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-[#171717] hover:bg-gray-50 dark:hover:bg-gray-800'}`}
                                         >
                                             👩
                                         </button>
@@ -1263,7 +1314,7 @@
                                                 setBudget(rawValue ? parseFloat(rawValue) : 0);
                                             }}
                                             placeholder="Total Anggaran Bulanan"
-                                            className="w-full pl-12 pr-4 py-4 text-[16px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-green-500 outline-none"
+                                            className="w-full pl-12 pr-4 py-4 text-[16px] bg-white dark:bg-[#171717] text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-green-500 outline-none"
                                             required
                                         />
                                     </div>
@@ -1278,7 +1329,7 @@
                                                 setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
                                             }}
                                             placeholder="Target Pengeluaran Harian"
-                                            className="w-full pl-12 pr-4 py-4 text-[16px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-green-500 outline-none"
+                                            className="w-full pl-12 pr-4 py-4 text-[16px] bg-white dark:bg-[#171717] text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-green-500 outline-none"
                                             required
                                         />
                                     </div>
@@ -1292,7 +1343,7 @@
                                             value={paycheckDate}
                                             onChange={(e) => setPaycheckDate(e.target.value ? parseInt(e.target.value) : '')}
                                             placeholder="Tanggal Gajian (1-31)"
-                                            className="w-full pl-12 pr-4 py-4 text-[16px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-green-500 outline-none"
+                                            className="w-full pl-12 pr-4 py-4 text-[16px] bg-white dark:bg-[#171717] text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-green-500 outline-none"
                                             required
                                         />
                                     </div>
@@ -1309,10 +1360,18 @@
             }
 
             return (
-                <div className="fixed inset-0 bg-gray-50 dark:bg-gray-950 flex justify-center w-full overflow-hidden transition-colors duration-300">
+                <div 
+                    className="fixed inset-0 flex justify-center w-full overflow-hidden transition-colors duration-300"
+                    style={{
+                        backgroundImage: isGlass ? `url(${appSettings.customThemeImage})` : 'none',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundColor: isGlass ? 'transparent' : ''
+                    }}
+                >
                     <PWANotif show={showPWANotif} onInstall={handleInstallApp} onClose={() => setShowPWANotif(false)} />
                     
-                    {appSettings.customTheme && (
+                    {isGlass && (
                         <style>{`
                             :root {
                                 --theme-main: ${appSettings.customTheme};
@@ -1328,7 +1387,7 @@
                         `}</style>
                     )}
 
-                    <div className="w-full max-w-md h-full bg-gray-50 dark:bg-gray-950 relative shadow-sm overflow-hidden flex flex-col transition-colors duration-300">
+                    <div className="w-full max-w-md h-full relative shadow-sm overflow-hidden flex flex-col transition-colors duration-300">
                         
                         <div 
                             className="flex w-[200%] flex-1 min-h-0 transition-transform duration-300 ease-in-out"
@@ -1339,7 +1398,7 @@
                         >
                         
                             {/* ======================= HOME PANE ======================= */}
-                            <div className="w-1/2 h-full bg-white dark:bg-gray-900 flex flex-col relative overflow-hidden transition-colors duration-300">
+                            <div className={`w-1/2 h-full flex flex-col relative overflow-hidden transition-colors duration-300 ${uiStyle.paneHome}`}>
                                 
                                 <button 
                                     onClick={() => setCurrentView('calendar')}
@@ -1351,18 +1410,18 @@
                                 <div className="flex-1 min-h-0 overflow-y-auto pb-32" onScroll={handleHomeScroll}>
                                     
                                     {/* UNIFIED ANIMATED STICKY HEADER */}
-                                    <div className={`sticky top-0 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md z-40 px-5 transition-all duration-500 ease-in-out ${
-                                        isScrolled ? 'pt-6 pb-3' : 'pt-16 pb-12'
+                                    <div className={`sticky top-0 w-full z-40 px-5 transition-all duration-500 ease-in-out ${
+                                        isScrolled ? `pt-6 pb-3 ${uiStyle.header}` : 'pt-16 pb-12 bg-transparent'
                                     }`}>
                                         <div className="flex flex-col items-center justify-center w-full relative">
-                                            <span className={`font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest transition-all duration-500 ${
+                                            <span className={`font-bold ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-800' : 'text-gray-400 dark:text-gray-400'} uppercase tracking-widest transition-all duration-500 ${
                                                 isScrolled ? 'text-[10px] mb-0.5' : 'text-sm mb-2'
                                             }`}>Sisa Uang</span>
                                             
-                                            <div className={`flex items-start justify-center text-gray-900 dark:text-white transition-all duration-500 ${
+                                            <div className={`flex items-start justify-center ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-900 dark:text-white'} transition-all duration-500 ${
                                                 isScrolled ? 'mb-3' : 'mb-6'
                                             }`}>
-                                                <span className={`font-medium text-gray-500 dark:text-gray-400 transition-all duration-500 ${
+                                                <span className={`font-medium ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'} transition-all duration-500 ${
                                                 isScrolled ? 'text-xs mt-1 mr-1' : 'text-xl mt-3 mr-1'
                                                 }`}>Rp</span>
                                                 <span className={`font-bold tracking-tight leading-none transition-all duration-500 ${
@@ -1375,29 +1434,29 @@
                                             <div className={`overflow-hidden transition-all duration-500 flex justify-center items-center gap-2 ${
                                                 isScrolled ? 'max-h-0 opacity-0 mb-0' : 'max-h-20 opacity-100 mb-8'
                                             }`}>
-                                                <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center border shadow-sm transition-colors ${
-                                                isDangerBadge ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/50 animate-pulse' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700'
+                                                <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center shadow-sm transition-colors ${
+                                                isDangerBadge ? `bg-red-50/80 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50 animate-pulse ${isGlass ? 'shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'backdrop-blur-md'}` : `${uiStyle.cardSoft}`
                                                 }`}>
                                                     <span>Sisa {daysLeft} hari</span>
-                                                    <span className={`mx-2 ${isDangerBadge ? "text-red-300 dark:text-red-800" : "text-gray-300 dark:text-gray-600"}`}>•</span>
+                                                    <span className={`mx-2 ${isDangerBadge ? "text-red-300 dark:text-red-800" : "text-gray-300 dark:text-gray-500"}`}>•</span>
                                                     <span>Rp {formatNumber(Math.round(Math.max(0, dailyAllowance)))} / hari</span>
                                                 </div>
-                                                <button onClick={(e) => { e.stopPropagation(); setIsIncomeModalOpen(true); }} className="p-2 rounded-full bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors shadow-sm">
+                                                <button onClick={(e) => { e.stopPropagation(); setIsIncomeModalOpen(true); }} className={`p-2 rounded-full hover:opacity-80 transition-colors shadow-sm ${uiStyle.cardSoft}`}>
                                                     <Plus className="w-4 h-4" strokeWidth={3} />
                                                 </button>
                                             </div>
 
                                             <div 
-                                                className={`relative w-full bg-gray-200 dark:bg-gray-800 border-[3px] ring-1 transition-all duration-500 ease-in-out ${
-                                                percentage === 0 ? 'border-red-600 dark:border-red-500 animate-pulse bg-red-50 dark:bg-red-900/20 ring-red-200 dark:ring-red-900/50' : 'border-white dark:border-gray-900 ring-gray-200 dark:ring-gray-700'
-                                                } ${isScrolled ? 'h-6 rounded-md' : 'h-14 rounded-xl'}`}
+                                                className={`relative w-full border-[3px] ring-1 transition-all duration-500 ease-in-out ${
+                                                percentage === 0 ? 'border-red-600 dark:border-red-500 animate-pulse bg-red-50 dark:bg-red-900/20 ring-red-200 dark:ring-red-900/50' : (isGlass ? 'border-white/50 dark:border-white/10 ring-white/20 dark:ring-white/5' : 'border-white dark:border-gray-900 ring-gray-200 dark:ring-gray-700')
+                                                } ${isScrolled ? 'h-6 rounded-md' : 'h-14 rounded-xl'} ${isGlass ? 'bg-white/20 dark:bg-black/20' : 'bg-gray-200 dark:bg-gray-800'}`}
                                                 style={{ boxShadow: getGlowStyle() }}
                                             >
                                                 <div className={`absolute inset-0 overflow-hidden transition-all duration-500 ${isScrolled ? 'rounded-[4px]' : 'rounded-[9px]'}`}>
                                                     <div className={`absolute inset-0 bg-red-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isTakingDamage ? 'opacity-60' : 'opacity-0'}`}></div>
                                                     <div className={`absolute inset-0 bg-green-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isHealing ? 'opacity-60' : 'opacity-0'}`}></div>
                                                     <div className={`h-full transition-all relative z-0`} style={getBarStyle()}>
-                                                        <div className="absolute inset-0 bg-white dark:bg-white/20 animate-breathe"></div>
+                                                        <div className="absolute inset-0 bg-white/30 dark:bg-white/10 animate-breathe"></div>
                                                     </div>
                                                 </div>
 
@@ -1405,7 +1464,7 @@
                                                 isScrolled ? 'px-2' : 'px-4'
                                                 }`}>
                                                 <span className={`font-bold transition-all duration-500 ${
-                                                    percentage < 40 && percentage > 0 ? 'text-gray-800 dark:text-gray-200' : percentage === 0 ? 'text-red-500' : 'text-white/90'
+                                                    percentage < 40 && percentage > 0 ? (isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-800 dark:text-gray-200') : percentage === 0 ? 'text-red-500' : 'text-white/90'
                                                 } ${isScrolled ? 'text-[10px]' : 'text-sm'}`}>
                                                     {percentage.toFixed(0)}%
                                                 </span>
@@ -1416,10 +1475,10 @@
                                                 <div className={`overflow-hidden transition-all duration-500 w-full ${
                                                 isScrolled ? 'max-h-20 opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'
                                                 }`}>
-                                                    <div className={`p-2 rounded-lg text-[11px] font-bold flex items-center justify-between border ${
+                                                    <div className={`p-2 rounded-lg text-[11px] font-bold flex items-center justify-between ${
                                                         yesterdayRecap.overspent 
-                                                        ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/50 text-red-700 dark:text-red-400 animate-pulse' 
-                                                        : 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/50 text-green-700 dark:text-green-400 theme-bg-light theme-border theme-text'
+                                                        ? `bg-red-50/80 dark:bg-red-900/40 border border-red-200 dark:border-red-800/50 text-red-700 dark:text-red-400 animate-pulse ${isGlass ? 'shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'backdrop-blur-md'}` 
+                                                        : `theme-bg-light theme-border theme-text ${uiStyle.cardSoft}`
                                                     }`}>
                                                         <span>{yesterdayRecap.overspent ? '⚠️ Kemarin Overbudget!' : '🔥 Kemarin Hemat!'}</span>
                                                         <span>{yesterdayRecap.overspent ? '-' : '+'} Rp {formatNumber(yesterdayRecap.amount)}</span>
@@ -1427,13 +1486,12 @@
                                                 </div>
                                             )}
                                         </div>
-                                        <div className={`absolute top-full left-0 w-full h-8 bg-gradient-to-b from-white/95 dark:from-gray-900/95 to-transparent pointer-events-none transition-opacity duration-500 ${isScrolled ? 'opacity-100' : 'opacity-0'}`}></div>
                                     </div>
 
                                     {/* CONTENT (Expenses List) */}
                                     <div className="px-5 pt-4 flex-1 pb-16">
                                         {Object.keys(groupedExpenses).length === 0 ? (
-                                        <div className="text-center py-10 text-gray-300 dark:text-gray-600 flex flex-col items-center">
+                                        <div className={`text-center py-10 flex flex-col items-center ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-600' : 'text-gray-400 dark:text-gray-500'}`}>
                                             <p className="font-semibold text-sm">Belum ada pengeluaran.</p>
                                         </div>
                                         ) : (
@@ -1441,30 +1499,30 @@
                                             {Object.entries(groupedExpenses).map(([dateStr, dayExpenses]) => (
                                             <div key={dateStr} className="mb-6 relative">
                                                 <div className="py-1 mb-2">
-                                                <span className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{dateStr}</span>
+                                                <span className={`text-[11px] font-bold uppercase tracking-widest ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>{dateStr}</span>
                                                 </div>
                                                 
                                                 <div className="space-y-3 mt-1">
                                                 {dayExpenses.map((expense) => {
                                                     const pctNum = parseFloat(((expense.amount / budget) * 100).toFixed(1));
                                                     return (
-                                                    <div key={expense.id} className="group flex items-center py-1 relative animate-in fade-in duration-300">
+                                                    <div key={expense.id} className={`group flex items-center py-2 px-3 rounded-xl relative animate-in fade-in duration-300 ${isGlass ? 'bg-white/30 dark:bg-black/40 border border-white/40 dark:border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : ''}`}>
                                                         {appSettings.showTime && (
-                                                        <div className="flex-shrink-0 mr-2 opacity-50" title={new Date(expense.date).toLocaleTimeString()}>
+                                                        <div className="flex-shrink-0 mr-2 opacity-60" title={new Date(expense.date).toLocaleTimeString()}>
                                                             {getTimeIcon(expense.date)}
                                                         </div>
                                                         )}
-                                                        <div className="text-[15px] text-gray-700 dark:text-gray-300 font-normal">
+                                                        <div className={`text-[15px] font-medium ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-800 dark:text-gray-200'}`}>
                                                             {expense.description}
                                                         </div>
-                                                        <div className="flex-1 border-b border-dashed border-gray-300 dark:border-gray-700 mx-2 mt-2 opacity-60"></div>
+                                                        <div className={`flex-1 border-b border-dashed mx-3 opacity-40 ${isGlass && appSettings.themeLuminance === 'light' ? 'border-gray-500' : 'border-gray-300 dark:border-gray-600'}`}></div>
                                                         <div className="flex items-center">
-                                                            <span className="text-[11px] text-gray-400 dark:text-gray-500 mr-0.5">Rp</span>
-                                                            <span className="text-[15px] text-gray-900 dark:text-gray-100 font-medium tracking-tight mr-2">
+                                                            <span className={`text-[11px] mr-0.5 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>Rp</span>
+                                                            <span className={`text-[15px] font-bold tracking-tight mr-2 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
                                                                 {formatNumber(expense.amount)}
                                                             </span>
-                                                            <div className="bg-red-100/80 dark:bg-red-900/30 px-1.5 py-0.5 rounded flex items-center justify-center min-w-[34px]">
-                                                                <span className="text-[10px] font-bold text-red-800 dark:text-red-400">
+                                                            <div className="bg-red-100/80 dark:bg-red-900/40 px-1.5 py-0.5 rounded flex items-center justify-center min-w-[34px]">
+                                                                <span className="text-[10px] font-bold text-red-800 dark:text-red-300">
                                                                     {pctNum}%
                                                                 </span>
                                                             </div>
@@ -1482,16 +1540,16 @@
 
                                 {/* Floating Capsule Input Form */}
                                 <div className="absolute left-0 right-0 mx-auto w-[90%] z-50 bottom-safe-capsule pointer-events-none transition-all duration-300">
-                                    <form onSubmit={handleAddExpense} className="flex px-4 py-2.5 items-center bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/80 dark:border-gray-700/80 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] pointer-events-auto">
+                                    <form onSubmit={handleAddExpense} className={`flex px-4 py-2.5 items-center rounded-full pointer-events-auto ${uiStyle.capsule}`}>
                                         <input
                                             type="text"
                                             value={descInput}
                                             onChange={(e) => setDescInput(e.target.value)}
                                             placeholder="Buat apa uangnya?"
-                                            className="flex-1 min-w-0 bg-transparent border-none text-[16px] font-medium text-gray-800 dark:text-gray-200 outline-none placeholder-gray-400 dark:placeholder-gray-500 focus:ring-0 p-0"
+                                            className={`flex-1 min-w-0 bg-transparent border-none text-[16px] font-medium outline-none focus:ring-0 p-0 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black placeholder-gray-600' : 'text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400'}`}
                                             required
                                         />
-                                        <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-3 shrink-0"></div>
+                                        <div className={`w-px h-6 mx-3 shrink-0 ${uiStyle.divider}`}></div>
                                         <input
                                             type="text"
                                             value={amountInput}
@@ -1500,7 +1558,7 @@
                                                 setAmountInput(rawValue ? parseInt(rawValue).toLocaleString('id-ID') : '');
                                             }}
                                             placeholder="Berapa?"
-                                            className="w-20 sm:w-24 bg-transparent border-none text-[16px] font-bold text-gray-900 dark:text-gray-100 outline-none placeholder-gray-400 dark:placeholder-gray-500 focus:ring-0 p-0 text-right mr-3 shrink-0"
+                                            className={`w-20 sm:w-24 bg-transparent border-none text-[16px] font-bold outline-none focus:ring-0 p-0 text-right mr-3 shrink-0 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black placeholder-gray-600' : 'text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400'}`}
                                             required
                                         />
                                         <button 
@@ -1515,24 +1573,24 @@
                             </div>
 
                             {/* ===================== CALENDAR PANE ===================== */}
-                            <div className="w-1/2 h-full bg-gray-50 dark:bg-gray-950 flex flex-col relative overflow-hidden shadow-[inset_10px_0_20px_-10px_rgba(0,0,0,0.05)] transition-colors duration-300">
-                                <div className="shrink-0 flex items-center justify-between px-4 pt-6 pb-4 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm z-10 transition-colors duration-300">
+                            <div className={`w-1/2 h-full flex flex-col relative overflow-hidden shadow-[inset_10px_0_20px_-10px_rgba(0,0,0,0.05)] transition-colors duration-300 ${uiStyle.paneCalendar}`}>
+                                <div className={`shrink-0 flex items-center justify-between px-4 pt-6 pb-4 z-10 transition-colors duration-300 ${isGlass ? 'bg-transparent border-b border-white/40 dark:border-white/10' : 'bg-white dark:bg-[#171717] border-b border-gray-100 dark:border-gray-800 shadow-sm'}`}>
                                     <div className="flex items-center">
                                         <button 
                                             onClick={() => setCurrentView('home')} 
-                                            className="p-2 -ml-2 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                                            className={`p-2 -ml-2 rounded-full transition-colors ${isGlass ? (appSettings.themeLuminance === 'light' ? 'text-gray-800 hover:bg-black/10' : 'text-white hover:bg-white/20') : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-[#262626]'}`}
                                         >
                                             <ChevronLeft className="w-6 h-6" />
                                         </button>
                                         <div className="ml-3">
-                                            <h2 className="text-lg font-bold text-gray-900 dark:text-white whitespace-nowrap">{calendarData.monthName}</h2>
+                                            <h2 className={`text-lg font-bold whitespace-nowrap ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black' : 'text-gray-900 dark:text-white'}`}>{calendarData.monthName}</h2>
                                         </div>
                                     </div>
                                     <div className="text-right flex items-center gap-1">
-                                        <button onClick={() => changeMonth(-1)} disabled={isStartMonth()} className={`p-2 rounded-full transition-colors ${isStartMonth() ? 'text-gray-300 dark:text-gray-700 opacity-50 cursor-not-allowed' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}><ChevronUp className="w-5 h-5" /></button>
-                                        <button onClick={() => changeMonth(1)} className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"><ChevronDown className="w-5 h-5" /></button>
-                                        <div className="w-px h-5 bg-gray-200 dark:bg-gray-700 mx-1"></div>
-                                        <button onClick={() => setIsSettingsOpen(true)} className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                        <button onClick={() => changeMonth(-1)} disabled={isStartMonth()} className={`p-2 rounded-full transition-colors ${isStartMonth() ? 'opacity-50 cursor-not-allowed' : ''} ${isGlass ? (appSettings.themeLuminance === 'light' ? 'text-gray-800 hover:bg-black/10' : 'text-white hover:bg-white/20') : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#262626]'}`}><ChevronUp className="w-5 h-5" /></button>
+                                        <button onClick={() => changeMonth(1)} className={`p-2 rounded-full transition-colors ${isGlass ? (appSettings.themeLuminance === 'light' ? 'text-gray-800 hover:bg-black/10' : 'text-white hover:bg-white/20') : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#262626]'}`}><ChevronDown className="w-5 h-5" /></button>
+                                        <div className={`w-px h-5 mx-1 ${uiStyle.divider}`}></div>
+                                        <button onClick={() => setIsSettingsOpen(true)} className={`p-2 rounded-full transition-colors ${isGlass ? (appSettings.themeLuminance === 'light' ? 'text-gray-800 hover:bg-black/10' : 'text-white hover:bg-white/20') : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#262626]'}`}>
                                             <SettingsIcon className="w-5 h-5" />
                                         </button>
                                     </div>
@@ -1553,16 +1611,16 @@
                                             let showData = false;
 
                                             if (dayObj.isFuture || dayObj.isBeforeStart) {
-                                                bgClass = 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 opacity-50';
-                                                textClass = 'text-gray-400 dark:text-gray-500';
+                                                bgClass = isGlass ? 'bg-white/20 dark:bg-black/30 border-transparent opacity-50 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]' : 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 opacity-50';
+                                                textClass = isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-600' : 'text-gray-500 dark:text-gray-400';
                                             } else {
                                                 showData = true;
                                                 if (dayObj.dailyExpense <= targetBudget) {
-                                                    bgClass = 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800 theme-bg-light theme-border';
-                                                    textClass = 'text-green-600 dark:text-green-400 theme-text';
+                                                    bgClass = isGlass ? 'bg-green-500/30 dark:bg-green-500/30 border-green-400/40 dark:border-green-400/30 theme-bg-light theme-border shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800 theme-bg-light theme-border';
+                                                    textClass = 'text-green-800 dark:text-green-300 theme-text';
                                                 } else {
-                                                    bgClass = 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800';
-                                                    textClass = 'text-red-600 dark:text-red-400';
+                                                    bgClass = isGlass ? 'bg-red-500/30 dark:bg-red-500/30 border-red-400/40 dark:border-red-400/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800';
+                                                    textClass = 'text-red-800 dark:text-red-300';
                                                 }
                                             }
 
@@ -1579,16 +1637,16 @@
                                                     </span>
                                                     {showData && (
                                                         <div className="mt-3 flex flex-col items-center leading-tight">
-                                                            {dayObj.dailyExpense > 0 && <span className={`text-[10px] sm:text-[11px] font-bold tracking-tight text-red-600 dark:text-red-400`}>-{formatCompact(dayObj.dailyExpense)}</span>}
-                                                            {dayObj.dailyExpense === 0 && <span className={`text-[11px] font-bold tracking-tight text-gray-400 dark:text-gray-500`}>0</span>}
+                                                            {dayObj.dailyExpense > 0 && <span className={`text-[10px] sm:text-[11px] font-bold tracking-tight text-red-600 dark:text-red-300`}>-{formatCompact(dayObj.dailyExpense)}</span>}
+                                                            {dayObj.dailyExpense === 0 && <span className={`text-[11px] font-bold tracking-tight ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-600' : 'text-gray-500 dark:text-gray-400'}`}>0</span>}
                                                         </div>
                                                     )}
                                                 </div>
                                             )
                                         })}
                                     </div>
-                                    <div className="mt-8 p-5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col justify-center">
-                                        <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Total Pengeluaran Bulan Ini</p>
+                                    <div className={`mt-8 p-5 rounded-2xl flex flex-col justify-center ${uiStyle.card}`}>
+                                        <p className={`text-xs font-bold uppercase tracking-widest mb-1 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>Total Pengeluaran Bulan Ini</p>
                                         <p className="text-2xl font-bold text-red-600 dark:text-red-400 tracking-tight">-Rp {formatNumber(calendarData.totalSpentMonth)}</p>
                                     </div>
                                 </div>
@@ -1597,20 +1655,20 @@
 
                         {/* INCOME MODAL OVERLAY */}
                         {isIncomeModalOpen && (
-                            <div className="fixed inset-0 z-[110] bg-black/60 flex items-center justify-center p-6 animate-in fade-in duration-200" onClick={() => setIsIncomeModalOpen(false)}>
-                                <div className="bg-white dark:bg-gray-900 w-full max-w-sm rounded-2xl shadow-xl overflow-hidden flex flex-col p-6" onClick={e => e.stopPropagation()}>
-                                    <h3 className="font-bold text-gray-900 dark:text-white text-xl mb-4 text-center">Tambah Pemasukan</h3>
+                            <div className={`fixed inset-0 z-[110] flex items-center justify-center p-6 animate-in fade-in duration-200 ${isGlass ? 'bg-black/20 backdrop-blur-md' : 'bg-black/40 dark:bg-black/60'}`} onClick={() => setIsIncomeModalOpen(false)}>
+                                <div className={`w-full max-w-sm rounded-3xl overflow-hidden flex flex-col p-6 ${uiStyle.modalFrosted}`} onClick={e => e.stopPropagation()}>
+                                    <h3 className={`font-bold text-xl mb-4 text-center ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black' : 'text-gray-900 dark:text-white'}`}>Tambah Pemasukan</h3>
                                     <form onSubmit={handleAddIncome} className="space-y-4">
                                         <input
                                             type="text"
                                             value={incomeDescInput}
                                             onChange={(e) => setIncomeDescInput(e.target.value)}
                                             placeholder="Sumber Dana (mis. Bonus, Jual Barang)"
-                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl focus:border-green-500 outline-none text-[16px]"
+                                            className={`w-full px-4 py-3 rounded-xl focus:border-green-500 outline-none text-[16px] ${uiStyle.input}`}
                                             required
                                         />
                                         <div className="relative">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-bold">Rp</span>
+                                            <span className={`absolute left-4 top-1/2 -translate-y-1/2 font-bold ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-600' : 'text-gray-500 dark:text-gray-400'}`}>Rp</span>
                                             <input
                                                 type="text"
                                                 value={incomeAmountInput}
@@ -1619,13 +1677,13 @@
                                                     setIncomeAmountInput(rawValue ? parseInt(rawValue).toLocaleString('id-ID') : '');
                                                 }}
                                                 placeholder="Jumlah Pemasukan"
-                                                className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 outline-none text-[16px] font-semibold text-green-700 dark:text-green-400 theme-text"
+                                                className={`w-full pl-12 pr-4 py-3 rounded-xl focus:border-green-500 outline-none text-[16px] font-semibold text-green-700 dark:text-green-400 theme-text ${uiStyle.input}`}
                                                 required
                                             />
                                         </div>
                                         <div className="flex gap-3 pt-2">
-                                            <button type="button" onClick={() => setIsIncomeModalOpen(false)} className="flex-1 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-bold">Batal</button>
-                                            <button type="submit" disabled={!incomeAmountInput || !incomeDescInput.trim()} className="flex-1 py-3 bg-green-600 hover:bg-green-700 theme-bg text-white rounded-xl font-bold disabled:opacity-50">Tambah</button>
+                                            <button type="button" onClick={() => setIsIncomeModalOpen(false)} className={`flex-1 py-3 rounded-xl font-bold ${uiStyle.cardSoft}`}>Batal</button>
+                                            <button type="submit" disabled={!incomeAmountInput || !incomeDescInput.trim()} className="flex-1 py-3 bg-green-600 hover:bg-green-700 theme-bg text-white rounded-xl font-bold disabled:opacity-50 shadow-md">Tambah</button>
                                         </div>
                                     </form>
                                 </div>
@@ -1634,12 +1692,12 @@
 
                         {/* RECEIPT MODAL */}
                         {selectedDateReceipt && (
-                            <div className="fixed inset-0 z-[100] bg-black/60 dark:bg-black/80 flex items-center justify-center p-6 animate-in fade-in duration-200 drop-shadow-2xl" onClick={() => setSelectedDateReceipt(null)}>
+                            <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200 drop-shadow-2xl bg-black/60" onClick={() => setSelectedDateReceipt(null)}>
                                 <div className="w-full max-w-sm" onClick={e => e.stopPropagation()}>
-                                    <div className="receipt-mask w-full flex flex-col max-h-[80vh]">
-                                        <div className="p-5 border-b border-gray-300 dark:border-gray-700 border-dashed shrink-0 rounded-t-xl">
-                                            <h3 className="text-center font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest text-lg">List Pengeluaran</h3>
-                                            <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-1 font-semibold">{selectedDateReceipt.dateStr}</p>
+                                    <div className="receipt-mask w-full flex flex-col max-h-[80vh] bg-white">
+                                        <div className="p-5 border-b border-dashed shrink-0 rounded-t-xl border-gray-300">
+                                            <h3 className="text-center font-bold uppercase tracking-widest text-lg text-gray-900">List Pengeluaran</h3>
+                                            <p className="text-center text-xs mt-1 font-semibold text-gray-600">{selectedDateReceipt.dateStr}</p>
                                         </div>
                                         <div className="p-5 flex-1 overflow-y-auto">
                                             {(() => {
@@ -1651,21 +1709,21 @@
                                                     <div className="space-y-3">
                                                         {dayExps.map(exp => (
                                                             <div key={exp.id} className="flex justify-between items-center text-sm">
-                                                                <span className="text-gray-600 dark:text-gray-300">{exp.description}</span>
-                                                                <span className="font-semibold text-gray-800 dark:text-gray-100">
+                                                                <span className="font-medium text-gray-800">{exp.description}</span>
+                                                                <span className="font-bold text-gray-900">
                                                                     -Rp {formatNumber(exp.amount)}
                                                                 </span>
                                                             </div>
                                                         ))}
-                                                        {dayExps.length === 0 && <p className="text-center text-gray-400 dark:text-gray-500 text-sm italic">Tidak ada transaksi.</p>}
+                                                        {dayExps.length === 0 && <p className="text-center text-sm italic text-gray-500">Tidak ada transaksi.</p>}
                                                     </div>
                                                 );
                                             })()}
                                         </div>
                                         <div className="p-5 pt-0 shrink-0">
-                                            <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex justify-between font-bold text-sm">
-                                                <span className="text-gray-600 dark:text-gray-300">Total Pengeluaran</span>
-                                                <span className="text-red-600 dark:text-red-400">-Rp {formatNumber(selectedDateReceipt.dailyExpense)}</span>
+                                            <div className="border-t pt-4 flex justify-between font-bold text-sm border-gray-300">
+                                                <span className="text-gray-700">Total Pengeluaran</span>
+                                                <span className="text-red-600">-Rp {formatNumber(selectedDateReceipt.dailyExpense)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1673,14 +1731,14 @@
                             </div>
                         )}
 
-                        {/* SETTINGS / EDIT MODAL */}
+                        {/* SETTINGS / EDIT MODAL (Always solid colors, no glass) */}
                         {isSettingsOpen && (
-                        <div className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                            <div className="bg-white dark:bg-gray-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/60 backdrop-blur-sm">
+                            <div className="w-full max-w-sm rounded-3xl p-6 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] bg-white dark:bg-[#171717] shadow-2xl">
                                 
                                 <div className="flex justify-between items-center mb-6 shrink-0">
                                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">{isEditMode ? 'Edit Transaksi' : 'Pengaturan'}</h2>
-                                    <button onClick={() => { setIsSettingsOpen(false); setIsEditMode(false); }} className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-800 dark:hover:text-white">
+                                    <button onClick={() => { setIsSettingsOpen(false); setIsEditMode(false); }} className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
                                         <XIcon className="w-6 h-6" />
                                     </button>
                                 </div>
@@ -1688,30 +1746,30 @@
                                 <div className="overflow-y-auto flex-1 pb-4 pr-1">
                                     {isEditMode ? (
                                         <div className="space-y-3">
-                                            <button onClick={() => setIsEditMode(false)} className="text-blue-500 dark:text-blue-400 text-sm font-semibold mb-2 flex items-center"><ChevronLeft className="w-4 h-4 mr-1"/> Kembali</button>
+                                            <button onClick={() => setIsEditMode(false)} className="text-blue-600 dark:text-blue-400 text-sm font-semibold mb-3 flex items-center hover:opacity-80"><ChevronLeft className="w-4 h-4 mr-1"/> Kembali</button>
                                             {expenses.map(exp => (
-                                                <div key={exp.id} className="flex gap-2 items-center bg-gray-50 dark:bg-gray-800 p-2.5 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                <div key={exp.id} className="flex gap-2 items-center p-2.5 rounded-xl bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
                                                     <input 
                                                         defaultValue={exp.description} 
                                                         onBlur={(e) => handleEditExpense(exp.id, 'description', e.target.value)} 
-                                                        className="flex-1 w-full bg-white dark:bg-gray-900 text-gray-900 dark:text-white px-2 py-1.5 rounded border border-gray-200 dark:border-gray-700 text-[16px]"
+                                                        className="flex-1 w-full rounded-lg px-3 py-2 text-[15px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white"
                                                     />
                                                     <input 
                                                         defaultValue={exp.amount} 
                                                         onBlur={(e) => handleEditExpense(exp.id, 'amount', parseInt(e.target.value.replace(/\D/g, '')) || 0)} 
-                                                        className={`w-20 bg-white dark:bg-gray-900 px-2 py-1.5 rounded border border-gray-200 dark:border-gray-700 text-[16px] font-semibold ${exp.type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-gray-800 dark:text-gray-200'}`}
+                                                        className={`w-24 px-3 py-2 rounded-lg text-[15px] font-semibold text-right bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 ${exp.type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}
                                                     />
-                                                    <button onClick={() => handleDeleteExpense(exp.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded">
+                                                    <button onClick={() => handleDeleteExpense(exp.id)} className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors">
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
                                                 </div>
                                             ))}
-                                            {expenses.length === 0 && <p className="text-center text-gray-400 dark:text-gray-500 text-sm mt-4">Kosong</p>}
+                                            {expenses.length === 0 && <p className="text-center text-gray-500 dark:text-gray-400 text-sm mt-8 italic">Data transaksi kosong</p>}
                                         </div>
                                     ) : (
                                         <div className="space-y-6">
                                             
-                                            <div className="bg-[#e0f2fe] dark:bg-[#082f49] rounded-lg p-5 shadow-sm border border-[#bae6fd] dark:border-[#0c4a6e] relative flex items-center">
+                                            <div className="rounded-xl p-5 relative flex items-center shadow-sm bg-[#e0f2fe] dark:bg-[#082f49] border border-[#bae6fd] dark:border-[#0c4a6e]">
                                                 <div className="flex-1 pr-4 z-10">
                                                     <h3 className="font-bold text-[#0c4a6e] dark:text-[#7dd3fc] text-xl leading-tight mb-0.5 uppercase tracking-wide">
                                                         {userProfile.name}
@@ -1723,56 +1781,64 @@
                                                         "Aku adalah orang yang disiplin finansial"
                                                     </p>
                                                 </div>
-                                                <div className="w-[60px] h-[80px] rounded-md bg-white dark:bg-[#0f172a] border-2 border-[#bae6fd] dark:border-[#0c4a6e] flex items-center justify-center text-4xl shadow-sm z-10 shrink-0">
+                                                <div className="w-[60px] h-[80px] rounded-lg flex items-center justify-center text-4xl shadow-sm z-10 shrink-0 bg-white dark:bg-[#0f172a] border border-[#bae6fd] dark:border-[#0c4a6e]">
                                                     {userProfile.gender === 'male' ? '👨' : '👩'}
                                                 </div>
                                             </div>
 
                                             <button 
                                                 onClick={() => setIsEditMode(true)}
-                                                className="w-full flex items-center justify-center gap-2 py-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl font-semibold border border-blue-100 dark:border-blue-800/50 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                                                className="w-full flex items-center justify-center gap-2 py-3 text-blue-600 dark:text-blue-400 rounded-xl font-semibold transition-colors bg-blue-50 hover:bg-blue-100 border border-blue-100 dark:bg-blue-900/30 dark:border-blue-800/50 dark:hover:bg-blue-900/50"
                                             >
                                                 <Edit3 className="w-4 h-4" /> Edit Data Transaksi
                                             </button>
 
                                             <div className="space-y-3">
-                                                <h3 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Tampilan</h3>
+                                                <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Tampilan</h3>
                                                 
                                                 <div>
                                                     <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Tema Aplikasi</span>
-                                                    <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
-                                                        {['system', 'light', 'dark'].map(t => (
+                                                    <div className="grid grid-cols-4 gap-2">
+                                                        {[
+                                                            { id: 'system', label: 'Auto', icon: <SystemIcon className="w-5 h-5 mb-1.5" /> },
+                                                            { id: 'light', label: 'Light', icon: <Sun className="w-5 h-5 mb-1.5" /> },
+                                                            { id: 'dark', label: 'Dark', icon: <Moon className="w-5 h-5 mb-1.5" /> },
+                                                            { id: 'custom', label: 'Custom', icon: <ImageIcon className="w-5 h-5 mb-1.5" /> }
+                                                        ].map(t => (
                                                             <button 
-                                                                key={t}
-                                                                onClick={() => setAppSettings({...appSettings, themeMode: t})}
-                                                                className={`flex-1 py-2 text-sm font-semibold rounded-lg capitalize transition-colors ${appSettings.themeMode === t ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                                                                key={t.id}
+                                                                onClick={() => setAppSettings({...appSettings, themeMode: t.id})}
+                                                                className={`flex flex-col items-center justify-center py-3 rounded-xl transition-all border ${appSettings.themeMode === t.id ? 'bg-blue-50 border-blue-200 text-blue-600 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-400 shadow-sm' : 'bg-gray-50 border-transparent text-gray-500 hover:bg-gray-100 dark:bg-[#262626] dark:text-gray-400 dark:hover:bg-[#404040]'}`}
                                                             >
-                                                                {t}
+                                                                {t.icon}
+                                                                <span className="text-[10px] font-bold uppercase tracking-wider">{t.label}</span>
                                                             </button>
                                                         ))}
                                                     </div>
                                                 </div>
                                                 
-                                                <div>
-                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Tema Kustom (Ekstrak Gambar)</span>
-                                                    <label className={`flex items-center justify-center w-full py-3 border-2 border-dashed ${appSettings.customTheme ? 'border-green-400 bg-green-50 dark:bg-green-900/20' : 'border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'} rounded-xl cursor-pointer transition-colors`}>
-                                                        <ImageIcon className={`w-5 h-5 mr-2 ${appSettings.customTheme ? 'text-green-600 dark:text-green-400' : 'text-gray-400'}`} />
-                                                        <span className={`text-sm font-medium ${appSettings.customTheme ? 'text-green-700 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
-                                                            {appSettings.customTheme ? 'Gambar Tema Diterapkan' : 'Upload Gambar'}
+                                                {appSettings.themeMode === 'custom' && (
+                                                <div className="animate-in fade-in slide-in-from-top-2 pt-2">
+                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Wallpaper Custom</span>
+                                                    <label className={`flex items-center justify-center w-full py-3 border-2 border-dashed ${appSettings.customThemeImage ? 'border-green-400/50 bg-green-50 dark:bg-green-900/20 text-gray-800 dark:text-white' : 'border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#262626] text-gray-600 dark:text-gray-400'} rounded-xl cursor-pointer transition-colors`}>
+                                                        <ImageIcon className={`w-5 h-5 mr-2 ${appSettings.customThemeImage ? 'text-green-700 dark:text-green-400' : ''}`} />
+                                                        <span className={`text-sm font-medium ${appSettings.customThemeImage ? 'text-green-800 dark:text-green-300' : ''}`}>
+                                                            {appSettings.customThemeImage ? 'Wallpaper Aktif' : 'Upload Wallpaper'}
                                                         </span>
                                                         <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
                                                     </label>
-                                                    {appSettings.customTheme && (
-                                                        <button onClick={() => setAppSettings({...appSettings, customTheme: null})} className="text-xs text-red-500 hover:text-red-600 mt-2 font-medium w-full text-center">Hapus Tema Kustom</button>
+                                                    {appSettings.customThemeImage && (
+                                                        <button onClick={() => setAppSettings({...appSettings, customTheme: null, customThemeImage: null, themeLuminance: null})} className="text-xs text-red-500 hover:text-red-600 mt-2 font-medium w-full text-center">Hapus Wallpaper</button>
                                                     )}
                                                 </div>
+                                                )}
                                             </div>
 
                                             <div className="space-y-3">
-                                                <h3 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-4">Preferensi</h3>
+                                                <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-4">Preferensi</h3>
                                                 
-                                                <label className="flex flex-col p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Budget Max Per-Hari (Rp)</span>
+                                                <label className="flex flex-col p-3 rounded-xl bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
+                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Budget Max Per-Hari (Rp)</span>
                                                     <input 
                                                         type="text"
                                                         value={userProfile.promiseBudget ? parseInt(userProfile.promiseBudget).toLocaleString('id-ID') : ''}
@@ -1781,13 +1847,13 @@
                                                             setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
                                                         }}
                                                         onBlur={handleUpdateProfile}
-                                                        className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-[16px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                                        className="px-3 py-2 rounded-lg text-[16px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white"
                                                         placeholder="Contoh: 50000"
                                                     />
                                                 </label>
 
-                                                <label className="flex flex-col p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Budget spending untuk 1 bulan (Rp)</span>
+                                                <label className="flex flex-col p-3 rounded-xl bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
+                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Budget spending untuk 1 bulan (Rp)</span>
                                                     <input 
                                                         type="text"
                                                         value={budget ? parseInt(budget).toLocaleString('id-ID') : ''}
@@ -1796,47 +1862,47 @@
                                                             setBudget(rawValue ? parseInt(rawValue) : 0);
                                                         }}
                                                         onBlur={handleUpdateProfile}
-                                                        className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-[16px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                                        className="px-3 py-2 rounded-lg text-[16px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white"
                                                     />
                                                 </label>
 
-                                                <label className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl cursor-pointer">
-                                                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Intro JeStudios</span>
+                                                <label className="flex items-center justify-between p-3 rounded-xl cursor-pointer bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
+                                                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Intro JeStudios</span>
                                                     <input 
                                                         type="checkbox" 
                                                         checked={appSettings.showSplash}
                                                         onChange={(e) => setAppSettings({...appSettings, showSplash: e.target.checked})}
-                                                        className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                                        className="w-5 h-5 rounded focus:ring-blue-500 text-blue-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                                                     />
                                                 </label>
 
-                                                <label className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl cursor-pointer">
-                                                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Ikon Waktu</span>
+                                                <label className="flex items-center justify-between p-3 rounded-xl cursor-pointer bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
+                                                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Ikon Waktu</span>
                                                     <input 
                                                         type="checkbox" 
                                                         checked={appSettings.showTime}
                                                         onChange={(e) => setAppSettings({...appSettings, showTime: e.target.checked})}
-                                                        className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                                        className="w-5 h-5 rounded focus:ring-blue-500 text-blue-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                                                     />
                                                 </label>
                                                 
-                                                <label className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl cursor-pointer mb-6">
-                                                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Teguran</span>
+                                                <label className="flex items-center justify-between p-3 rounded-xl cursor-pointer mb-6 bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
+                                                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Teguran</span>
                                                     <input 
                                                         type="checkbox" 
                                                         checked={appSettings.showRecap}
                                                         onChange={(e) => setAppSettings({...appSettings, showRecap: e.target.checked})}
-                                                        className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                                        className="w-5 h-5 rounded focus:ring-blue-500 text-blue-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                                                     />
                                                 </label>
                                             </div>
 
-                                            <div className="space-y-4 mt-8 pt-4 border-t border-gray-200 dark:border-gray-800">
+                                            <div className="space-y-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-800">
                                                 {/* PWA Download Banner inside Settings (Sembunyi kalau sudah Fullscreen/Standalone) */}
                                                 {!isStandalone && (
                                                     <button 
                                                         onClick={handleInstallApp}
-                                                        className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl font-bold shadow-md hover:from-blue-700 hover:to-blue-600 transition-all"
+                                                        className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl font-bold shadow-lg hover:from-blue-700 hover:to-blue-600 transition-all"
                                                     >
                                                         <DownloadIcon className="w-5 h-5" />
                                                         Install Wang
@@ -1845,7 +1911,7 @@
 
                                                 <button 
                                                     onClick={() => setShowLogoutConfirm(true)}
-                                                    className="w-full flex items-center justify-center gap-2 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl font-bold border border-red-100 dark:border-red-800/50 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                                                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-colors bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800/50 hover:bg-red-100 dark:hover:bg-red-900/40"
                                                 >
                                                     <LogOutIcon className="w-5 h-5" /> Log Out
                                                 </button>
@@ -1859,13 +1925,13 @@
 
                         {/* LOGOUT CONFIRMATION MODAL */}
                         {showLogoutConfirm && (
-                            <div className="fixed inset-0 z-[120] bg-black/60 dark:bg-black/80 flex items-center justify-center p-6 animate-in fade-in duration-200 drop-shadow-2xl" onClick={() => setShowLogoutConfirm(false)}>
-                                <div className="bg-white dark:bg-gray-900 w-full max-w-sm rounded-2xl shadow-xl overflow-hidden flex flex-col p-6" onClick={e => e.stopPropagation()}>
+                            <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 animate-in fade-in duration-200 drop-shadow-2xl bg-black/60 dark:bg-black/80" onClick={() => setShowLogoutConfirm(false)}>
+                                <div className="w-full max-w-sm rounded-3xl overflow-hidden flex flex-col p-6 bg-white dark:bg-[#171717] shadow-2xl" onClick={e => e.stopPropagation()}>
                                     <h3 className="font-bold text-gray-900 dark:text-white text-xl mb-2 text-center">Konfirmasi Keluar</h3>
-                                    <p className="text-center text-gray-500 dark:text-gray-400 text-sm mb-6">Yakin ingin keluar dari akun ini?</p>
+                                    <p className="text-center text-gray-600 dark:text-gray-400 text-sm mb-6">Yakin ingin keluar dari akun ini?</p>
                                     <div className="flex gap-3">
-                                        <button type="button" onClick={() => setShowLogoutConfirm(false)} className="flex-1 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-bold">Batal</button>
-                                        <button type="button" onClick={() => { setShowLogoutConfirm(false); handleLogout(); }} className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-colors">Keluar</button>
+                                        <button type="button" onClick={() => setShowLogoutConfirm(false)} className="flex-1 py-3 rounded-xl font-bold bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700">Batal</button>
+                                        <button type="button" onClick={() => { setShowLogoutConfirm(false); handleLogout(); }} className="flex-1 py-3 bg-red-600 hover:bg-red-700 shadow-lg text-white rounded-xl font-bold transition-colors">Keluar</button>
                                     </div>
                                 </div>
                             </div>
