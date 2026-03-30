@@ -32,7 +32,7 @@
         theme: {
           extend: {
             colors: {
-              /* Override default cool gray to pure neutral gray for the CorelDRAW dark look */
+              /* Pure neutral gray for the CorelDRAW dark look */
               gray: {
                 50: '#fafafa',
                 100: '#f5f5f5',
@@ -108,7 +108,7 @@
         }
         
         /* Mencegah iOS Safari auto-zoom saat tap input */
-        input[type="text"], input[type="number"] {
+        input[type="text"], input[type="number"], input[type="date"], select {
             font-size: 16px !important;
         }
 
@@ -359,6 +359,8 @@
         const Plus = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
         const DownloadIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
         const ImageIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>;
+        const HomeIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>;
+        const CameraIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" /><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" /></svg>;
 
         // --- PWA INSTALL PROMPT COMPONENT ---
         const PWANotif = ({ show, onInstall, onClose }) => {
@@ -487,7 +489,6 @@
                 const applyLight = () => root.classList.remove('dark');
 
                 if (appSettings.themeMode === 'custom' && appSettings.customThemeImage && appSettings.themeLuminance) {
-                    // Make custom theme totally independent: force text color mode based on image brightness
                     if (appSettings.themeLuminance === 'dark') applyDark();
                     else applyLight();
                 } else {
@@ -521,14 +522,34 @@
             const [budget, setBudget] = useState(0);
             const [paycheckDate, setPaycheckDate] = useState('');
             const [expenses, setExpenses] = useState([]);
-            const [userProfile, setUserProfile] = useState({ name: '', age: '', gender: '', promiseBudget: '', createdAt: '' });
+            const [userProfile, setUserProfile] = useState({ name: '', age: '', gender: '', promiseBudget: '', createdAt: '', trackedItems: ['spending'], defaultTab: 'spending', debts: [], quote: 'Aku adalah orang yang disiplin finansial', avatar: null });
 
             // --- UI States ---
             const [setupStep, setSetupStep] = useState(1);
             const [isSettingsOpen, setIsSettingsOpen] = useState(false);
             const [isEditMode, setIsEditMode] = useState(false);
+            const [editModeType, setEditModeType] = useState('spending');
             const [isScrolled, setIsScrolled] = useState(false);
             const [currentView, setCurrentView] = useState('home'); 
+            const [activeTab, setActiveTab] = useState('spending');
+            
+            // Debt-specific Modals & States
+            const [isAddDebtModalOpen, setIsAddDebtModalOpen] = useState(false);
+            const [newDebtType, setNewDebtType] = useState('tagihan'); // 'tagihan' or 'cicilan'
+            const [newDebtName, setNewDebtName] = useState('');
+            const [newDebtAmount, setNewDebtAmount] = useState('');
+            const [newDebtDeadline, setNewDebtDeadline] = useState('');
+            const [newDebtStartDate, setNewDebtStartDate] = useState('');
+            const [newDebtTenor, setNewDebtTenor] = useState('');
+            const [selectedDebtId, setSelectedDebtId] = useState('');
+
+            useEffect(() => {
+                if (userProfile.defaultTab && userProfile.trackedItems?.includes(userProfile.defaultTab)) {
+                    setActiveTab(userProfile.defaultTab);
+                } else if (userProfile.trackedItems?.length > 0) {
+                    setActiveTab(userProfile.trackedItems[0]);
+                }
+            }, [userProfile.defaultTab, userProfile.trackedItems]);
             
             // Calendar Animation States
             const [currentMonthOffset, setCurrentMonthOffset] = useState(0); 
@@ -572,12 +593,10 @@
                 const handler = (e) => {
                     e.preventDefault();
                     setDeferredPrompt(e);
-                    // Langsung tunjukkan Notif Dropdown jika di Android dan prompt tersedia
                     if (!checkStandalone()) setShowPWANotif(true);
                 };
                 window.addEventListener('beforeinstallprompt', handler);
 
-                // Untuk pengguna iOS, prompt otomatis tidak ada, kita beri delay lalu tampilkan notif buatan
                 if (isDeviceIOS && !checkStandalone()) {
                     const timer = setTimeout(() => setShowPWANotif(true), 2500);
                     return () => { clearTimeout(timer); window.removeEventListener('beforeinstallprompt', handler); };
@@ -603,6 +622,17 @@
                     setShowPWANotif(false);
                     setDeferredPrompt(null);
                 }
+            };
+
+            const handleForceUpdate = () => {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                        for(let registration of registrations) {
+                            registration.update();
+                        }
+                    });
+                }
+                window.location.reload(true);
             };
 
             // ==========================================
@@ -672,16 +702,20 @@
                 return new Date().setHours(0,0,0,0);
             }, [userProfile.createdAt, expenses]);
 
-            // Calculate Totals considering Income
-            const totalSpent = useMemo(() => {
-                return expenses.reduce((sum, exp) => {
-                    if (exp.type === 'income') return sum - exp.amount;
-                    return sum + exp.amount;
-                }, 0);
+            // Calculate Totals strictly isolated per tracking type
+            const { totalSpent, totalIncome } = useMemo(() => {
+                let spent = 0;
+                let inc = 0;
+                expenses.forEach(e => {
+                    if (e.type === 'expense') spent += e.amount;
+                    if (e.type === 'income') inc += e.amount;
+                });
+                return { totalSpent: spent, totalIncome: inc };
             }, [expenses]);
 
-            const remaining = budget - totalSpent;
-            const percentage = budget > 0 ? Math.max(0, Math.min(100, (remaining / budget) * 100)) : 0;
+            const remaining = budget + totalIncome - totalSpent;
+            const totalPool = budget + totalIncome;
+            const percentage = totalPool > 0 ? Math.max(0, Math.min(100, (remaining / totalPool) * 100)) : 0;
 
             useEffect(() => {
                 if (remaining < prevRemainingRef.current) {
@@ -693,6 +727,77 @@
                 }
                 prevRemainingRef.current = remaining;
             }, [remaining]);
+            
+            // Advance Debt Progress Calculation
+            const debtProgress = useMemo(() => {
+                const debts = userProfile.debts || [];
+                let totalPrincipal = 0;
+                let totalPaid = 0;
+                const progressMap = {};
+
+                debts.forEach(d => {
+                    totalPrincipal += d.amount;
+                    progressMap[d.id] = { ...d, paid: 0 };
+                });
+
+                expenses.filter(e => e.type === 'debt').forEach(e => {
+                    if (e.debtId && progressMap[e.debtId]) {
+                        progressMap[e.debtId].paid += e.amount;
+                        totalPaid += e.amount;
+                    }
+                });
+
+                return {
+                    totalPrincipal,
+                    totalPaid,
+                    remaining: Math.max(0, totalPrincipal - totalPaid),
+                    list: Object.values(progressMap)
+                };
+            }, [userProfile.debts, expenses]);
+            
+            // Auto-select first unpaid debt
+            useEffect(() => {
+                if (activeTab === 'debt' && !selectedDebtId && debtProgress.list.length > 0) {
+                    const firstUnpaid = debtProgress.list.find(d => d.amount > d.paid);
+                    if (firstUnpaid) setSelectedDebtId(firstUnpaid.id);
+                }
+            }, [activeTab, debtProgress.list, selectedDebtId]);
+
+            // Calculate Nearest Debt Deadline
+            const nearestDeadline = useMemo(() => {
+                const now = new Date();
+                now.setHours(0,0,0,0);
+                let closest = null;
+                let minDiff = Infinity;
+
+                debtProgress.list.forEach(debt => {
+                    if (debt.paid >= debt.amount) return; // Lunas
+
+                    let nextDate = null;
+                    if (debt.type === 'tagihan' && debt.deadline) {
+                        nextDate = new Date(debt.deadline);
+                    } else if (debt.type === 'cicilan' && debt.startDate) {
+                        const start = new Date(debt.startDate);
+                        let current = new Date(start);
+                        for (let i = 0; i < (debt.tenor || 1); i++) {
+                            if (current >= now || i === debt.tenor - 1) {
+                                nextDate = new Date(current);
+                                if(current >= now) break;
+                            }
+                            current.setMonth(current.getMonth() + 1);
+                        }
+                    }
+
+                    if (nextDate) {
+                        if (nextDate.getTime() < minDiff) {
+                            minDiff = nextDate.getTime();
+                            closest = { name: debt.name, date: nextDate };
+                        }
+                    }
+                });
+
+                return closest;
+            }, [debtProgress.list]);
 
             const formatNumber = (amount) => {
                 return new Intl.NumberFormat('id-ID').format(amount);
@@ -703,38 +808,39 @@
                 return new Intl.NumberFormat('id-ID', { notation: "compact", maximumFractionDigits: 1 }).format(amount);
             };
 
+            const formatIDDate = (isoString) => {
+                if (!isoString) return '';
+                const d = new Date(isoString);
+                return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+            };
+
             const isGlass = appSettings.themeMode === 'custom' && !!appSettings.customThemeImage;
 
             // Comprehensive mapping of pure liquid glass & frosted styles
             const uiStyle = {
-                paneHome: isGlass ? 'bg-white/10 dark:bg-black/20' : 'bg-white dark:bg-[#171717]',
-                paneCalendar: isGlass ? 'bg-white/10 dark:bg-black/20 backdrop-blur-xl' : 'bg-white dark:bg-[#171717]',
-                header: isGlass ? 'bg-white/20 dark:bg-black/30 border-b border-white/40 dark:border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)]' : 'bg-white/95 dark:bg-[#171717]/95 backdrop-blur-md',
+                paneHome: isGlass ? 'bg-transparent' : 'bg-gray-100 dark:bg-[#262626]',
+                paneCalendar: isGlass ? 'bg-transparent backdrop-blur-xl' : 'bg-gray-100 dark:bg-[#262626]',
+                header: isGlass ? 'bg-white/20 dark:bg-black/30 border-b border-white/20 dark:border-white/10' : 'bg-white dark:bg-[#171717]',
                 card: isGlass ? 'bg-white/20 dark:bg-black/30 border border-white/50 dark:border-white/20 shadow-[inset_0_1px_2px_rgba(255,255,255,0.4),0_4px_16px_rgba(0,0,0,0.1)]' : 'bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-800',
                 cardSoft: isGlass ? 'bg-white/20 dark:bg-black/30 border border-white/40 dark:border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)] text-gray-900 dark:text-gray-100' : 'bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200',
                 capsule: isGlass ? 'bg-white/30 dark:bg-black/40 border border-white/50 dark:border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.2),inset_0_1px_2px_rgba(255,255,255,0.5)]' : 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/80 dark:border-gray-700/80 shadow-[0_8px_30px_rgb(0,0,0,0.12)]',
                 modalFrosted: isGlass ? 'bg-white/20 dark:bg-black/40 backdrop-blur-2xl border border-white/50 dark:border-white/20 shadow-[0_16px_40px_rgba(0,0,0,0.3),inset_0_1px_2px_rgba(255,255,255,0.5)]' : 'bg-white dark:bg-[#171717] shadow-2xl',
-                input: isGlass ? 'bg-white/30 dark:bg-black/30 border border-white/50 dark:border-white/20 placeholder-gray-600 dark:placeholder-gray-400 focus:bg-white/40 dark:focus:bg-black/40 text-gray-900 dark:text-white shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]' : 'bg-gray-50 dark:bg-[#171717] border border-gray-200 dark:border-gray-700',
+                input: isGlass ? 'bg-white/30 dark:bg-black/30 border border-white/50 dark:border-white/20 placeholder-gray-600 dark:placeholder-gray-400 focus:bg-white/40 dark:focus:bg-black/40 text-gray-900 dark:text-white shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]' : 'bg-gray-50 dark:bg-[#171717] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white',
                 divider: isGlass ? 'bg-white/40 dark:bg-white/20' : 'bg-gray-300 dark:bg-gray-600'
+            };
+
+            const getProgressColor = (pct) => {
+                const hue = 120 - (pct * 0.9); // 100% -> 30 (orange), 0% -> 120 (green)
+                return `hsl(${hue}, 85%, 45%)`;
             };
 
             const getBarStyle = () => {
                 if (percentage === 0) return { backgroundColor: 'transparent', width: '0%' };
-                
                 if (isGlass && percentage > 20) {
-                    return {
-                        backgroundColor: 'var(--theme-main)',
-                        width: `${percentage}%`,
-                        transitionDuration: '2.5s'
-                    };
+                    return { backgroundColor: 'var(--theme-main)', width: `${percentage}%`, transitionDuration: '2.5s' };
                 }
-
                 const hue = percentage > 50 ? 120 : (percentage / 50) * 120;
-                return { 
-                    backgroundColor: `hsl(${hue}, 85%, 45%)`,
-                    width: `${percentage}%`,
-                    transitionDuration: '2.5s'
-                };
+                return { backgroundColor: `hsl(${hue}, 85%, 45%)`, width: `${percentage}%`, transitionDuration: '2.5s' };
             };
 
             const getGlowStyle = () => {
@@ -776,20 +882,18 @@
                 const yesterday = new Date(today);
                 yesterday.setDate(yesterday.getDate() - 1);
                 
-                const yesterdayExpenses = expenses.filter(exp => new Date(exp.date).toDateString() === yesterday.toDateString());
+                const yesterdayExpenses = expenses.filter(exp => new Date(exp.date).toDateString() === yesterday.toDateString() && exp.type === 'expense');
                 
-                // Net spent yesterday
-                const yesterdaySpent = yesterdayExpenses.filter(e => e.type !== 'income').reduce((s, e) => s + e.amount, 0);
-                const yesterdayIncome = yesterdayExpenses.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
-                const yesterdayNetTotal = yesterdaySpent - yesterdayIncome;
+                // Net spent yesterday (Only consider expenses for budgeting allowance)
+                const yesterdaySpent = yesterdayExpenses.reduce((s, e) => s + e.amount, 0);
                 
-                const yesterdayRemaining = remaining + yesterdayNetTotal;
+                const yesterdayRemaining = remaining + yesterdaySpent;
                 const yesterdayAllowance = yesterdayRemaining / (days + 1);
-                const diff = yesterdayAllowance - yesterdayNetTotal;
+                const diff = yesterdayAllowance - yesterdaySpent;
                 
                 let recap = null;
                 if (yesterdaySpent > 0 || diff < 0) {
-                    recap = { overspent: diff < 0, amount: Math.abs(diff), spent: yesterdayNetTotal };
+                    recap = { overspent: diff < 0, amount: Math.abs(diff), spent: yesterdaySpent };
                 }
 
                 return { daysLeft: days, dailyAllowance: allowance, yesterdayRecap: recap };
@@ -797,7 +901,10 @@
 
             const groupedExpenses = useMemo(() => {
                 const groups = {};
-                expenses.filter(exp => exp.type !== 'income').forEach(exp => {
+                // Include 'debt_added' to show new debts in the list as well
+                const validTypes = activeTab === 'spending' ? ['expense'] : ['debt', 'debt_added'];
+                
+                expenses.filter(exp => validTypes.includes(exp.type)).forEach(exp => {
                     const date = new Date(exp.date);
                     const today = new Date();
                     const yesterday = new Date(today);
@@ -811,7 +918,7 @@
                     groups[dateKey].push(exp);
                 });
                 return groups;
-            }, [expenses]);
+            }, [expenses, activeTab]);
 
             const calendarData = useMemo(() => {
                 const today = new Date();
@@ -829,10 +936,19 @@
                     
                     const dayExps = expenses.filter(exp => new Date(exp.date).toDateString() === dateStr);
                     
-                    const dailyExpense = dayExps.filter(e => e.type !== 'income').reduce((sum, exp) => sum + exp.amount, 0);
-                    const dailyIncome = dayExps.filter(e => e.type === 'income').reduce((sum, exp) => sum + exp.amount, 0);
+                    let dailyTotal = 0;
+                    if (activeTab === 'spending') {
+                        dailyTotal = dayExps.filter(e => e.type === 'expense').reduce((sum, exp) => sum + exp.amount, 0);
+                    } else if (activeTab === 'debt') {
+                        // For calendar display on debt tab, let's represent payback as positive value for display simplicity
+                        dailyTotal = dayExps.filter(e => e.type === 'debt').reduce((sum, exp) => sum + exp.amount, 0);
+                        // And debt_added
+                        const added = dayExps.filter(e => e.type === 'debt_added').reduce((sum, exp) => sum + exp.amount, 0);
+                        // We will store both to display them independently
+                        var dailyDebtAdded = added;
+                    }
                     
-                    totalSpentMonth += dailyExpense;
+                    totalSpentMonth += dailyTotal;
                     
                     const isFuture = currentDate.setHours(0,0,0,0) > new Date().setHours(0,0,0,0);
                     const isBeforeStart = currentDate.setHours(0,0,0,0) < createdAtTime;
@@ -840,8 +956,8 @@
 
                     days.push({
                         day: d,
-                        dailyExpense,
-                        dailyIncome,
+                        dailyExpense: dailyTotal,
+                        dailyDebtAdded: dailyDebtAdded || 0,
                         isToday,
                         isFuture,
                         isBeforeStart,
@@ -854,7 +970,7 @@
                     monthName: targetMonth.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
                     totalSpentMonth 
                 };
-            }, [expenses, currentMonthOffset, createdAtTime]);
+            }, [expenses, currentMonthOffset, createdAtTime, activeTab]);
 
             // ==========================================
             // ACTIONS (Auth & Settings)
@@ -873,12 +989,14 @@
 
                     if (snap.exists()) {
                         const data = snap.data();
+                        if (!data.trackedItems) data.trackedItems = ['spending'];
+                        if (!data.defaultTab) data.defaultTab = 'spending';
                         setUserProfile(data);
                         setBudget(data.budget || 0);
                         setPaycheckDate(data.paycheckDate || 1);
                         setLoginStep('app');
                     } else {
-                        setUserProfile(prev => ({...prev, name: user.displayName || ''}));
+                        setUserProfile(prev => ({...prev, name: user.displayName || '', trackedItems: ['spending'], defaultTab: 'spending'}));
                         setLoginStep('setup');
                     }
                 } catch (error) {
@@ -940,11 +1058,57 @@
                 setLoginStep('app');
             };
 
-            const handleUpdateProfile = async () => {
+            const handleUpdateProfile = async (overrides = {}) => {
                 if (db) {
                     const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', uid);
-                    await setDoc(profileRef, { ...userProfile, budget, paycheckDate });
+                    const finalProfile = { ...userProfile, budget, paycheckDate, ...overrides };
+                    await setDoc(profileRef, finalProfile, { merge: true });
                 } 
+            };
+
+            const handleAddDebtPrincipal = async (e) => {
+                e.preventDefault();
+                const amount = parseFloat(newDebtAmount.replace(/\D/g, ''));
+                if (amount > 0 && newDebtName.trim()) {
+                    const newDebtId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+                    const newDebt = {
+                        id: newDebtId,
+                        name: newDebtName.trim(),
+                        amount: amount,
+                        type: newDebtType,
+                        createdAt: new Date().toISOString()
+                    };
+                    if (newDebtType === 'tagihan') newDebt.deadline = newDebtDeadline;
+                    if (newDebtType === 'cicilan') {
+                        newDebt.startDate = newDebtStartDate;
+                        newDebt.tenor = parseInt(newDebtTenor, 10);
+                    }
+
+                    const updatedDebts = [...(userProfile.debts || []), newDebt];
+                    setUserProfile({...userProfile, debts: updatedDebts});
+                    await handleUpdateProfile({ debts: updatedDebts });
+                    
+                    // Add expense entry so it shows in history/calendar
+                    const debtAddedExpense = {
+                        amount: amount,
+                        description: `Hutang Baru: ${newDebtName.trim()}`,
+                        date: new Date().toISOString(),
+                        type: 'debt_added',
+                        debtId: newDebtId
+                    };
+                    
+                    if (db) {
+                        const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid);
+                        await addDoc(expensesRef, debtAddedExpense);
+                    }
+                    
+                    setNewDebtName('');
+                    setNewDebtAmount('');
+                    setNewDebtDeadline('');
+                    setNewDebtStartDate('');
+                    setNewDebtTenor('');
+                    setIsAddDebtModalOpen(false);
+                }
             };
 
             // Custom Theme Uploader with Image Extraction and Compression
@@ -1036,19 +1200,74 @@
                 reader.readAsDataURL(file);
             };
 
+            const handleAvatarUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        const MAX_DIM = 200; 
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > height && width > MAX_DIM) {
+                            height *= MAX_DIM / width;
+                            width = MAX_DIM;
+                        } else if (height > MAX_DIM) {
+                            width *= MAX_DIM / height;
+                            height = MAX_DIM;
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        const avatarDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                        
+                        setUserProfile({...userProfile, avatar: avatarDataUrl});
+                        handleUpdateProfile({ avatar: avatarDataUrl });
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            };
+
             // ==========================================
             // DATA MUTATION
             // ==========================================
             const handleAddExpense = async (e) => {
                 e.preventDefault();
                 const amount = parseFloat(amountInput.replace(/\D/g, ''));
-                if (amount > 0 && descInput.trim()) {
+                
+                if (activeTab === 'debt' && !selectedDebtId) {
+                    alert("Silakan pilih hutang yang ingin dibayar.");
+                    return;
+                }
+
+                if (amount > 0) {
+                    let finalDesc = descInput.trim();
+                    let finalType = activeTab === 'spending' ? 'expense' : activeTab;
+                    let finalDebtId = null;
+
+                    if (activeTab === 'debt') {
+                        const selectedDebt = debtProgress.list.find(d => d.id === selectedDebtId);
+                        if (!finalDesc) {
+                            finalDesc = selectedDebt ? `Bayar: ${selectedDebt.name}` : `Bayar Hutang`;
+                        }
+                        finalDebtId = selectedDebtId;
+                    }
+
                     const newExpense = {
                         amount: amount,
-                        description: descInput.trim(),
+                        description: finalDesc,
                         date: new Date().toISOString(),
-                        type: 'expense'
+                        type: finalType
                     };
+                    if (finalDebtId) newExpense.debtId = finalDebtId;
                     
                     if (db) {
                         const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid);
@@ -1297,7 +1516,7 @@
                         )}
 
                         {setupStep === 2 && (
-                            <form onSubmit={handleFinishSetup} className="animate-in fade-in slide-in-from-right-4 duration-300">
+                            <form onSubmit={(e) => { e.preventDefault(); setSetupStep(3); }} className="animate-in fade-in slide-in-from-right-4 duration-300">
                                 <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mb-6">
                                     <Wallet className="w-8 h-8 text-green-600 dark:text-green-400" />
                                 </div>
@@ -1348,7 +1567,37 @@
                                         />
                                     </div>
 
-                                    <button type="submit" className="w-full py-4 bg-green-500 hover:bg-green-600 theme-bg text-white rounded-2xl font-bold text-lg active:scale-95 transition-all mt-6">
+                                    <button type="submit" className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold text-lg active:scale-95 transition-all mt-6">
+                                        Lanjut
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+
+                        {setupStep === 3 && (
+                            <form onSubmit={handleFinishSetup} className="animate-in fade-in slide-in-from-right-4 duration-300">
+                                <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-8">Apa yang ingin dilacak?</h1>
+                                <div className="space-y-4">
+                                    {['spending', 'debt'].map(item => (
+                                        <label key={item} className={`flex items-center p-4 border-2 rounded-2xl cursor-pointer transition-all ${userProfile.trackedItems?.includes(item) ? 'border-green-500 bg-green-50 dark:bg-green-900/30' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-[#171717]'}`}>
+                                            <input type="checkbox" className="hidden" 
+                                                checked={userProfile.trackedItems?.includes(item)}
+                                                onChange={(e) => {
+                                                    let newItems = userProfile.trackedItems ? [...userProfile.trackedItems] : [];
+                                                    if (e.target.checked) newItems.push(item);
+                                                    else newItems = newItems.filter(i => i !== item);
+                                                    if (newItems.length === 0) newItems = ['spending'];
+                                                    const newDefault = newItems.includes(userProfile.defaultTab) ? userProfile.defaultTab : newItems[0];
+                                                    setUserProfile({...userProfile, trackedItems: newItems, defaultTab: newDefault});
+                                                }}
+                                            />
+                                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mr-4 ${userProfile.trackedItems?.includes(item) ? 'border-green-500 bg-green-500' : 'border-gray-300 dark:border-gray-600'}`}>
+                                                {userProfile.trackedItems?.includes(item) && <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>}
+                                            </div>
+                                            <span className="font-semibold text-lg text-gray-900 dark:text-white">{item === 'spending' ? 'Pengeluaran' : 'Hutang'}</span>
+                                        </label>
+                                    ))}
+                                    <button type="submit" className="w-full py-4 bg-green-500 hover:bg-green-600 theme-bg text-white rounded-2xl font-bold text-lg active:scale-95 transition-all mt-8">
                                         Mulai Bertahan
                                     </button>
                                 </div>
@@ -1387,7 +1636,7 @@
                         `}</style>
                     )}
 
-                    <div className="w-full max-w-md h-full relative shadow-sm overflow-hidden flex flex-col transition-colors duration-300">
+                    <div className={`w-full max-w-md h-full relative shadow-sm overflow-hidden flex flex-col transition-colors duration-300 ${isGlass ? 'bg-transparent' : 'bg-gray-100 dark:bg-[#262626]'}`}>
                         
                         <div 
                             className="flex w-[200%] flex-1 min-h-0 transition-transform duration-300 ease-in-out"
@@ -1398,260 +1647,491 @@
                         >
                         
                             {/* ======================= HOME PANE ======================= */}
-                            <div className={`w-1/2 h-full flex flex-col relative overflow-hidden transition-colors duration-300 ${uiStyle.paneHome}`}>
+                            <div className="w-1/2 h-full flex flex-col relative overflow-hidden transition-colors duration-300 bg-transparent">
                                 
-                                <button 
-                                    onClick={() => setCurrentView('calendar')}
-                                    className="absolute top-6 right-5 z-50 p-2 opacity-40 hover:opacity-100 transition-opacity text-gray-800 dark:text-white"
-                                >
-                                    <CalendarIcon className="w-6 h-6" strokeWidth={1.5} />
-                                </button>
+                                {(() => {
+                                    const availableTabs = [
+                                        { id: 'spending', label: 'Pengeluaran' },
+                                        { id: 'debt', label: 'Hutang' }
+                                    ].filter(t => userProfile.trackedItems?.includes(t.id));
 
-                                {/* HEADER */}
-                                <div className={`w-full z-40 px-5 transition-all duration-500 ease-in-out shrink-0 relative ${
-                                    isScrolled ? `pt-6 pb-3 ${uiStyle.header}` : 'pt-16 pb-12 bg-transparent'
-                                }`}>
-                                    <div className="flex flex-col items-center justify-center w-full relative">
-                                        <span className={`font-bold ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-800' : 'text-gray-400 dark:text-gray-400'} uppercase tracking-widest transition-all duration-500 ${
-                                            isScrolled ? 'text-[10px] mb-0.5' : 'text-sm mb-2'
-                                        }`}>Sisa Uang</span>
-                                        
-                                        <div className={`flex items-start justify-center ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-900 dark:text-white'} transition-all duration-500 ${
-                                            isScrolled ? 'mb-3' : 'mb-6'
-                                        }`}>
-                                            <span className={`font-medium ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'} transition-all duration-500 ${
-                                            isScrolled ? 'text-xs mt-1 mr-1' : 'text-xl mt-3 mr-1'
-                                            }`}>Rp</span>
-                                            <span className={`font-bold tracking-tight leading-none transition-all duration-500 ${
-                                            isScrolled ? 'text-3xl' : 'text-[5rem]'
-                                            }`}>
-                                            <AnimatedNumber value={remaining} formatFn={formatNumber} />
-                                            </span>
-                                        </div>
-                                        
-                                        <div className={`overflow-hidden transition-all duration-500 flex justify-center items-center gap-2 ${
-                                            isScrolled ? 'max-h-0 opacity-0 mb-0' : 'max-h-20 opacity-100 mb-8'
-                                        }`}>
-                                            <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center shadow-sm transition-colors ${
-                                            isDangerBadge ? `bg-red-50/80 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50 animate-pulse ${isGlass ? 'shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'backdrop-blur-md'}` : `${uiStyle.cardSoft}`
-                                            }`}>
-                                                <span>Sisa {daysLeft} hari</span>
-                                                <span className={`mx-2 ${isDangerBadge ? "text-red-300 dark:text-red-800" : "text-gray-300 dark:text-gray-500"}`}>•</span>
-                                                <span>Rp {formatNumber(Math.round(Math.max(0, dailyAllowance)))} / hari</span>
-                                            </div>
-                                            <button onClick={(e) => { e.stopPropagation(); setIsIncomeModalOpen(true); }} className={`p-2 rounded-full hover:opacity-80 transition-colors shadow-sm ${uiStyle.cardSoft}`}>
-                                                <Plus className="w-4 h-4" strokeWidth={3} />
+                                    return (
+                                        <>
+                                            {/* TABS HEADER */}
+                                            {availableTabs.length > 1 && (
+                                                <div className={`w-full flex px-3 pt-3 z-50 shrink-0 gap-1 ${isGlass ? 'bg-transparent' : 'bg-gray-100 dark:bg-[#262626]'}`}>
+                                                    {availableTabs.map(tab => (
+                                                        <button 
+                                                            key={tab.id}
+                                                            onClick={() => setActiveTab(tab.id)}
+                                                            className={`flex-1 py-3 text-[13px] font-bold rounded-t-2xl transition-all ${
+                                                                activeTab === tab.id 
+                                                                ? (isGlass ? 'bg-white/20 dark:bg-black/40 text-gray-900 dark:text-white backdrop-blur-2xl' : 'bg-white dark:bg-[#171717] text-gray-900 dark:text-white') 
+                                                                : (isGlass ? 'text-gray-700 dark:text-gray-300 hover:bg-white/10' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#404040]')
+                                                            }`}
+                                                        >
+                                                            {tab.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            <button 
+                                                onClick={() => setCurrentView('calendar')}
+                                                className={`absolute ${availableTabs.length > 1 ? 'top-[4.5rem]' : 'top-6'} right-5 z-50 p-2 opacity-40 hover:opacity-100 transition-opacity text-gray-800 dark:text-white`}
+                                            >
+                                                <CalendarIcon className="w-6 h-6" strokeWidth={1.5} />
                                             </button>
-                                        </div>
 
-                                        <div 
-                                            className={`relative w-full border-[3px] ring-1 transition-all duration-500 ease-in-out ${
-                                            percentage === 0 ? 'border-red-600 dark:border-red-500 animate-pulse bg-red-50 dark:bg-red-900/20 ring-red-200 dark:ring-red-900/50' : (isGlass ? 'border-white/50 dark:border-white/10 ring-white/20 dark:ring-white/5' : 'border-white dark:border-gray-900 ring-gray-200 dark:ring-gray-700')
-                                            } ${isScrolled ? 'h-6 rounded-md' : 'h-14 rounded-xl'} ${isGlass ? 'bg-white/20 dark:bg-black/20' : 'bg-gray-200 dark:bg-gray-800'}`}
-                                            style={{ boxShadow: getGlowStyle() }}
-                                        >
-                                            <div className={`absolute inset-0 overflow-hidden transition-all duration-500 ${isScrolled ? 'rounded-[4px]' : 'rounded-[9px]'}`}>
-                                                <div className={`absolute inset-0 bg-red-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isTakingDamage ? 'opacity-60' : 'opacity-0'}`}></div>
-                                                <div className={`absolute inset-0 bg-green-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isHealing ? 'opacity-60' : 'opacity-0'}`}></div>
-                                                <div className={`h-full transition-all relative z-0`} style={getBarStyle()}>
-                                                    <div className="absolute inset-0 bg-white/30 dark:bg-white/10 animate-breathe"></div>
-                                                </div>
-                                            </div>
-
-                                            <div className={`absolute inset-0 flex items-center justify-start z-10 pointer-events-none transition-all duration-500 ${
-                                            isScrolled ? 'px-2' : 'px-4'
-                                            }`}>
-                                            <span className={`font-bold transition-all duration-500 ${
-                                                percentage < 40 && percentage > 0 ? (isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-800 dark:text-gray-200') : percentage === 0 ? 'text-red-500' : 'text-white/90'
-                                            } ${isScrolled ? 'text-[10px]' : 'text-sm'}`}>
-                                                {percentage.toFixed(0)}%
-                                            </span>
-                                            </div>
-                                        </div>
-
-                                        {appSettings.showRecap && yesterdayRecap && (
-                                            <div className={`overflow-hidden transition-all duration-500 w-full ${
-                                            isScrolled ? 'max-h-20 opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'
-                                            }`}>
-                                                <div className={`p-2 rounded-lg text-[11px] font-bold flex items-center justify-between ${
-                                                    yesterdayRecap.overspent 
-                                                    ? `bg-red-50/80 dark:bg-red-900/40 border border-red-200 dark:border-red-800/50 text-red-700 dark:text-red-400 animate-pulse ${isGlass ? 'shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'backdrop-blur-md'}` 
-                                                    : `theme-bg-light theme-border theme-text ${uiStyle.cardSoft}`
+                                            {/* MAIN CARD CONTAINER (Isolates everything below the tabs) */}
+                                            <div className={`flex-1 flex flex-col min-h-0 ${isGlass ? 'bg-white/20 dark:bg-black/40 backdrop-blur-2xl' : 'bg-white dark:bg-[#171717]'}`}>
+                                                
+                                                {/* FIXED HEADER PORTION */}
+                                                <div className={`w-full z-40 px-5 transition-all duration-500 ease-in-out shrink-0 relative ${
+                                                    isScrolled ? `pt-6 pb-3` : `${availableTabs.length > 1 ? 'pt-6' : 'pt-16'} pb-8`
                                                 }`}>
-                                                    <span>{yesterdayRecap.overspent ? '⚠️ Kemarin Overbudget!' : '🔥 Kemarin Hemat!'}</span>
-                                                    <span>{yesterdayRecap.overspent ? '-' : '+'} Rp {formatNumber(yesterdayRecap.amount)}</span>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                    {!isGlass && (
-                                        <div className={`absolute top-full left-0 w-full h-8 bg-gradient-to-b from-white/95 dark:from-gray-900/95 to-transparent pointer-events-none transition-opacity duration-500 ${isScrolled ? 'opacity-100' : 'opacity-0'}`}></div>
-                                    )}
-                                </div>
+                                                    
+                                                    {activeTab === 'spending' && (
+                                                        <div className="flex flex-col items-center justify-center w-full relative">
+                                                            <span className={`font-bold ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-800' : 'text-gray-400 dark:text-gray-400'} uppercase tracking-widest transition-all duration-500 ${
+                                                                isScrolled ? 'text-[10px] mb-0.5' : 'text-sm mb-2'
+                                                            }`}>Sisa Uang</span>
+                                                            
+                                                            <div className={`flex items-start justify-center ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-900 dark:text-white'} transition-all duration-500 ${
+                                                                isScrolled ? 'mb-3' : 'mb-6'
+                                                            }`}>
+                                                                <span className={`font-medium ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'} transition-all duration-500 ${
+                                                                isScrolled ? 'text-xs mt-1 mr-1' : 'text-xl mt-3 mr-1'
+                                                                }`}>Rp</span>
+                                                                <span className={`font-bold tracking-tight leading-none transition-all duration-500 ${
+                                                                isScrolled ? 'text-3xl' : 'text-[5rem]'
+                                                                }`}>
+                                                                <AnimatedNumber value={remaining} formatFn={formatNumber} />
+                                                                </span>
+                                                            </div>
+                                                            
+                                                            <div className={`overflow-hidden transition-all duration-500 flex justify-center items-center gap-2 ${
+                                                                isScrolled ? 'max-h-0 opacity-0 mb-0' : 'max-h-20 opacity-100 mb-8'
+                                                            }`}>
+                                                                <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center shadow-sm transition-colors ${
+                                                                isDangerBadge ? `bg-red-50/80 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50 animate-pulse ${isGlass ? 'shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'backdrop-blur-md'}` : `${uiStyle.cardSoft}`
+                                                                }`}>
+                                                                    <span>Sisa {daysLeft} hari</span>
+                                                                    <span className={`mx-2 ${isDangerBadge ? "text-red-300 dark:text-red-800" : "text-gray-300 dark:text-gray-500"}`}>•</span>
+                                                                    <span>Rp {formatNumber(Math.round(Math.max(0, dailyAllowance)))} / hari</span>
+                                                                </div>
+                                                                <button onClick={(e) => { e.stopPropagation(); setIsIncomeModalOpen(true); }} className={`p-2 rounded-full hover:opacity-80 transition-colors shadow-sm shrink-0 ${uiStyle.cardSoft}`}>
+                                                                    <Plus className="w-4 h-4" strokeWidth={3} />
+                                                                </button>
+                                                            </div>
 
-                                {/* CONTENT (Expenses List) */}
-                                <div className="flex-1 min-h-0 overflow-y-auto px-5 pt-4 pb-4" onScroll={handleHomeScroll}>
-                                    {Object.keys(groupedExpenses).length === 0 ? (
-                                    <div className={`text-center py-10 flex flex-col items-center ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-600' : 'text-gray-400 dark:text-gray-500'}`}>
-                                        <p className="font-semibold text-sm">Belum ada pengeluaran.</p>
-                                    </div>
-                                    ) : (
-                                    <div className="pb-6">
-                                        {Object.entries(groupedExpenses).map(([dateStr, dayExpenses]) => (
-                                        <div key={dateStr} className="mb-6 relative">
-                                            <div className="py-1 mb-2">
-                                            <span className={`text-[11px] font-bold uppercase tracking-widest ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>{dateStr}</span>
-                                            </div>
-                                            
-                                            <div className="space-y-3 mt-1">
-                                            {dayExpenses.map((expense) => {
-                                                const pctNum = parseFloat(((expense.amount / budget) * 100).toFixed(1));
-                                                return (
-                                                <div key={expense.id} className={`group flex items-center py-2 px-3 rounded-xl relative animate-in fade-in duration-300 ${isGlass ? 'bg-white/30 dark:bg-black/40 border border-white/40 dark:border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : ''}`}>
-                                                    {appSettings.showTime && (
-                                                    <div className="flex-shrink-0 mr-2 opacity-60" title={new Date(expense.date).toLocaleTimeString()}>
-                                                        {getTimeIcon(expense.date)}
+                                                            <div 
+                                                                className={`relative w-full border-[3px] ring-1 transition-all duration-500 ease-in-out ${
+                                                                percentage === 0 ? 'border-red-600 dark:border-red-500 animate-pulse bg-red-50 dark:bg-red-900/20 ring-red-200 dark:ring-red-900/50' : (isGlass ? 'border-white/50 dark:border-white/10 ring-white/20 dark:ring-white/5' : 'border-white dark:border-gray-900 ring-gray-200 dark:ring-gray-700')
+                                                                } ${isScrolled ? 'h-6 rounded-md' : 'h-14 rounded-xl'} ${isGlass ? 'bg-white/20 dark:bg-black/20' : 'bg-gray-200 dark:bg-gray-800'}`}
+                                                                style={{ boxShadow: getGlowStyle() }}
+                                                            >
+                                                                <div className={`absolute inset-0 overflow-hidden transition-all duration-500 ${isScrolled ? 'rounded-[4px]' : 'rounded-[9px]'}`}>
+                                                                    <div className={`absolute inset-0 bg-red-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isTakingDamage ? 'opacity-60' : 'opacity-0'}`}></div>
+                                                                    <div className={`absolute inset-0 bg-green-500 z-20 transition-opacity duration-500 ease-out pointer-events-none ${isHealing ? 'opacity-60' : 'opacity-0'}`}></div>
+                                                                    <div className={`h-full transition-all relative z-0`} style={getBarStyle()}>
+                                                                        <div className="absolute inset-0 bg-white/30 dark:bg-white/10 animate-breathe"></div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className={`absolute inset-0 flex items-center justify-start z-10 pointer-events-none transition-all duration-500 ${
+                                                                isScrolled ? 'px-2' : 'px-4'
+                                                                }`}>
+                                                                <span className={`font-bold transition-all duration-500 ${
+                                                                    percentage < 40 && percentage > 0 ? (isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-800 dark:text-gray-200') : percentage === 0 ? 'text-red-500' : 'text-white/90'
+                                                                } ${isScrolled ? 'text-[10px]' : 'text-sm'}`}>
+                                                                    {percentage.toFixed(0)}%
+                                                                </span>
+                                                                </div>
+                                                            </div>
+
+                                                            {appSettings.showRecap && yesterdayRecap && (
+                                                                <div className={`overflow-hidden transition-all duration-500 w-full ${
+                                                                isScrolled ? 'max-h-20 opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'
+                                                                }`}>
+                                                                    <div className={`p-2 rounded-lg text-[11px] font-bold flex items-center justify-between ${
+                                                                        yesterdayRecap.overspent 
+                                                                        ? `bg-red-50/80 dark:bg-red-900/40 border border-red-200 dark:border-red-800/50 text-red-700 dark:text-red-400 animate-pulse ${isGlass ? 'shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'backdrop-blur-md'}` 
+                                                                        : `theme-bg-light theme-border theme-text ${uiStyle.cardSoft}`
+                                                                    }`}>
+                                                                        <span>{yesterdayRecap.overspent ? '⚠️ Kemarin Overbudget!' : '🔥 Kemarin Hemat!'}</span>
+                                                                        <span>{yesterdayRecap.overspent ? '-' : '+'} Rp {formatNumber(yesterdayRecap.amount)}</span>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+
+                                                    {activeTab === 'debt' && (() => {
+                                                        const totalDebtPct = debtProgress.totalPrincipal > 0 ? (debtProgress.remaining / debtProgress.totalPrincipal) * 100 : 0;
+                                                        let isDanger = false;
+                                                        let nearestBadgeText = 'Tidak ada deadline terdekat';
+                                                        if (nearestDeadline) {
+                                                            nearestBadgeText = `⚠️ Deadline: ${formatIDDate(nearestDeadline.date.toISOString())}`;
+                                                            const now = new Date();
+                                                            now.setHours(0,0,0,0);
+                                                            const diffTime = nearestDeadline.date.getTime() - now.getTime();
+                                                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                                            if (diffDays <= 3) isDanger = true;
+                                                        }
+                                                        
+                                                        return (
+                                                            <div className="flex flex-col items-center justify-center w-full relative">
+                                                                
+                                                                <span className={`font-bold ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-800' : 'text-gray-400 dark:text-gray-400'} uppercase tracking-widest transition-all duration-500 ${isScrolled ? 'text-[10px] mb-0.5' : 'text-sm mb-2'}`}>
+                                                                    Total Hutang
+                                                                </span>
+                                                                <div className={`flex items-start justify-center ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-900 dark:text-white'} transition-all duration-500 ${isScrolled ? 'mb-0' : 'mb-6'}`}>
+                                                                    <span className={`font-medium transition-all duration-500 ${isScrolled ? 'text-xs mt-1 mr-1' : 'text-xl mt-3 mr-1'}`}>Rp</span>
+                                                                    <span className={`font-bold tracking-tight leading-none transition-all duration-500 ${isScrolled ? 'text-3xl' : 'text-[5rem]'}`}>
+                                                                        <AnimatedNumber value={debtProgress.remaining} formatFn={formatNumber} />
+                                                                    </span>
+                                                                </div>
+
+                                                                <div className={`overflow-hidden transition-all duration-500 flex justify-center items-center gap-2 ${
+                                                                    isScrolled ? 'max-h-0 opacity-0 mb-0' : 'max-h-20 opacity-100 mb-8'
+                                                                }`}>
+                                                                    {nearestDeadline ? (
+                                                                        <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center shadow-sm transition-colors ${
+                                                                        isDanger ? `bg-red-50/80 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50 animate-pulse ${isGlass ? 'shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'backdrop-blur-md'}` : `${uiStyle.cardSoft}`
+                                                                        }`}>
+                                                                            <span className="truncate max-w-[220px]">{nearestBadgeText}</span>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center shadow-sm transition-colors ${uiStyle.cardSoft}`}>
+                                                                            <span>Tidak ada deadline terdekat</span>
+                                                                        </div>
+                                                                    )}
+                                                                    <button onClick={(e) => { e.stopPropagation(); setIsAddDebtModalOpen(true); }} className={`p-2 rounded-full hover:opacity-80 transition-colors shadow-sm shrink-0 ${uiStyle.cardSoft}`}>
+                                                                        <Plus className="w-4 h-4" strokeWidth={3} />
+                                                                    </button>
+                                                                </div>
+                                                                
+                                                                <div 
+                                                                    className={`relative w-full border-[3px] ring-1 transition-all duration-500 ease-in-out ${
+                                                                    totalDebtPct === 0 ? 'border-green-600 dark:border-green-500 animate-pulse bg-green-50 dark:bg-green-900/20 ring-green-200 dark:ring-green-900/50' : (isGlass ? 'border-white/50 dark:border-white/10 ring-white/20 dark:ring-white/5' : 'border-white dark:border-gray-900 ring-gray-200 dark:ring-gray-700')
+                                                                    } ${isScrolled ? 'h-6 rounded-md mb-1' : 'h-14 rounded-xl mb-3'} ${isGlass ? 'bg-white/20 dark:bg-black/20' : 'bg-gray-200 dark:bg-gray-800'}`}
+                                                                >
+                                                                    <div className={`absolute inset-0 overflow-hidden transition-all duration-500 ${isScrolled ? 'rounded-[4px]' : 'rounded-[9px]'}`}>
+                                                                        <div className={`h-full transition-all relative z-0`} style={{ width: `${totalDebtPct}%`, backgroundColor: getProgressColor(totalDebtPct) }}>
+                                                                            <div className="absolute inset-0 bg-white/30 dark:bg-white/10 animate-breathe"></div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className={`absolute inset-0 flex items-center justify-start z-10 pointer-events-none transition-all duration-500 ${
+                                                                    isScrolled ? 'px-2' : 'px-4'
+                                                                    }`}>
+                                                                    <span className={`font-bold transition-all duration-500 flex items-center ${
+                                                                        totalDebtPct < 40 && totalDebtPct > 0 ? (isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-800 dark:text-gray-200') : totalDebtPct === 0 ? 'text-green-500' : 'text-white/90'
+                                                                    } ${isScrolled ? 'text-[10px]' : 'text-sm'}`}>
+                                                                        {totalDebtPct.toFixed(0)}% Sisa 
+                                                                    </span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className={`w-full overflow-hidden transition-all duration-300 opacity-100 ${!isScrolled ? 'mt-2' : 'mt-0'}`}>
+                                                                    <div className="overflow-y-auto max-h-[45vh] pb-2 space-y-1.5 px-1">
+                                                                        {debtProgress.list.map(debt => {
+                                                                            const pct = Math.max(0, Math.min(100, ((debt.amount - debt.paid) / debt.amount) * 100));
+                                                                            const isSelected = selectedDebtId === debt.id;
+                                                                            return (
+                                                                                <div 
+                                                                                    key={debt.id} 
+                                                                                    onClick={() => setSelectedDebtId(debt.id)}
+                                                                                    className={`cursor-pointer transition-all flex items-center justify-between gap-3 p-2.5 rounded-xl border-2 ${isSelected ? `border-gray-400 dark:border-gray-500 shadow-md ${uiStyle.cardSoft}` : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`}
+                                                                                >
+                                                                                    <span className={`font-bold text-[13px] truncate shrink-0 max-w-[50%] ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-800 dark:text-gray-200'}`}>{debt.name}</span>
+                                                                                    <div className={`flex-1 h-2 rounded-full overflow-hidden shrink-0 ${isGlass ? 'bg-black/10 dark:bg-white/10' : 'bg-gray-200 dark:bg-gray-700'}`}>
+                                                                                        <div className={`h-full transition-all duration-500 rounded-full`} style={{ width: `${pct}%`, backgroundColor: getProgressColor(pct) }}></div>
+                                                                                    </div>
+                                                                                    {pct <= 0 && <span className="text-[10px] font-semibold text-green-600 dark:text-green-400 shrink-0">✅ Lunas</span>}
+                                                                                </div>
+                                                                            )
+                                                                        })}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })()}
+                                                </div>
+                                                {!isGlass && (
+                                                    <div className={`absolute top-full left-0 w-full h-8 bg-gradient-to-b from-white/95 dark:from-[#171717]/95 to-transparent pointer-events-none transition-opacity duration-500 ${isScrolled ? 'opacity-100' : 'opacity-0'}`}></div>
+                                                )}
+
+                                                {/* ISOLATED SCROLLABLE LIST PORTION */}
+                                                <div className="flex-1 min-h-0 overflow-y-auto px-5" onScroll={handleHomeScroll}>
+                                                    {Object.keys(groupedExpenses).length === 0 ? (
+                                                    <div className={`text-center py-10 flex flex-col items-center ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-600' : 'text-gray-400 dark:text-gray-500'}`}>
+                                                        <p className="font-semibold text-sm">Belum ada {activeTab === 'spending' ? 'pengeluaran' : 'pembayaran hutang'}.</p>
+                                                    </div>
+                                                    ) : (
+                                                    <div className="pb-6">
+                                                        {Object.entries(groupedExpenses).map(([dateStr, dayExpenses]) => (
+                                                        <div key={dateStr} className="mb-6 relative">
+                                                            <div className="py-1 mb-2">
+                                                            <span className={`text-[11px] font-bold uppercase tracking-widest ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>{dateStr}</span>
+                                                            </div>
+                                                            
+                                                            <div className="space-y-3 mt-1">
+                                                            {dayExpenses.map((expense) => {
+                                                                const pctNum = activeTab === 'spending' ? parseFloat(((expense.amount / budget) * 100).toFixed(1)) : 0;
+                                                                const isDebtAdd = expense.type === 'debt_added';
+                                                                
+                                                                return (
+                                                                <div key={expense.id} className={`group flex items-center py-2 px-3 rounded-xl relative animate-in fade-in duration-300 ${isGlass ? 'bg-white/30 dark:bg-black/40 border border-white/40 dark:border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : ''}`}>
+                                                                    {appSettings.showTime && (
+                                                                    <div className="flex-shrink-0 mr-2 opacity-60" title={new Date(expense.date).toLocaleTimeString()}>
+                                                                        {getTimeIcon(expense.date)}
+                                                                    </div>
+                                                                    )}
+                                                                    <div className={`text-[15px] font-medium ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-800 dark:text-gray-200'}`}>
+                                                                        {isDebtAdd ? `Hutang Baru: ${expense.description.replace('Hutang Baru: ', '')}` : expense.description}
+                                                                    </div>
+                                                                    <div className={`flex-1 border-b border-dashed mx-3 opacity-40 ${isGlass && appSettings.themeLuminance === 'light' ? 'border-gray-500' : 'border-gray-300 dark:border-gray-600'}`}></div>
+                                                                    <div className="flex items-center">
+                                                                        <span className={`text-[11px] mr-0.5 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>Rp</span>
+                                                                        <span className={`text-[15px] font-bold tracking-tight ${activeTab === 'spending' ? 'mr-2' : ''} ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                                                                            {isDebtAdd ? '+' : (activeTab === 'income' ? '+' : '-')} {formatNumber(expense.amount)}
+                                                                        </span>
+                                                                        {activeTab === 'spending' && (
+                                                                        <div className="bg-red-100/80 dark:bg-red-900/40 px-1.5 py-0.5 rounded flex items-center justify-center min-w-[34px] ml-2">
+                                                                            <span className="text-[10px] font-bold text-red-800 dark:text-red-300">
+                                                                                {pctNum}%
+                                                                            </span>
+                                                                        </div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                                );
+                                                            })}
+                                                            </div>
+                                                        </div>
+                                                        ))}
                                                     </div>
                                                     )}
-                                                    <div className={`text-[15px] font-medium ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-800 dark:text-gray-200'}`}>
-                                                        {expense.description}
-                                                    </div>
-                                                    <div className={`flex-1 border-b border-dashed mx-3 opacity-40 ${isGlass && appSettings.themeLuminance === 'light' ? 'border-gray-500' : 'border-gray-300 dark:border-gray-600'}`}></div>
-                                                    <div className="flex items-center">
-                                                        <span className={`text-[11px] mr-0.5 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>Rp</span>
-                                                        <span className={`text-[15px] font-bold tracking-tight mr-2 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
-                                                            {formatNumber(expense.amount)}
-                                                        </span>
-                                                        <div className="bg-red-100/80 dark:bg-red-900/40 px-1.5 py-0.5 rounded flex items-center justify-center min-w-[34px]">
-                                                            <span className="text-[10px] font-bold text-red-800 dark:text-red-300">
-                                                                {pctNum}%
-                                                            </span>
-                                                        </div>
-                                                    </div>
                                                 </div>
-                                                );
-                                            })}
-                                            </div>
-                                        </div>
-                                        ))}
-                                    </div>
-                                    )}
-                                </div>
 
-                                {/* Floating Capsule Input Form Container */}
-                                <div className="w-full shrink-0 z-50 flex justify-center bg-transparent" style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))', paddingTop: '12px' }}>
-                                    <form onSubmit={handleAddExpense} className={`flex px-4 py-2.5 items-center rounded-full pointer-events-auto w-[90%] transition-all duration-300 ${uiStyle.capsule}`}>
-                                        <input
-                                            type="text"
-                                            value={descInput}
-                                            onChange={(e) => setDescInput(e.target.value)}
-                                            placeholder="Buat apa uangnya?"
-                                            className={`flex-1 min-w-0 bg-transparent border-none text-[16px] font-medium outline-none focus:ring-0 p-0 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black placeholder-gray-600' : 'text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400'}`}
-                                            required
-                                        />
-                                        <div className={`w-px h-6 mx-3 shrink-0 ${uiStyle.divider}`}></div>
-                                        <input
-                                            type="text"
-                                            value={amountInput}
-                                            onChange={(e) => {
-                                                const rawValue = e.target.value.replace(/\D/g, '');
-                                                setAmountInput(rawValue ? parseInt(rawValue).toLocaleString('id-ID') : '');
-                                            }}
-                                            placeholder="Berapa?"
-                                            className={`w-20 sm:w-24 bg-transparent border-none text-[16px] font-bold outline-none focus:ring-0 p-0 text-right mr-3 shrink-0 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black placeholder-gray-600' : 'text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400'}`}
-                                            required
-                                        />
-                                        <button 
-                                            type="submit"
-                                            disabled={!amountInput || !descInput.trim()}
-                                            className="bg-red-600 hover:bg-red-700 theme-bg text-white rounded-full w-10 h-10 flex items-center justify-center transition-transform active:scale-90 disabled:opacity-30 disabled:active:scale-100 shrink-0 shadow-sm"
-                                        >
-                                            <TrendingDown className="w-5 h-5" strokeWidth={2.5} />
-                                        </button>
-                                    </form>
-                                </div>
+                                                {/* FIXED INPUT FIELD PORTION */}
+                                                <div className="w-full shrink-0 z-50 flex justify-center bg-transparent" style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))', paddingTop: '12px' }}>
+                                                    <form onSubmit={handleAddExpense} className={`flex px-4 py-2.5 items-center rounded-full pointer-events-auto w-[90%] transition-all duration-300 ${uiStyle.capsule}`}>
+                                                        <input
+                                                            type="text"
+                                                            value={descInput}
+                                                            onChange={(e) => setDescInput(e.target.value)}
+                                                            placeholder={activeTab === 'spending' ? "Buat apa uangnya?" : (selectedDebtId ? "Catatan (opsional)" : "Pilih hutang di atas dulu")}
+                                                            className={`flex-1 min-w-0 bg-transparent border-none text-[16px] font-medium outline-none focus:ring-0 p-0 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black placeholder-gray-600' : 'text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400'}`}
+                                                            required={activeTab !== 'debt'}
+                                                            disabled={activeTab === 'debt' && !selectedDebtId}
+                                                        />
+                                                        
+                                                        <div className={`w-px h-6 mx-3 shrink-0 ${uiStyle.divider}`}></div>
+                                                        <input
+                                                            type="text"
+                                                            value={amountInput}
+                                                            onChange={(e) => {
+                                                                const rawValue = e.target.value.replace(/\D/g, '');
+                                                                setAmountInput(rawValue ? parseInt(rawValue).toLocaleString('id-ID') : '');
+                                                            }}
+                                                            placeholder="Berapa?"
+                                                            className={`w-20 sm:w-24 bg-transparent border-none text-[16px] font-bold outline-none focus:ring-0 p-0 text-right mr-3 shrink-0 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black placeholder-gray-600' : 'text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400'}`}
+                                                            required
+                                                            disabled={activeTab === 'debt' && !selectedDebtId}
+                                                        />
+                                                        <button 
+                                                            type="submit"
+                                                            disabled={!amountInput || (activeTab !== 'debt' && !descInput.trim()) || (activeTab === 'debt' && !selectedDebtId)}
+                                                            className={`text-white rounded-full w-10 h-10 flex items-center justify-center transition-transform active:scale-90 disabled:opacity-30 disabled:active:scale-100 shrink-0 shadow-sm ${activeTab === 'spending' ? 'bg-red-600 hover:bg-red-700 theme-bg' : 'bg-gray-900 hover:bg-black dark:bg-gray-100 dark:hover:bg-white dark:text-gray-900 theme-bg'}`}
+                                                        >
+                                                            {activeTab === 'spending' && <TrendingDown className="w-5 h-5" strokeWidth={2.5} />}
+                                                            {activeTab === 'debt' && <Wallet className="w-5 h-5" strokeWidth={2.5} />}
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </>
+                                    );
+                                })()}
                             </div>
 
                             {/* ===================== CALENDAR PANE ===================== */}
                             <div className={`w-1/2 h-full flex flex-col relative overflow-hidden shadow-[inset_10px_0_20px_-10px_rgba(0,0,0,0.05)] transition-colors duration-300 ${uiStyle.paneCalendar}`}>
-                                <div className={`shrink-0 flex items-center justify-between px-4 pt-6 pb-4 z-10 transition-colors duration-300 ${isGlass ? 'bg-transparent border-b border-white/40 dark:border-white/10' : 'bg-white dark:bg-[#171717] border-b border-gray-100 dark:border-gray-800 shadow-sm'}`}>
-                                    <div className="flex items-center">
-                                        <button 
-                                            onClick={() => setCurrentView('home')} 
-                                            className={`p-2 -ml-2 rounded-full transition-colors ${isGlass ? (appSettings.themeLuminance === 'light' ? 'text-gray-800 hover:bg-black/10' : 'text-white hover:bg-white/20') : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-[#262626]'}`}
-                                        >
-                                            <ChevronLeft className="w-6 h-6" />
-                                        </button>
-                                        <div className="ml-3">
-                                            <h2 className={`text-lg font-bold whitespace-nowrap ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black' : 'text-gray-900 dark:text-white'}`}>{calendarData.monthName}</h2>
+                                <div className={`flex-1 flex flex-col min-h-0 ${isGlass ? 'bg-white/20 dark:bg-black/40 backdrop-blur-2xl' : 'bg-white dark:bg-[#171717]'}`}>
+                                    <div className={`shrink-0 flex items-center justify-between px-4 pt-6 pb-4 z-10 transition-colors duration-300 bg-transparent`}>
+                                        <div className="flex items-center">
+                                            <button 
+                                                onClick={() => setCurrentView('home')} 
+                                                className={`p-2 -ml-2 rounded-full transition-colors ${isGlass ? (appSettings.themeLuminance === 'light' ? 'text-gray-800 hover:bg-black/10' : 'text-white hover:bg-white/20') : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-[#262626]'}`}
+                                            >
+                                                <ChevronLeft className="w-6 h-6" />
+                                            </button>
+                                            <div className="ml-3">
+                                                <h2 className={`text-lg font-bold whitespace-nowrap ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black' : 'text-gray-900 dark:text-white'}`}>{calendarData.monthName}</h2>
+                                            </div>
+                                        </div>
+                                        <div className="text-right flex items-center gap-1">
+                                            <button onClick={() => changeMonth(-1)} disabled={isStartMonth()} className={`p-2 rounded-full transition-colors ${isStartMonth() ? 'opacity-50 cursor-not-allowed' : ''} ${isGlass ? (appSettings.themeLuminance === 'light' ? 'text-gray-800 hover:bg-black/10' : 'text-white hover:bg-white/20') : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:bg-[#262626]'}`}><ChevronUp className="w-5 h-5" /></button>
+                                            <button onClick={() => changeMonth(1)} className={`p-2 rounded-full transition-colors ${isGlass ? (appSettings.themeLuminance === 'light' ? 'text-gray-800 hover:bg-black/10' : 'text-white hover:bg-white/20') : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:bg-[#262626]'}`}><ChevronDown className="w-5 h-5" /></button>
+                                            <div className={`w-px h-5 mx-1 ${uiStyle.divider}`}></div>
+                                            <button onClick={() => setIsSettingsOpen(true)} className={`p-2 rounded-full transition-colors ${isGlass ? (appSettings.themeLuminance === 'light' ? 'text-gray-800 hover:bg-black/10' : 'text-white hover:bg-white/20') : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:bg-[#262626]'}`}>
+                                                <SettingsIcon className="w-5 h-5" />
+                                            </button>
                                         </div>
                                     </div>
-                                    <div className="text-right flex items-center gap-1">
-                                        <button onClick={() => changeMonth(-1)} disabled={isStartMonth()} className={`p-2 rounded-full transition-colors ${isStartMonth() ? 'opacity-50 cursor-not-allowed' : ''} ${isGlass ? (appSettings.themeLuminance === 'light' ? 'text-gray-800 hover:bg-black/10' : 'text-white hover:bg-white/20') : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#262626]'}`}><ChevronUp className="w-5 h-5" /></button>
-                                        <button onClick={() => changeMonth(1)} className={`p-2 rounded-full transition-colors ${isGlass ? (appSettings.themeLuminance === 'light' ? 'text-gray-800 hover:bg-black/10' : 'text-white hover:bg-white/20') : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#262626]'}`}><ChevronDown className="w-5 h-5" /></button>
-                                        <div className={`w-px h-5 mx-1 ${uiStyle.divider}`}></div>
-                                        <button onClick={() => setIsSettingsOpen(true)} className={`p-2 rounded-full transition-colors ${isGlass ? (appSettings.themeLuminance === 'light' ? 'text-gray-800 hover:bg-black/10' : 'text-white hover:bg-white/20') : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#262626]'}`}>
-                                            <SettingsIcon className="w-5 h-5" />
-                                        </button>
-                                    </div>
-                                </div>
 
-                                <div 
-                                    className={`flex-1 min-h-0 overflow-y-auto p-5 pb-36 transition-all duration-150 ${isAnimatingMonth ? `opacity-0 ${monthAnimDir > 0 ? '-translate-y-4' : 'translate-y-4'}` : 'opacity-100 translate-y-0'}`}
-                                    onTouchEnd={(e) => {
-                                        e.stopPropagation(); 
-                                        onCalendarTouchEnd(e);
-                                    }}
-                                >
-                                    <div className="grid grid-cols-5 gap-2">
-                                        {calendarData.days.map((dayObj, i) => {
-                                            const targetBudget = parseInt(userProfile.promiseBudget) || 0;
-                                            let bgClass = '';
-                                            let textClass = '';
-                                            let showData = false;
+                                    <div 
+                                        className={`flex-1 min-h-0 overflow-y-auto p-5 pb-36 transition-all duration-150 ${isAnimatingMonth ? `opacity-0 ${monthAnimDir > 0 ? '-translate-y-4' : 'translate-y-4'}` : 'opacity-100 translate-y-0'}`}
+                                        onTouchEnd={(e) => {
+                                            e.stopPropagation(); 
+                                            onCalendarTouchEnd(e);
+                                        }}
+                                    >
+                                        <div className="mb-8 flex flex-col items-center justify-center text-center">
+                                            <p className={`text-xs font-bold uppercase tracking-widest mb-1 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>Total {activeTab === 'spending' ? 'Pengeluaran' : 'Pembayaran Hutang'} Bulan Ini</p>
+                                            <p className={`text-3xl font-bold tracking-tight ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-900 dark:text-white'}`}>-Rp {formatNumber(calendarData.totalSpentMonth)}</p>
+                                        </div>
 
-                                            if (dayObj.isFuture || dayObj.isBeforeStart) {
-                                                bgClass = isGlass ? 'bg-white/20 dark:bg-black/30 border-transparent opacity-50 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]' : 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 opacity-50';
-                                                textClass = isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-600' : 'text-gray-500 dark:text-gray-400';
-                                            } else {
-                                                showData = true;
-                                                if (dayObj.dailyExpense <= targetBudget) {
-                                                    bgClass = isGlass ? 'bg-green-500/30 dark:bg-green-500/30 border-green-400/40 dark:border-green-400/30 theme-bg-light theme-border shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800 theme-bg-light theme-border';
-                                                    textClass = 'text-green-800 dark:text-green-300 theme-text';
+                                        <div className="grid grid-cols-5 gap-2">
+                                            {calendarData.days.map((dayObj, i) => {
+                                                const targetBudget = parseInt(userProfile.promiseBudget) || 0;
+                                                const isSpending = activeTab === 'spending';
+                                                let bgClass = '';
+                                                let textClass = '';
+                                                let showData = false;
+
+                                                if (dayObj.isFuture || dayObj.isBeforeStart) {
+                                                    bgClass = isGlass ? 'bg-white/10 dark:bg-black/20 border-transparent opacity-50 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]' : 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 opacity-50';
+                                                    textClass = isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-600' : 'text-gray-500 dark:text-gray-400';
                                                 } else {
-                                                    bgClass = isGlass ? 'bg-red-500/30 dark:bg-red-500/30 border-red-400/40 dark:border-red-400/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800';
-                                                    textClass = 'text-red-800 dark:text-red-300';
+                                                    showData = true;
+                                                    if (dayObj.dailyExpense <= targetBudget || !isSpending) {
+                                                        if (!isSpending) {
+                                                            bgClass = isGlass ? 'bg-gray-500/20 border-gray-400/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700';
+                                                            textClass = 'text-gray-900 dark:text-white';
+                                                        } else {
+                                                            bgClass = isGlass ? 'bg-green-500/30 dark:bg-green-500/30 border-green-400/40 dark:border-green-400/30 theme-bg-light theme-border shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800 theme-bg-light theme-border';
+                                                            textClass = 'text-gray-900 dark:text-white theme-text';
+                                                        }
+                                                    } else {
+                                                        bgClass = isGlass ? 'bg-red-500/30 dark:bg-red-500/30 border-red-400/40 dark:border-red-400/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800';
+                                                        textClass = 'text-gray-900 dark:text-white';
+                                                    }
                                                 }
-                                            }
 
-                                            return (
-                                                <div 
-                                                    key={i} 
-                                                    onClick={() => showData && setSelectedDateReceipt(dayObj)}
-                                                    className={`flex flex-col items-center justify-center p-2 rounded-xl border ${
-                                                    dayObj.isToday ? 'ring-2 ring-blue-400 theme-ring ring-offset-1 dark:ring-offset-gray-950' : ''
-                                                    } ${bgClass} ${showData ? 'cursor-pointer active:scale-95 transition-transform' : ''} aspect-square relative`}
-                                                >
-                                                    <span className={`absolute top-1.5 left-2 text-[10px] font-bold ${textClass}`}>
-                                                        {dayObj.day}
-                                                    </span>
-                                                    {showData && (
-                                                        <div className="mt-3 flex flex-col items-center leading-tight">
-                                                            {dayObj.dailyExpense > 0 && <span className={`text-[10px] sm:text-[11px] font-bold tracking-tight text-red-600 dark:text-red-300`}>-{formatCompact(dayObj.dailyExpense)}</span>}
-                                                            {dayObj.dailyExpense === 0 && <span className={`text-[11px] font-bold tracking-tight ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-600' : 'text-gray-500 dark:text-gray-400'}`}>0</span>}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                    <div className={`mt-8 p-5 rounded-2xl flex flex-col justify-center ${uiStyle.card}`}>
-                                        <p className={`text-xs font-bold uppercase tracking-widest mb-1 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>Total Pengeluaran Bulan Ini</p>
-                                        <p className="text-2xl font-bold text-red-600 dark:text-red-400 tracking-tight">-Rp {formatNumber(calendarData.totalSpentMonth)}</p>
+                                                return (
+                                                    <div 
+                                                        key={i} 
+                                                        onClick={() => showData && setSelectedDateReceipt(dayObj)}
+                                                        className={`flex flex-col items-center justify-center p-2 rounded-xl border ${
+                                                        dayObj.isToday ? 'ring-2 ring-blue-400 theme-ring ring-offset-1 dark:ring-offset-gray-950' : ''
+                                                        } ${bgClass} ${showData ? 'cursor-pointer active:scale-95 transition-transform' : ''} aspect-square relative`}
+                                                    >
+                                                        <span className={`absolute top-1.5 left-2 text-[10px] font-bold ${textClass}`}>
+                                                            {dayObj.day}
+                                                        </span>
+                                                        {showData && (
+                                                            <div className="mt-3 flex flex-col items-center leading-tight">
+                                                                {dayObj.dailyExpense > 0 && <span className={`text-[10px] sm:text-[11px] font-bold tracking-tight ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-900 dark:text-white'}`}>-{formatCompact(dayObj.dailyExpense)}</span>}
+                                                                {dayObj.dailyDebtAdded > 0 && <span className={`text-[10px] sm:text-[11px] font-bold tracking-tight text-red-600 dark:text-red-400`}>+{formatCompact(dayObj.dailyDebtAdded)}</span>}
+                                                                {dayObj.dailyExpense === 0 && dayObj.dailyDebtAdded === 0 && <span className={`text-[11px] font-bold tracking-tight ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-600' : 'text-gray-500 dark:text-gray-400'}`}>0</span>}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+                        {/* ADD DEBT MODAL OVERLAY */}
+                        {isAddDebtModalOpen && (
+                            <div className={`fixed inset-0 z-[110] flex items-center justify-center p-6 animate-in fade-in duration-200 ${isGlass ? 'bg-black/20 backdrop-blur-md' : 'bg-black/40 dark:bg-black/60'}`} onClick={() => setIsAddDebtModalOpen(false)}>
+                                <div className={`w-full max-w-sm rounded-3xl overflow-hidden flex flex-col p-6 ${uiStyle.modalFrosted}`} onClick={e => e.stopPropagation()}>
+                                    <h3 className={`font-bold text-xl mb-4 text-center ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black' : 'text-gray-900 dark:text-white'}`}>Tambah Hutang Baru</h3>
+                                    
+                                    <div className={`flex mb-4 p-1 rounded-xl ${isGlass ? 'bg-black/20 dark:bg-white/10' : 'bg-gray-100 dark:bg-[#262626]'}`}>
+                                        <button type="button" onClick={() => setNewDebtType('tagihan')} className={`flex-1 py-2 text-sm font-semibold rounded-lg capitalize transition-colors ${newDebtType === 'tagihan' ? (isGlass ? 'bg-white/40 dark:bg-black/40 text-gray-900 dark:text-white shadow-sm' : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm') : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}>Tagihan (Sekali Bayar)</button>
+                                        <button type="button" onClick={() => setNewDebtType('cicilan')} className={`flex-1 py-2 text-sm font-semibold rounded-lg capitalize transition-colors ${newDebtType === 'cicilan' ? (isGlass ? 'bg-white/40 dark:bg-black/40 text-gray-900 dark:text-white shadow-sm' : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm') : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}>Cicilan (Bulanan)</button>
+                                    </div>
+
+                                    <form onSubmit={handleAddDebtPrincipal} className="space-y-4">
+                                        <input
+                                            type="text"
+                                            value={newDebtName}
+                                            onChange={(e) => setNewDebtName(e.target.value)}
+                                            placeholder="Ke siapa/Untuk apa? (mis. Bank BCA)"
+                                            className={`w-full px-4 py-3 rounded-xl outline-none text-[16px] text-gray-900 dark:text-white ${uiStyle.input}`}
+                                            required
+                                        />
+                                        <div className="relative">
+                                            <span className={`absolute left-4 top-1/2 -translate-y-1/2 font-bold ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-600' : 'text-gray-500 dark:text-gray-400'}`}>Rp</span>
+                                            <input
+                                                type="text"
+                                                value={newDebtAmount}
+                                                onChange={(e) => {
+                                                    const rawValue = e.target.value.replace(/\D/g, '');
+                                                    setNewDebtAmount(rawValue ? parseInt(rawValue).toLocaleString('id-ID') : '');
+                                                }}
+                                                placeholder="Total Nominal Hutang"
+                                                className={`w-full pl-12 pr-4 py-3 rounded-xl outline-none text-[16px] font-semibold text-gray-900 dark:text-white ${uiStyle.input}`}
+                                                required
+                                            />
+                                        </div>
+
+                                        {newDebtType === 'tagihan' && (
+                                            <div>
+                                                <span className={`text-xs font-semibold mb-1 block ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>Tenggat Waktu Pembayaran (Deadline)</span>
+                                                <input
+                                                    type="date"
+                                                    value={newDebtDeadline}
+                                                    onChange={(e) => setNewDebtDeadline(e.target.value)}
+                                                    className={`w-full px-4 py-3 rounded-xl outline-none text-[16px] text-gray-900 dark:text-white ${uiStyle.input}`}
+                                                    required
+                                                />
+                                            </div>
+                                        )}
+
+                                        {newDebtType === 'cicilan' && (
+                                            <div className="flex gap-2">
+                                                <div className="flex-1">
+                                                    <span className={`text-xs font-semibold mb-1 block ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>Mulai Cicilan</span>
+                                                    <input
+                                                        type="date"
+                                                        value={newDebtStartDate}
+                                                        onChange={(e) => setNewDebtStartDate(e.target.value)}
+                                                        className={`w-full px-3 py-3 rounded-xl outline-none text-[16px] text-gray-900 dark:text-white ${uiStyle.input}`}
+                                                        required
+                                                    />
+                                                </div>
+                                                <div className="w-1/3">
+                                                    <span className={`text-xs font-semibold mb-1 block ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>Berapa Bulan?</span>
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        placeholder="Bulan"
+                                                        value={newDebtTenor}
+                                                        onChange={(e) => setNewDebtTenor(e.target.value)}
+                                                        className={`w-full px-3 py-3 rounded-xl outline-none text-[16px] text-center text-gray-900 dark:text-white ${uiStyle.input}`}
+                                                        required
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div className="flex gap-3 pt-2">
+                                            <button type="button" onClick={() => setIsAddDebtModalOpen(false)} className={`flex-1 py-3 rounded-xl font-bold ${uiStyle.cardSoft}`}>Batal</button>
+                                            <button type="submit" disabled={!newDebtAmount || !newDebtName.trim()} className="flex-1 py-3 bg-gray-900 hover:bg-black dark:bg-gray-100 dark:hover:bg-white dark:text-gray-900 theme-bg text-white rounded-xl font-bold disabled:opacity-50 shadow-md">Simpan</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
 
                         {/* INCOME MODAL OVERLAY */}
                         {isIncomeModalOpen && (
@@ -1664,7 +2144,7 @@
                                             value={incomeDescInput}
                                             onChange={(e) => setIncomeDescInput(e.target.value)}
                                             placeholder="Sumber Dana (mis. Bonus, Jual Barang)"
-                                            className={`w-full px-4 py-3 rounded-xl focus:border-green-500 outline-none text-[16px] ${uiStyle.input}`}
+                                            className={`w-full px-4 py-3 rounded-xl focus:border-green-500 outline-none text-[16px] text-gray-900 dark:text-white ${uiStyle.input}`}
                                             required
                                         />
                                         <div className="relative">
@@ -1677,7 +2157,7 @@
                                                     setIncomeAmountInput(rawValue ? parseInt(rawValue).toLocaleString('id-ID') : '');
                                                 }}
                                                 placeholder="Jumlah Pemasukan"
-                                                className={`w-full pl-12 pr-4 py-3 rounded-xl focus:border-green-500 outline-none text-[16px] font-semibold text-green-700 dark:text-green-400 theme-text ${uiStyle.input}`}
+                                                className={`w-full pl-12 pr-4 py-3 rounded-xl focus:border-green-500 outline-none text-[16px] font-semibold text-gray-900 dark:text-white theme-text ${uiStyle.input}`}
                                                 required
                                             />
                                         </div>
@@ -1696,22 +2176,23 @@
                                 <div className="w-full max-w-sm" onClick={e => e.stopPropagation()}>
                                     <div className="receipt-mask w-full flex flex-col max-h-[80vh] bg-white">
                                         <div className="p-5 border-b border-dashed shrink-0 rounded-t-xl border-gray-300">
-                                            <h3 className="text-center font-bold uppercase tracking-widest text-lg text-gray-900">List Pengeluaran</h3>
+                                            <h3 className="text-center font-bold uppercase tracking-widest text-lg text-gray-900">List {activeTab === 'spending' ? 'Pengeluaran' : 'Hutang'}</h3>
                                             <p className="text-center text-xs mt-1 font-semibold text-gray-600">{selectedDateReceipt.dateStr}</p>
                                         </div>
                                         <div className="p-5 flex-1 overflow-y-auto">
                                             {(() => {
+                                                const activeType = activeTab === 'spending' ? 'expense' : activeTab;
                                                 const dayExps = expenses.filter(exp => 
-                                                    exp.type !== 'income' && 
+                                                    (exp.type === activeType || exp.type === 'debt_added') && 
                                                     new Date(exp.date).toDateString() === new Date(new Date().getFullYear(), new Date().getMonth() + currentMonthOffset, selectedDateReceipt.day).toDateString()
                                                 );
                                                 return (
                                                     <div className="space-y-3">
                                                         {dayExps.map(exp => (
                                                             <div key={exp.id} className="flex justify-between items-center text-sm">
-                                                                <span className="font-medium text-gray-800">{exp.description}</span>
+                                                                <span className="font-medium text-gray-800">{exp.type === 'debt_added' ? `Hutang Baru: ${exp.description.replace('Hutang Baru: ', '')}` : exp.description}</span>
                                                                 <span className="font-bold text-gray-900">
-                                                                    -Rp {formatNumber(exp.amount)}
+                                                                    {exp.type === 'debt_added' ? '+' : '-'}Rp {formatNumber(exp.amount)}
                                                                 </span>
                                                             </div>
                                                         ))}
@@ -1722,8 +2203,8 @@
                                         </div>
                                         <div className="p-5 pt-0 shrink-0">
                                             <div className="border-t pt-4 flex justify-between font-bold text-sm border-gray-300">
-                                                <span className="text-gray-700">Total Pengeluaran</span>
-                                                <span className="text-red-600">-Rp {formatNumber(selectedDateReceipt.dailyExpense)}</span>
+                                                <span className="text-gray-700">Total {activeTab === 'spending' ? 'Pengeluaran' : 'Hutang'}</span>
+                                                <span className="text-gray-900">-Rp {formatNumber(selectedDateReceipt.dailyExpense)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1733,70 +2214,87 @@
 
                         {/* SETTINGS / EDIT MODAL (Always solid colors, no glass) */}
                         {isSettingsOpen && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/60 backdrop-blur-sm">
-                            <div className="w-full max-w-sm rounded-3xl p-6 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] bg-white dark:bg-[#171717] shadow-2xl">
+                        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-10 overflow-y-auto bg-black/40 dark:bg-black/60 backdrop-blur-sm pb-20">
+                            
+                            <div className="w-full max-w-sm flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-8 duration-300">
                                 
-                                <div className="flex justify-between items-center mb-6 shrink-0">
-                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">{isEditMode ? 'Edit Transaksi' : 'Pengaturan'}</h2>
-                                    <button onClick={() => { setIsSettingsOpen(false); setIsEditMode(false); }} className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                                        <XIcon className="w-6 h-6" />
+                                <div className="flex justify-between items-center px-2">
+                                    <h2 className="text-2xl font-bold text-white drop-shadow-md">Pengaturan</h2>
+                                    <button onClick={() => { setIsSettingsOpen(false); setIsEditMode(false); }} className="p-2 bg-white/20 rounded-full text-white hover:bg-white/30 transition-colors">
+                                        <XIcon className="w-5 h-5" />
                                     </button>
                                 </div>
 
-                                <div className="overflow-y-auto flex-1 pb-4 pr-1">
+                                {/* ID CARD MODULE */}
+                                <div className="bg-white dark:bg-[#171717] rounded-3xl p-5 shadow-2xl flex flex-col gap-4 border border-gray-100 dark:border-gray-800 relative">
+                                    <button 
+                                        onClick={() => setShowLogoutConfirm(true)}
+                                        className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors z-20"
+                                        title="Log Out"
+                                    >
+                                        <LogOutIcon className="w-5 h-5" />
+                                    </button>
+                                    <div className="flex items-center mt-2">
+                                        <div className="flex-1 pr-4 z-10">
+                                            <h3 className="font-bold text-gray-900 dark:text-white text-xl uppercase tracking-wide">
+                                                {userProfile.name}
+                                            </h3>
+                                            <p className="text-gray-600 dark:text-gray-400 text-sm font-semibold mb-2">
+                                                {userProfile.age} Tahun
+                                            </p>
+                                            <input 
+                                                type="text"
+                                                defaultValue={userProfile.quote}
+                                                onBlur={(e) => handleUpdateProfile({quote: e.target.value})}
+                                                className="w-full bg-transparent text-gray-500 dark:text-gray-500 text-[10px] font-medium italic leading-snug border-l-2 border-gray-300 dark:border-gray-700 pl-2 outline-none focus:border-blue-500"
+                                                placeholder="Tulis motomu..."
+                                            />
+                                        </div>
+                                        <label className="w-[60px] h-[80px] rounded-lg flex items-center justify-center text-4xl shadow-sm z-10 shrink-0 bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 cursor-pointer overflow-hidden relative group">
+                                            {userProfile.avatar ? (
+                                                <img src={userProfile.avatar} className="w-full h-full object-cover" />
+                                            ) : (
+                                                userProfile.gender === 'male' ? '👨' : '👩'
+                                            )}
+                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <CameraIcon className="w-5 h-5 text-white" />
+                                            </div>
+                                            <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {/* SETTINGS MODULES */}
+                                <div className="bg-white dark:bg-[#171717] rounded-3xl p-6 shadow-2xl flex flex-col gap-8 border border-gray-100 dark:border-gray-800">
+                                    
                                     {isEditMode ? (
                                         <div className="space-y-3">
-                                            <button onClick={() => setIsEditMode(false)} className="text-blue-600 dark:text-blue-400 text-sm font-semibold mb-3 flex items-center hover:opacity-80"><ChevronLeft className="w-4 h-4 mr-1"/> Kembali</button>
-                                            {expenses.map(exp => (
+                                            <button onClick={() => setIsEditMode(false)} className="text-blue-600 dark:text-blue-400 text-sm font-semibold mb-3 flex items-center hover:opacity-80"><ChevronLeft className="w-4 h-4 mr-1"/> Kembali ke Pengaturan</button>
+                                            {expenses.filter(e => editModeType === 'spending' ? e.type === 'expense' : (e.type === 'debt' || e.type === 'debt_added')).map(exp => (
                                                 <div key={exp.id} className="flex gap-2 items-center p-2.5 rounded-xl bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
                                                     <input 
                                                         defaultValue={exp.description} 
                                                         onBlur={(e) => handleEditExpense(exp.id, 'description', e.target.value)} 
-                                                        className="flex-1 w-full rounded-lg px-3 py-2 text-[15px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white"
+                                                        className="flex-1 w-full rounded-lg px-3 py-2 text-[15px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none"
                                                     />
                                                     <input 
                                                         defaultValue={exp.amount} 
                                                         onBlur={(e) => handleEditExpense(exp.id, 'amount', parseInt(e.target.value.replace(/\D/g, '')) || 0)} 
-                                                        className={`w-24 px-3 py-2 rounded-lg text-[15px] font-semibold text-right bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 ${exp.type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}
+                                                        className="w-24 px-3 py-2 rounded-lg text-[15px] font-semibold text-right bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none"
                                                     />
                                                     <button onClick={() => handleDeleteExpense(exp.id)} className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors">
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
                                                 </div>
                                             ))}
-                                            {expenses.length === 0 && <p className="text-center text-gray-500 dark:text-gray-400 text-sm mt-8 italic">Data transaksi kosong</p>}
+                                            {expenses.filter(e => editModeType === 'spending' ? e.type === 'expense' : (e.type === 'debt' || e.type === 'debt_added')).length === 0 && <p className="text-center text-gray-500 dark:text-gray-400 text-sm mt-8 italic">Data transaksi kosong</p>}
                                         </div>
                                     ) : (
-                                        <div className="space-y-6">
-                                            
-                                            <div className="rounded-xl p-5 relative flex items-center shadow-sm bg-[#e0f2fe] dark:bg-[#082f49] border border-[#bae6fd] dark:border-[#0c4a6e]">
-                                                <div className="flex-1 pr-4 z-10">
-                                                    <h3 className="font-bold text-[#0c4a6e] dark:text-[#7dd3fc] text-xl leading-tight mb-0.5 uppercase tracking-wide">
-                                                        {userProfile.name}
-                                                    </h3>
-                                                    <p className="text-[#0284c7] dark:text-[#38bdf8] text-sm font-semibold mb-3">
-                                                        {userProfile.age} Tahun
-                                                    </p>
-                                                    <p className="text-[#0369a1] dark:text-[#bae6fd] text-[10px] font-medium italic leading-snug border-l-2 border-[#7dd3fc] dark:border-[#0284c7] pl-2">
-                                                        "Aku adalah orang yang disiplin finansial"
-                                                    </p>
-                                                </div>
-                                                <div className="w-[60px] h-[80px] rounded-lg flex items-center justify-center text-4xl shadow-sm z-10 shrink-0 bg-white dark:bg-[#0f172a] border border-[#bae6fd] dark:border-[#0c4a6e]">
-                                                    {userProfile.gender === 'male' ? '👨' : '👩'}
-                                                </div>
-                                            </div>
-
-                                            <button 
-                                                onClick={() => setIsEditMode(true)}
-                                                className="w-full flex items-center justify-center gap-2 py-3 text-blue-600 dark:text-blue-400 rounded-xl font-semibold transition-colors bg-blue-50 hover:bg-blue-100 border border-blue-100 dark:bg-blue-900/30 dark:border-blue-800/50 dark:hover:bg-blue-900/50"
-                                            >
-                                                <Edit3 className="w-4 h-4" /> Edit Data Transaksi
-                                            </button>
-
+                                        <>
                                             <div className="space-y-3">
-                                                <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Tampilan</h3>
+                                                <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">Pengaturan Umum</h3>
                                                 
-                                                <div>
+                                                <div className="pt-2">
                                                     <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Tema Aplikasi</span>
                                                     <div className="grid grid-cols-4 gap-2">
                                                         {[
@@ -1832,11 +2330,98 @@
                                                     )}
                                                 </div>
                                                 )}
+
+                                                <div className="pt-2">
+                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Modul Pelacakan & Default Tab</span>
+                                                    <div className="grid grid-cols-2 gap-3 mt-2">
+                                                        {[
+                                                            {id: 'spending', label: 'Pengeluaran', icon: <TrendingDown className="w-5 h-5"/>}, 
+                                                            {id: 'debt', label: 'Hutang', icon: <Wallet className="w-5 h-5"/>}
+                                                        ].map(item => (
+                                                            <div 
+                                                                key={item.id} 
+                                                                className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all cursor-pointer ${userProfile.trackedItems?.includes(item.id) ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#262626] text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#404040]'}`} 
+                                                                onClick={() => {
+                                                                    let newItems = userProfile.trackedItems ? [...userProfile.trackedItems] : [];
+                                                                    if (newItems.includes(item.id)) newItems = newItems.filter(i => i !== item.id);
+                                                                    else newItems.push(item.id);
+                                                                    if (newItems.length === 0) newItems = ['spending'];
+                                                                    const newDefault = newItems.includes(userProfile.defaultTab) ? userProfile.defaultTab : newItems[0];
+                                                                    setUserProfile({...userProfile, trackedItems: newItems, defaultTab: newDefault});
+                                                                    handleUpdateProfile({trackedItems: newItems, defaultTab: newDefault});
+                                                                }}
+                                                            >
+                                                                {item.icon}
+                                                                <span className="text-[11px] font-bold mt-1.5">{item.label}</span>
+                                                                
+                                                                {userProfile.trackedItems?.includes(item.id) && (
+                                                                    <button 
+                                                                        onClick={(e) => { 
+                                                                            e.stopPropagation(); 
+                                                                            handleUpdateProfile({defaultTab: item.id}); 
+                                                                            setUserProfile(prev => ({...prev, defaultTab: item.id}));
+                                                                        }}
+                                                                        className={`absolute top-2 right-2 p-1.5 rounded-full transition-colors ${userProfile.defaultTab === item.id ? 'bg-blue-500 text-white shadow-sm' : 'bg-blue-100 dark:bg-blue-800 text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-700'}`}
+                                                                        title="Set as Default Tab"
+                                                                    >
+                                                                        <HomeIcon className="w-3 h-3" />
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                <div className="pt-2 space-y-2">
+                                                    <label className="flex items-center justify-between p-3 rounded-xl cursor-pointer bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
+                                                        <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Intro JeStudios</span>
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={appSettings.showSplash}
+                                                            onChange={(e) => setAppSettings({...appSettings, showSplash: e.target.checked})}
+                                                            className="w-5 h-5 rounded focus:ring-blue-500 text-blue-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                                        />
+                                                    </label>
+
+                                                    <label className="flex items-center justify-between p-3 rounded-xl cursor-pointer bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
+                                                        <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Ikon Waktu</span>
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={appSettings.showTime}
+                                                            onChange={(e) => setAppSettings({...appSettings, showTime: e.target.checked})}
+                                                            className="w-5 h-5 rounded focus:ring-blue-500 text-blue-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                                        />
+                                                    </label>
+                                                </div>
                                             </div>
 
                                             <div className="space-y-3">
-                                                <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-4">Preferensi</h3>
+                                                <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">Pengaturan Pengeluaran</h3>
                                                 
+                                                {userProfile.trackedItems?.includes('spending') && (
+                                                    <button 
+                                                        onClick={() => { setEditModeType('spending'); setIsEditMode(true); }}
+                                                        className="w-full flex items-center justify-center gap-2 py-3 mt-2 text-blue-600 dark:text-blue-400 rounded-xl font-semibold transition-colors bg-blue-50 hover:bg-blue-100 border border-blue-100 dark:bg-blue-900/30 dark:border-blue-800/50 dark:hover:bg-blue-900/50"
+                                                    >
+                                                        <Edit3 className="w-4 h-4" />
+                                                        <span className="text-sm">Edit Data Transaksi Pengeluaran</span>
+                                                    </button>
+                                                )}
+
+                                                <label className="flex flex-col p-3 rounded-xl bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 mt-2">
+                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Budget spending untuk 1 bulan (Rp)</span>
+                                                    <input 
+                                                        type="text"
+                                                        value={budget ? parseInt(budget).toLocaleString('id-ID') : ''}
+                                                        onChange={(e) => {
+                                                            const rawValue = e.target.value.replace(/\D/g, '');
+                                                            setBudget(rawValue ? parseInt(rawValue) : 0);
+                                                        }}
+                                                        onBlur={handleUpdateProfile}
+                                                        className="px-3 py-2 rounded-lg text-[16px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none"
+                                                    />
+                                                </label>
+
                                                 <label className="flex flex-col p-3 rounded-xl bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
                                                     <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Budget Max Per-Hari (Rp)</span>
                                                     <input 
@@ -1847,46 +2432,12 @@
                                                             setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
                                                         }}
                                                         onBlur={handleUpdateProfile}
-                                                        className="px-3 py-2 rounded-lg text-[16px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white"
+                                                        className="px-3 py-2 rounded-lg text-[16px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none"
                                                         placeholder="Contoh: 50000"
                                                     />
                                                 </label>
-
-                                                <label className="flex flex-col p-3 rounded-xl bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
-                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Budget spending untuk 1 bulan (Rp)</span>
-                                                    <input 
-                                                        type="text"
-                                                        value={budget ? parseInt(budget).toLocaleString('id-ID') : ''}
-                                                        onChange={(e) => {
-                                                            const rawValue = e.target.value.replace(/\D/g, '');
-                                                            setBudget(rawValue ? parseInt(rawValue) : 0);
-                                                        }}
-                                                        onBlur={handleUpdateProfile}
-                                                        className="px-3 py-2 rounded-lg text-[16px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white"
-                                                    />
-                                                </label>
-
-                                                <label className="flex items-center justify-between p-3 rounded-xl cursor-pointer bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
-                                                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Intro JeStudios</span>
-                                                    <input 
-                                                        type="checkbox" 
-                                                        checked={appSettings.showSplash}
-                                                        onChange={(e) => setAppSettings({...appSettings, showSplash: e.target.checked})}
-                                                        className="w-5 h-5 rounded focus:ring-blue-500 text-blue-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                                                    />
-                                                </label>
-
-                                                <label className="flex items-center justify-between p-3 rounded-xl cursor-pointer bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
-                                                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Ikon Waktu</span>
-                                                    <input 
-                                                        type="checkbox" 
-                                                        checked={appSettings.showTime}
-                                                        onChange={(e) => setAppSettings({...appSettings, showTime: e.target.checked})}
-                                                        className="w-5 h-5 rounded focus:ring-blue-500 text-blue-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                                                    />
-                                                </label>
                                                 
-                                                <label className="flex items-center justify-between p-3 rounded-xl cursor-pointer mb-6 bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
+                                                <label className="flex items-center justify-between p-3 rounded-xl cursor-pointer bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
                                                     <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Teguran</span>
                                                     <input 
                                                         type="checkbox" 
@@ -1897,29 +2448,45 @@
                                                 </label>
                                             </div>
 
-                                            <div className="space-y-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-800">
-                                                {/* PWA Download Banner inside Settings (Sembunyi kalau sudah Fullscreen/Standalone) */}
-                                                {!isStandalone && (
+                                            <div className="space-y-3">
+                                                <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">Pengaturan Hutang</h3>
+                                                {userProfile.trackedItems?.includes('debt') ? (
                                                     <button 
-                                                        onClick={handleInstallApp}
-                                                        className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl font-bold shadow-lg hover:from-blue-700 hover:to-blue-600 transition-all"
+                                                        onClick={() => { setEditModeType('debt'); setIsEditMode(true); }}
+                                                        className="w-full flex items-center justify-center gap-2 py-3 mt-2 text-orange-600 dark:text-orange-400 rounded-xl font-semibold transition-colors bg-orange-50 hover:bg-orange-100 border border-orange-100 dark:bg-orange-900/30 dark:border-orange-800/50 dark:hover:bg-orange-900/50"
                                                     >
-                                                        <DownloadIcon className="w-5 h-5" />
-                                                        Install Wang
+                                                        <Edit3 className="w-4 h-4" />
+                                                        <span className="text-sm">Edit Data Transaksi Hutang</span>
                                                     </button>
+                                                ) : (
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 italic px-2 pt-2">Belum ada pengaturan khusus.</p>
                                                 )}
-
-                                                <button 
-                                                    onClick={() => setShowLogoutConfirm(true)}
-                                                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-colors bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800/50 hover:bg-red-100 dark:hover:bg-red-900/40"
-                                                >
-                                                    <LogOutIcon className="w-5 h-5" /> Log Out
-                                                </button>
                                             </div>
-                                        </div>
+                                        </>
                                     )}
                                 </div>
                             </div>
+
+                            {/* INSTALL / UPDATE BUTTON */}
+                            <div className="w-full max-w-sm mt-4 shrink-0 z-50 pb-12">
+                                {!isStandalone ? (
+                                    <button 
+                                        onClick={handleInstallApp}
+                                        className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-3xl font-bold shadow-lg hover:from-blue-700 hover:to-blue-600 transition-all"
+                                    >
+                                        <DownloadIcon className="w-5 h-5" /> Install Wang
+                                    </button>
+                                ) : (
+                                    <button 
+                                        onClick={handleForceUpdate}
+                                        className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-3xl font-bold shadow-lg hover:from-green-700 hover:to-green-600 transition-all"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> 
+                                        Check for Update
+                                    </button>
+                                )}
+                            </div>
+
                         </div>
                         )}
 
@@ -1927,11 +2494,11 @@
                         {showLogoutConfirm && (
                             <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 animate-in fade-in duration-200 drop-shadow-2xl bg-black/60 dark:bg-black/80" onClick={() => setShowLogoutConfirm(false)}>
                                 <div className="w-full max-w-sm rounded-3xl overflow-hidden flex flex-col p-6 bg-white dark:bg-[#171717] shadow-2xl" onClick={e => e.stopPropagation()}>
-                                    <h3 className="font-bold text-gray-900 dark:text-white text-xl mb-2 text-center">Konfirmasi Keluar</h3>
-                                    <p className="text-center text-gray-600 dark:text-gray-400 text-sm mb-6">Yakin ingin keluar dari akun ini?</p>
+                                    <h3 className="font-bold text-gray-900 dark:text-white text-xl mb-2 text-center">Konfirmasi Log Out</h3>
+                                    <p className="text-center text-gray-600 dark:text-gray-400 text-sm mb-6">Yakin ingin Log Out dari akun ini?</p>
                                     <div className="flex gap-3">
                                         <button type="button" onClick={() => setShowLogoutConfirm(false)} className="flex-1 py-3 rounded-xl font-bold bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700">Batal</button>
-                                        <button type="button" onClick={() => { setShowLogoutConfirm(false); handleLogout(); }} className="flex-1 py-3 bg-red-600 hover:bg-red-700 shadow-lg text-white rounded-xl font-bold transition-colors">Keluar</button>
+                                        <button type="button" onClick={() => { setShowLogoutConfirm(false); handleLogout(); }} className="flex-1 py-3 bg-red-600 hover:bg-red-700 shadow-lg text-white rounded-xl font-bold transition-colors">Log Out</button>
                                     </div>
                                 </div>
                             </div>
