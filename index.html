@@ -403,6 +403,14 @@
             const [incomeDescInput, setIncomeDescInput] = useState('');
             const [selectedDateReceipt, setSelectedDateReceipt] = useState(null);
             const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+            const [showPastInputWarning, setShowPastInputWarning] = useState(false);
+            const [customExpenseDate, setCustomExpenseDate] = useState('');
+            
+            useEffect(() => {
+                const today = new Date();
+                const tzoffset = today.getTimezoneOffset() * 60000;
+                setCustomExpenseDate((new Date(today - tzoffset)).toISOString().slice(0, 10));
+            }, []);
             
             const [isTakingDamage, setIsTakingDamage] = useState(false);
             const [isHealing, setIsHealing] = useState(false);
@@ -1091,10 +1099,24 @@
                         finalDebtId = selectedDebtId;
                     }
 
+                    let finalDate = new Date().toISOString();
+                    if (appSettings.allowPastInput && customExpenseDate) {
+                        const now = new Date();
+                        const tzoffset = now.getTimezoneOffset() * 60000;
+                        const todayStr = (new Date(now - tzoffset)).toISOString().slice(0, 10);
+                        
+                        if (customExpenseDate !== todayStr) {
+                            const [year, month, day] = customExpenseDate.split('-');
+                            const selected = new Date();
+                            selected.setFullYear(parseInt(year), parseInt(month) - 1, parseInt(day));
+                            finalDate = selected.toISOString();
+                        }
+                    }
+
                     const newExpense = {
                         amount: amount,
                         description: finalDesc,
-                        date: new Date().toISOString(),
+                        date: finalDate,
                         type: finalType
                     };
                     if (finalDebtId) newExpense.debtId = finalDebtId;
@@ -1743,7 +1765,18 @@
                                                 </div>
 
                                                 {/* FIXED INPUT FIELD PORTION */}
-                                                <div className="w-full shrink-0 z-50 flex justify-center bg-transparent" style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))', paddingTop: '12px' }}>
+                                                <div className="w-full shrink-0 z-50 flex flex-col items-center bg-transparent" style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))', paddingTop: '8px' }}>
+                                                    {appSettings.allowPastInput && (
+                                                        <div className="w-[90%] mb-1.5 flex justify-start animate-in slide-in-from-bottom-2">
+                                                            <input 
+                                                                type="date"
+                                                                value={customExpenseDate}
+                                                                max={new Date(new Date() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10)}
+                                                                onChange={(e) => setCustomExpenseDate(e.target.value)}
+                                                                className={`px-3 py-1.5 rounded-lg text-xs font-semibold outline-none shadow-sm transition-all cursor-pointer ${isGlass ? 'bg-white/30 dark:bg-black/40 text-gray-900 dark:text-white border border-white/40 dark:border-white/20 backdrop-blur-md' : 'bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200'}`}
+                                                            />
+                                                        </div>
+                                                    )}
                                                     <form onSubmit={handleAddExpense} className={`flex px-4 py-2.5 items-center rounded-full pointer-events-auto w-[90%] transition-all duration-300 ${uiStyle.capsule}`}>
                                                         <input
                                                             type="text"
@@ -2220,50 +2253,22 @@
                                                     </div>
                                                 </div>
 
-                                                <div className="space-y-3">
-                                                    <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">Pengaturan Pengeluaran</h3>
-                                                    
-                                                    {userProfile.trackedItems?.includes('spending') && (
-                                                        <button 
-                                                            onClick={() => { setEditModeType('spending'); setIsEditMode(true); }}
-                                                            className="w-full flex items-center justify-center gap-2 py-3 mt-2 text-blue-600 dark:text-blue-400 rounded-xl font-semibold transition-colors bg-blue-50 hover:bg-blue-100 border border-blue-100 dark:bg-blue-900/30 dark:border-blue-800/50 dark:hover:bg-blue-900/50"
-                                                        >
-                                                            <Edit3 className="w-4 h-4" />
-                                                            <span className="text-sm">Edit Data Transaksi Pengeluaran</span>
-                                                        </button>
-                                                    )}
-
-                                                    <label className="flex flex-col p-3 rounded-xl bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 mt-2">
-                                                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Budget spending untuk 1 bulan (Rp)</span>
-                                                        <input 
-                                                            type="text"
-                                                            value={budget ? parseInt(budget).toLocaleString('id-ID') : ''}
-                                                            onChange={(e) => {
-                                                                const rawValue = e.target.value.replace(/\D/g, '');
-                                                                setBudget(rawValue ? parseInt(rawValue) : 0);
-                                                            }}
-                                                            onBlur={handleUpdateProfile}
-                                                            className="px-3 py-2 rounded-lg text-[16px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none"
-                                                        />
-                                                    </label>
-
-                                                    <label className="flex flex-col p-3 rounded-xl bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
-                                                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Budget Max Per-Hari (Rp)</span>
-                                                        <input 
-                                                            type="text"
-                                                            value={userProfile.promiseBudget ? parseInt(userProfile.promiseBudget).toLocaleString('id-ID') : ''}
-                                                            onChange={(e) => {
-                                                                const rawValue = e.target.value.replace(/\D/g, '');
-                                                                setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
-                                                            }}
-                                                            onBlur={handleUpdateProfile}
-                                                            className="px-3 py-2 rounded-lg text-[16px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none"
-                                                            placeholder="Contoh: 50000"
-                                                        />
-                                                    </label>
-                                                    
+                                                <div className="pt-2 space-y-2">
                                                     <label className="flex items-center justify-between p-3 rounded-xl cursor-pointer bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
-                                                        <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Teguran</span>
+                                                        <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Input Catatan Masa Lalu</span>
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={appSettings.allowPastInput || false}
+                                                            onChange={(e) => {
+                                                                if (e.target.checked) setShowPastInputWarning(true);
+                                                                else setAppSettings({...appSettings, allowPastInput: false});
+                                                            }}
+                                                            className="w-5 h-5 rounded focus:ring-blue-500 text-blue-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                                        />
+                                                    </label>
+
+                                                    <label className="flex items-center justify-between p-3 rounded-xl cursor-pointer bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
+                                                        <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Intro JeStudios</span>
                                                         <input 
                                                             type="checkbox" 
                                                             checked={appSettings.showRecap}
@@ -2304,6 +2309,29 @@
                                     <div className="flex gap-3">
                                         <button type="button" onClick={() => setShowLogoutConfirm(false)} className="flex-1 py-3 rounded-xl font-bold bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700">Batal</button>
                                         <button type="button" onClick={() => { setShowLogoutConfirm(false); handleLogout(); }} className="flex-1 py-3 bg-red-600 hover:bg-red-700 shadow-lg text-white rounded-xl font-bold transition-colors">Keluar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* PAST INPUT WARNING MODAL */}
+                        {showPastInputWarning && (
+                            <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 animate-in fade-in duration-200 drop-shadow-2xl bg-black/60 dark:bg-black/80" onClick={() => setShowPastInputWarning(false)}>
+                                <div className="w-full max-w-sm rounded-3xl overflow-hidden flex flex-col p-6 bg-white dark:bg-[#171717] shadow-2xl" onClick={e => e.stopPropagation()}>
+                                    <div className="mx-auto w-16 h-16 bg-yellow-100 dark:bg-yellow-900/40 rounded-full flex items-center justify-center mb-4 border-4 border-white dark:border-[#171717] shadow-sm">
+                                        <span className="text-3xl">⚠️</span>
+                                    </div>
+                                    <h3 className="font-bold text-gray-900 dark:text-white text-xl mb-2 text-center">Janji Dulu Ya!</h3>
+                                    <p className="text-center text-gray-600 dark:text-gray-400 text-sm mb-6 leading-relaxed">
+                                        Fitur ini buat kamu yang kelupaan nyatet pengeluaran hari kemarin.<br/><br/>
+                                        <span className="font-semibold text-gray-800 dark:text-gray-200">Jangan sampai fitur ini bikin kamu jadi suka menunda-nunda nyatet ya!</span> Disiplin itu kunci 🔑
+                                    </p>
+                                    <div className="flex gap-3">
+                                        <button type="button" onClick={() => setShowPastInputWarning(false)} className="flex-1 py-3 rounded-xl font-bold bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">Batal</button>
+                                        <button type="button" onClick={() => { 
+                                            setAppSettings({...appSettings, allowPastInput: true}); 
+                                            setShowPastInputWarning(false); 
+                                        }} className="flex-1 py-3 bg-yellow-500 hover:bg-yellow-600 shadow-lg text-gray-900 rounded-xl font-bold transition-colors">Aku Janji</button>
                                     </div>
                                 </div>
                             </div>
