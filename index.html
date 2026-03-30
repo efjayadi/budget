@@ -32,7 +32,6 @@
         theme: {
           extend: {
             colors: {
-              /* Pure neutral gray for the CorelDRAW dark look */
               gray: {
                 50: '#fafafa',
                 100: '#f5f5f5',
@@ -93,31 +92,13 @@
             animation: slideDownNotif 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        /* Jarak aman layar bawah iPhone/Android */
-        .pb-safe {
-            padding-bottom: max(16px, env(safe-area-inset-bottom));
-        }
+        .pb-safe { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+        .bottom-safe-capsule { bottom: max(24px, env(safe-area-inset-bottom, 24px)); }
+        ::-webkit-scrollbar { display: none; }
+        input[type="text"], input[type="number"], input[type="date"], select { font-size: 16px !important; }
 
-        /* Jarak aman layar bawah iPhone/Android untuk capsule */
-        .bottom-safe-capsule {
-            bottom: max(24px, env(safe-area-inset-bottom, 24px));
-        }
-        
-        ::-webkit-scrollbar {
-            display: none;
-        }
-        
-        /* Mencegah iOS Safari auto-zoom saat tap input */
-        input[type="text"], input[type="number"], input[type="date"], select {
-            font-size: 16px !important;
-        }
-
-        /* ==========================================
-           RECEIPT MASK STYLE
-           ========================================== */
         .receipt-mask {
-            padding-top: 12px;
-            padding-bottom: 12px;
+            padding-top: 12px; padding-bottom: 12px;
             --mask: 
                 conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% 100% / 12px 51% repeat-x,
                 conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) 50% 0% / 12px 51% repeat-x;
@@ -125,11 +106,8 @@
                     mask: var(--mask);
         }
 
-        /* ==========================================
-           SPLASH SCREEN ANIMATION STYLES
-           ========================================== */
+        /* Splash Screen Animation Styles */
         @import url("https://fonts.googleapis.com/css2?family=Heebo:wght@900&display=swap");
-
         :root {
             --splash-duration: 4s;
             --splash-wave-duration: calc(var(--splash-duration) * 0.25);
@@ -139,170 +117,27 @@
             --splash-dot-color: #6ee16e;
             --splash-dot-color-dark: #2f6b2f;
         }
-
-        .splash-wrapper {
-            height: 100dvh;
-            width: 100vw;
-            margin: 0;
-            padding: 0;
-            background: #ffffff;
-            color: black;
-            font-family: "Heebo", sans-serif;
-            overflow: hidden;
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 99999;
-        }
-        
-        @media (prefers-color-scheme: dark) {
-            .splash-wrapper { background: #0a0a0a; color: white; }
-            .splash-title .char[data-char="u"]::before,
-            .splash-title .char[data-char="U"]::before { color: white !important; }
-        }
-
-        .splash-wrapper * {
-            box-sizing: border-box;
-            position: relative;
-        }
-
-        .splash-container {
-            display: grid;
-            align-items: center;
-            justify-items: center;
-        }
-        .splash-container > * {
-            grid-area: 1 / 1;
-        }
-
-        .splash-title {
-            font-size: 10vmin;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            font-weight: bold;
-        }
-
-        .splash-title .char {
-            --char-offset: calc(var(--char-index) - (var(--char-total) / 2));
-            --distance-percent: calc(var(--char-index) / var(--char-total));
-            --delay: calc(var(--splash-text-in-delay) + (0.25s * (1 - var(--distance-percent))));
-            
-            animation: splash-text-in var(--splash-text-in-duration) var(--splash-easing) var(--delay) backwards;
-            transform-origin: center 1em;
-            display: inline-block;
-        }
-
-        @keyframes splash-text-in {
-            0% {
-                opacity: 0;
-                transform: translateX(calc(-0.4em * var(--char-offset))) scale(0);
-            }
-            90% {
-                transform: translateX(0em) scale(1.1);
-            }
-        }
-
-        .splash-title .char[data-char="u"],
-        .splash-title .char[data-char="U"] {
-            visibility: hidden;
-            --squish-scale: 0.6;
-            --squish-y: 10%;
-        }
-
-        .splash-title .char[data-char="u"]::before,
-        .splash-title .char[data-char="U"]::before {
-            content: attr(data-char);
-            visibility: visible;
-            position: absolute;
-            left: 0;
-            top: 0;
-            animation: splash-text-squish var(--splash-duration) var(--splash-easing) forwards;
-            color: black;
-            transform-origin: center 1em;
-        }
-
-        @keyframes splash-text-squish {
-            47.5%, 52.5% { transform: none; }
-            50% { transform: translateY(calc(var(--squish-y) * 1)) scaleY(calc(var(--squish-scale) * 1)); }
-        }
-
-        .splash-title .char:last-child {
-            animation: splash-text-in var(--splash-text-in-duration) var(--splash-easing) var(--delay) backwards,
-                       splash-text-bonk var(--splash-duration) var(--splash-easing) forwards;
-        }
-
-        @keyframes splash-text-bonk {
-            80%, 85%, to { transform: none; }
-            82% { transform: translateX(-20%); }
-        }
-
-        .splash-dot {
-            font-size: 5vmin;
-            width: 1em;
-            height: 1em;
-            animation: splash-dot var(--splash-duration) var(--splash-easing) both;
-            z-index: 10;
-        }
-
-        .splash-dot-inner {
-            animation: splash-dot-inner var(--splash-duration) var(--splash-easing) both;
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            border-radius: 50%;
-            overflow: hidden;
-            display: grid;
-            align-items: center;
-            justify-items: center;
-        }
-        .splash-dot-inner > * {
-            grid-area: 1 / 1;
-        }
-
-        .splash-dot-wave {
-            width: 200%;
-            height: 200%;
-            fill: var(--splash-dot-color);
-            animation: splash-wave-in var(--splash-wave-duration) var(--splash-easing);
-            --offset-x: -110%;
-        }
-
-        @keyframes splash-wave-in {
-            0% { transform: translateY(100%) translateX(var(--offset-x)); }
-            70% { transform: translateY(30%) translateX(0%); }
-        }
-
-        .splash-dot-wave.background {
-            fill: var(--splash-dot-color-dark);
-            animation-duration: calc(0.95 * var(--splash-wave-duration));
-            --offset-x: 110%;
-        }
-
-        @keyframes splash-dot {
-            from { opacity: 0; transform: scale(3); }
-            10% { opacity: 1; transform: scale(3); }
-            15% { transform: scale(3) translateY(0.5em) scaleY(1.5); }
-            20% { transform: scale(1) translateY(-300%); }
-            30% { transform: translateY(1em) scaleY(0.5); }
-            40% { transform: translateY(-400%); }
-            50% { transform: translateY(-1em); }
-            53% { transform: translateY(-300%); }
-            56% { transform: translateY(-1em); }
-            59% { transform: translateY(-200%); }
-            62% { transform: translateY(1em); }
-            80%, 90%, to { transform: translateY(calc(0.2em + 2px)); }
-        }
-
-        @keyframes splash-dot-inner {
-            from, 45% { transform: none; }
-            70% { transform: translateX(7em); animation-timing-function: cubic-bezier(0.5, 0, 1, 0); }
-            80% { transform: translateX(5.3em); animation-timing-function: var(--splash-easing); }
-            83%, to { transform: translateX(5.4em); }
-        }
+        .splash-wrapper { height: 100dvh; width: 100vw; margin: 0; padding: 0; background: #ffffff; color: black; font-family: "Heebo", sans-serif; overflow: hidden; display: flex; flex-direction: row; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; z-index: 99999; }
+        @media (prefers-color-scheme: dark) { .splash-wrapper { background: #0a0a0a; color: white; } .splash-title .char[data-char="u"]::before, .splash-title .char[data-char="U"]::before { color: white !important; } }
+        .splash-wrapper * { box-sizing: border-box; position: relative; }
+        .splash-container { display: grid; align-items: center; justify-items: center; }
+        .splash-container > * { grid-area: 1 / 1; }
+        .splash-title { font-size: 10vmin; margin: 0; font-family: Arial, sans-serif; font-weight: bold; }
+        .splash-title .char { --char-offset: calc(var(--char-index) - (var(--char-total) / 2)); --distance-percent: calc(var(--char-index) / var(--char-total)); --delay: calc(var(--splash-text-in-delay) + (0.25s * (1 - var(--distance-percent)))); animation: splash-text-in var(--splash-text-in-duration) var(--splash-easing) var(--delay) backwards; transform-origin: center 1em; display: inline-block; }
+        @keyframes splash-text-in { 0% { opacity: 0; transform: translateX(calc(-0.4em * var(--char-offset))) scale(0); } 90% { transform: translateX(0em) scale(1.1); } }
+        .splash-title .char[data-char="u"], .splash-title .char[data-char="U"] { visibility: hidden; --squish-scale: 0.6; --squish-y: 10%; }
+        .splash-title .char[data-char="u"]::before, .splash-title .char[data-char="U"]::before { content: attr(data-char); visibility: visible; position: absolute; left: 0; top: 0; animation: splash-text-squish var(--splash-duration) var(--splash-easing) forwards; color: black; transform-origin: center 1em; }
+        @keyframes splash-text-squish { 47.5%, 52.5% { transform: none; } 50% { transform: translateY(calc(var(--squish-y) * 1)) scaleY(calc(var(--squish-scale) * 1)); } }
+        .splash-title .char:last-child { animation: splash-text-in var(--splash-text-in-duration) var(--splash-easing) var(--delay) backwards, splash-text-bonk var(--splash-duration) var(--splash-easing) forwards; }
+        @keyframes splash-text-bonk { 80%, 85%, to { transform: none; } 82% { transform: translateX(-20%); } }
+        .splash-dot { font-size: 5vmin; width: 1em; height: 1em; animation: splash-dot var(--splash-duration) var(--splash-easing) both; z-index: 10; }
+        .splash-dot-inner { animation: splash-dot-inner var(--splash-duration) var(--splash-easing) both; content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; overflow: hidden; display: grid; align-items: center; justify-items: center; }
+        .splash-dot-inner > * { grid-area: 1 / 1; }
+        .splash-dot-wave { width: 200%; height: 200%; fill: var(--splash-dot-color); animation: splash-wave-in var(--splash-wave-duration) var(--splash-easing); --offset-x: -110%; }
+        @keyframes splash-wave-in { 0% { transform: translateY(100%) translateX(var(--offset-x)); } 70% { transform: translateY(30%) translateX(0%); } }
+        .splash-dot-wave.background { fill: var(--splash-dot-color-dark); animation-duration: calc(0.95 * var(--splash-wave-duration)); --offset-x: 110%; }
+        @keyframes splash-dot { from { opacity: 0; transform: scale(3); } 10% { opacity: 1; transform: scale(3); } 15% { transform: scale(3) translateY(0.5em) scaleY(1.5); } 20% { transform: scale(1) translateY(-300%); } 30% { transform: translateY(1em) scaleY(0.5); } 40% { transform: translateY(-400%); } 50% { transform: translateY(-1em); } 53% { transform: translateY(-300%); } 56% { transform: translateY(-1em); } 59% { transform: translateY(-200%); } 62% { transform: translateY(1em); } 80%, 90%, to { transform: translateY(calc(0.2em + 2px)); } }
+        @keyframes splash-dot-inner { from, 45% { transform: none; } 70% { transform: translateX(7em); animation-timing-function: cubic-bezier(0.5, 0, 1, 0); } 80% { transform: translateX(5.3em); animation-timing-function: var(--splash-easing); } 83%, to { transform: translateX(5.4em); } }
     </style>
 </head>
 <body>
@@ -315,9 +150,6 @@
 
         const { useState, useEffect, useMemo, useRef } = React;
 
-        // ==========================================
-        // FIREBASE SETUP & CONFIGURATION
-        // ==========================================
         const firebaseConfig = {
           apiKey: "AIzaSyBw17dqJnfsfHwmXTIgs03_BsrNbHR3IhE",
           authDomain: "budget-dd989.firebaseapp.com",
@@ -337,7 +169,7 @@
             db = getFirestore(app);
         }
 
-        // --- Embedded SVG Icons ---
+        // SVG Icons
         const Wallet = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a8 8 0 0 1-5 7H5a2 2 0 0 1-2-2V4"/></svg>;
         const CalendarIcon = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
         const Trash2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>;
@@ -362,24 +194,24 @@
         const HomeIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>;
         const CameraIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" /><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" /></svg>;
 
-        // --- PWA INSTALL PROMPT COMPONENT ---
+        // ==========================================
+        // COMPONENT: PWA NOTIFICATION (iOS Style)
+        // ==========================================
         const PWANotif = ({ show, onInstall, onClose }) => {
-            if (!show) return null;
-
             return (
-                <div className="fixed top-4 left-0 right-0 z-[100000] px-4 flex justify-center animate-slide-down-notif">
-                    <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl shadow-2xl border border-gray-200 dark:border-gray-700 rounded-3xl p-3 flex items-center gap-3 w-full max-w-sm cursor-pointer" onClick={onInstall}>
-                        <div className="w-12 h-12 rounded-[10px] bg-gray-100 dark:bg-gray-900 overflow-hidden flex-shrink-0 border border-gray-200 dark:border-gray-700">
-                            <img src="icon-512.png" alt="Icon" className="w-full h-full object-cover" onError={(e) => e.target.style.display='none'} />
+                <div className={`fixed top-4 left-0 right-0 z-[100000] px-4 flex justify-center transition-all duration-500 transform ${show ? 'translate-y-0 opacity-100' : '-translate-y-[150%] opacity-0 pointer-events-none'}`}>
+                    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl shadow-2xl border border-white/40 dark:border-gray-700/50 rounded-[20px] p-3 flex items-center gap-3 w-full max-w-sm pointer-events-auto">
+                        <div className="w-12 h-12 rounded-[12px] bg-gray-100 dark:bg-gray-900 overflow-hidden flex-shrink-0 shadow-inner">
+                            <img src="icon-192.png" alt="Icon" className="w-full h-full object-cover" onError={(e) => e.target.style.display='none'} />
                         </div>
                         <div className="flex-1 text-left">
-                            <h4 className="font-bold text-gray-900 dark:text-white text-[14px] leading-tight">Install Wang</h4>
-                            <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">Biar lebih cepat tanpa browser</p>
+                            <h4 className="font-bold text-gray-900 dark:text-white text-[15px] leading-tight">Download this App</h4>
+                            <p className="text-[12px] text-gray-500 dark:text-gray-400 font-medium mt-0.5">Biar lebih cepat & tanpa browser</p>
                         </div>
-                        <button className="bg-blue-600 hover:bg-blue-700 text-white text-[13px] font-bold py-1.5 px-4 rounded-full shadow-sm transition-colors">
+                        <button onClick={onInstall} className="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-[13px] font-bold py-1.5 px-4 rounded-full shadow-md transition-all">
                             Get
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="p-1.5 text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full ml-1 transition-colors">
+                        <button onClick={onClose} className="p-1.5 text-gray-400 dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full ml-1 transition-colors">
                             <XIcon className="w-4 h-4" />
                         </button>
                     </div>
@@ -522,7 +354,6 @@
             const [budget, setBudget] = useState(0);
             const [paycheckDate, setPaycheckDate] = useState('');
             const [expenses, setExpenses] = useState([]);
-            // Added debts array to userProfile
             const [userProfile, setUserProfile] = useState({ name: '', age: '', gender: '', promiseBudget: '', createdAt: '', trackedItems: ['spending'], defaultTab: 'spending', debts: [], quote: 'Aku adalah orang yang disiplin finansial', avatar: null });
 
             // --- UI States ---
@@ -590,16 +421,22 @@
                 setIsIOS(isDeviceIOS);
                 
                 const checkStandalone = () => ('standalone' in window.navigator) && (window.navigator.standalone) || window.matchMedia('(display-mode: standalone)').matches;
-                setIsStandalone(checkStandalone());
+                const standaloneStatus = checkStandalone();
+                setIsStandalone(standaloneStatus);
+
+                if (standaloneStatus) {
+                    setShowPWANotif(false);
+                    return; // Jika aplikasi telah terinstall, logic prompt dimatikan.
+                }
 
                 const handler = (e) => {
                     e.preventDefault();
                     setDeferredPrompt(e);
-                    if (!checkStandalone()) setShowPWANotif(true);
+                    setShowPWANotif(true);
                 };
                 window.addEventListener('beforeinstallprompt', handler);
 
-                if (isDeviceIOS && !checkStandalone()) {
+                if (isDeviceIOS) {
                     const timer = setTimeout(() => setShowPWANotif(true), 2500);
                     return () => { clearTimeout(timer); window.removeEventListener('beforeinstallprompt', handler); };
                 }
@@ -607,22 +444,24 @@
                 return () => window.removeEventListener('beforeinstallprompt', handler);
             }, []);
 
-            const handleInstallApp = async () => {
+            const handleInstallApp = async (e) => {
+                if(e) e.stopPropagation(); // Cegah event bubling ke atas yang bisa ditandai spam oleh Chrome
+                
                 if (isIOS) {
-                    alert('Untuk menginstal di iOS:\n1. Tap ikon Share (kotak dengan panah ke atas) di bawah layar browser.\n2. Scroll dan pilih "Add to Home Screen".');
-                    return;
-                }
-                
-                if (!deferredPrompt) {
-                    alert('Browser Anda sedang memblokir notifikasi (Anti-Spam Chrome).\n\nUntuk meng-install secara paksa:\nTekan menu (titik tiga) di pojok kanan atas browser, lalu pilih "Install App" atau "Tambahkan ke Layar Utama".');
-                    return;
-                }
-                
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
+                    alert('Untuk menginstal di iOS:\n1. Tap ikon Share (kotak panah ke atas) di bawah layar.\n2. Scroll ke bawah dan pilih "Add to Home Screen".');
                     setShowPWANotif(false);
+                    return;
+                }
+                
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        setShowPWANotif(false);
+                    }
                     setDeferredPrompt(null);
+                } else {
+                    alert('Browser Anda memblokir notifikasi (Anti-Spam).\n\nUntuk meng-install:\nTekan menu (titik tiga) di pojok kanan atas browser, lalu pilih "Install App" / "Tambahkan ke Layar Utama".');
                 }
             };
 
@@ -903,7 +742,6 @@
 
             const groupedExpenses = useMemo(() => {
                 const groups = {};
-                // Include 'debt_added' to show new debts in the list as well
                 const validTypes = activeTab === 'spending' ? ['expense'] : ['debt', 'debt_added'];
                 
                 expenses.filter(exp => validTypes.includes(exp.type)).forEach(exp => {
@@ -942,11 +780,8 @@
                     if (activeTab === 'spending') {
                         dailyTotal = dayExps.filter(e => e.type === 'expense').reduce((sum, exp) => sum + exp.amount, 0);
                     } else if (activeTab === 'debt') {
-                        // For calendar display on debt tab, let's represent payback as positive value for display simplicity
                         dailyTotal = dayExps.filter(e => e.type === 'debt').reduce((sum, exp) => sum + exp.amount, 0);
-                        // And debt_added
                         const added = dayExps.filter(e => e.type === 'debt_added').reduce((sum, exp) => sum + exp.amount, 0);
-                        // We will store both to display them independently
                         var dailyDebtAdded = added;
                     }
                     
@@ -1090,7 +925,6 @@
                     setUserProfile({...userProfile, debts: updatedDebts});
                     await handleUpdateProfile({ debts: updatedDebts });
                     
-                    // Add expense entry so it shows in history/calendar
                     const debtAddedExpense = {
                         amount: amount,
                         description: `Hutang Baru: ${newDebtName.trim()}`,
@@ -1113,7 +947,6 @@
                 }
             };
 
-            // Custom Theme Uploader with Image Extraction and Compression
             const handleImageUpload = (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -1125,7 +958,6 @@
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
                         
-                        // Limit size to max 800px to ensure it stays well within localStorage quota
                         const MAX_DIM = 800; 
                         let width = img.width;
                         let height = img.height;
@@ -1141,17 +973,15 @@
                         canvas.height = height;
                         ctx.drawImage(img, 0, 0, width, height);
                         
-                        // Extract base64 image (heavily compressed for local storage safety)
                         const wallpaperDataUrl = canvas.toDataURL('image/jpeg', 0.5);
                         
-                        // Extract dominant color & average luminance
                         const data = ctx.getImageData(0, 0, width, height).data;
                         let maxScore = 0;
-                        let bestR = 34, bestG = 197, bestB = 94; // fallback
+                        let bestR = 34, bestG = 197, bestB = 94; 
                         
                         let sumR = 0, sumG = 0, sumB = 0, count = 0;
 
-                        for (let i = 0; i < data.length; i += 40) { // Jump 10 pixels (4 channels * 10) for performance
+                        for (let i = 0; i < data.length; i += 40) { 
                             let r = data[i];
                             let g = data[i+1];
                             let b = data[i+2];
@@ -1179,9 +1009,7 @@
                         let avgG = count > 0 ? sumG / count : 255;
                         let avgB = count > 0 ? sumB / count : 255;
                         
-                        // Calculate luminance to decide dark/light text
                         let luminance = 0.299 * avgR + 0.587 * avgG + 0.114 * avgB;
-                        // If wallpaper is bright (luminance > 128), we use light mode (dark text).
                         let detectedTheme = luminance > 128 ? 'light' : 'dark';
                         
                         try {
@@ -1716,7 +1544,7 @@
                                                                 isScrolled ? 'max-h-0 opacity-0 mb-0' : 'max-h-20 opacity-100 mb-8'
                                                             }`}>
                                                                 <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center shadow-sm transition-colors ${
-                                                                isDangerBadge ? `bg-red-50/80 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50 animate-pulse ${isGlass ? 'shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'backdrop-blur-md'}` : `${uiStyle.cardSoft}`
+                                                                    isDangerBadge ? `bg-red-50/80 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50 animate-pulse ${isGlass ? 'shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'backdrop-blur-md'}` : `${uiStyle.cardSoft}`
                                                                 }`}>
                                                                     <span>Sisa {daysLeft} hari</span>
                                                                     <span className={`mx-2 ${isDangerBadge ? "text-red-300 dark:text-red-800" : "text-gray-300 dark:text-gray-500"}`}>•</span>
@@ -1729,7 +1557,7 @@
 
                                                             <div 
                                                                 className={`relative w-full border-[3px] ring-1 transition-all duration-500 ease-in-out ${
-                                                                percentage === 0 ? 'border-red-600 dark:border-red-500 animate-pulse bg-red-50 dark:bg-red-900/20 ring-red-200 dark:ring-red-900/50' : (isGlass ? 'border-white/50 dark:border-white/10 ring-white/20 dark:ring-white/5' : 'border-white dark:border-gray-900 ring-gray-200 dark:ring-gray-700')
+                                                                    percentage === 0 ? 'border-red-600 dark:border-red-500 animate-pulse bg-red-50 dark:bg-red-900/20 ring-red-200 dark:ring-red-900/50' : (isGlass ? 'border-white/50 dark:border-white/10 ring-white/20 dark:ring-white/5' : 'border-white dark:border-gray-900 ring-gray-200 dark:ring-gray-700')
                                                                 } ${isScrolled ? 'h-6 rounded-md' : 'h-14 rounded-xl'} ${isGlass ? 'bg-white/20 dark:bg-black/20' : 'bg-gray-200 dark:bg-gray-800'}`}
                                                                 style={{ boxShadow: getGlowStyle() }}
                                                             >
@@ -1742,7 +1570,7 @@
                                                                 </div>
 
                                                                 <div className={`absolute inset-0 flex items-center justify-start z-10 pointer-events-none transition-all duration-500 ${
-                                                                isScrolled ? 'px-2' : 'px-4'
+                                                                    isScrolled ? 'px-2' : 'px-4'
                                                                 }`}>
                                                                 <span className={`font-bold transition-all duration-500 ${
                                                                     percentage < 40 && percentage > 0 ? (isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-800 dark:text-gray-200') : percentage === 0 ? 'text-red-500' : 'text-white/90'
@@ -1754,7 +1582,7 @@
 
                                                             {appSettings.showRecap && yesterdayRecap && (
                                                                 <div className={`overflow-hidden transition-all duration-500 w-full ${
-                                                                isScrolled ? 'max-h-20 opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'
+                                                                    isScrolled ? 'max-h-20 opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'
                                                                 }`}>
                                                                     <div className={`p-2 rounded-lg text-[11px] font-bold flex items-center justify-between ${
                                                                         yesterdayRecap.overspent 
@@ -1799,7 +1627,7 @@
                                                                     isScrolled ? 'max-h-0 opacity-0 mb-0' : 'max-h-20 opacity-100 mb-8'
                                                                 }`}>
                                                                     <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center shadow-sm transition-colors ${
-                                                                    isDanger ? `bg-red-50/80 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50 animate-pulse ${isGlass ? 'shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'backdrop-blur-md'}` : `${uiStyle.cardSoft}`
+                                                                        isDanger ? `bg-red-50/80 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50 animate-pulse ${isGlass ? 'shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'backdrop-blur-md'}` : `${uiStyle.cardSoft}`
                                                                     }`}>
                                                                         <span className="truncate max-w-[220px]">{nearestBadgeText}</span>
                                                                     </div>
@@ -1810,7 +1638,7 @@
                                                                 
                                                                 <div 
                                                                     className={`relative w-full border-[3px] ring-1 transition-all duration-500 ease-in-out cursor-pointer ${
-                                                                    totalDebtPct === 0 ? 'border-green-600 dark:border-green-500 animate-pulse bg-green-50 dark:bg-green-900/20 ring-green-200 dark:ring-green-900/50' : (isGlass ? 'border-white/50 dark:border-white/10 ring-white/20 dark:ring-white/5' : 'border-white dark:border-gray-900 ring-gray-200 dark:ring-gray-700')
+                                                                        totalDebtPct === 0 ? 'border-green-600 dark:border-green-500 animate-pulse bg-green-50 dark:bg-green-900/20 ring-green-200 dark:ring-green-900/50' : (isGlass ? 'border-white/50 dark:border-white/10 ring-white/20 dark:ring-white/5' : 'border-white dark:border-gray-900 ring-gray-200 dark:ring-gray-700')
                                                                     } ${isScrolled ? 'h-6 rounded-md mb-1' : 'h-14 rounded-xl mb-3'} ${isGlass ? 'bg-white/20 dark:bg-black/20' : 'bg-gray-200 dark:bg-gray-800'}`}
                                                                     onClick={() => setIsDebtExpanded(!isDebtExpanded)}
                                                                 >
@@ -1821,7 +1649,7 @@
                                                                     </div>
 
                                                                     <div className={`absolute inset-0 flex items-center justify-between z-10 pointer-events-none transition-all duration-500 ${
-                                                                    isScrolled ? 'px-2' : 'px-4'
+                                                                        isScrolled ? 'px-2' : 'px-4'
                                                                     }`}>
                                                                         <span className={`font-bold transition-all duration-500 flex items-center ${
                                                                             totalDebtPct < 40 && totalDebtPct > 0 ? (isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-800 dark:text-gray-200') : totalDebtPct === 0 ? 'text-green-500' : 'text-white/90'
@@ -2173,7 +2001,7 @@
                             </div>
                         )}
 
-                        {/* SETTINGS / EDIT MODAL (Always solid colors, no glass) */}
+                        {/* SETTINGS / EDIT MODAL */}
                         {isSettingsOpen && (
                         <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-10 overflow-y-auto bg-black/40 dark:bg-black/60 backdrop-blur-sm pb-20">
                             
