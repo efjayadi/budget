@@ -522,6 +522,7 @@
             const [budget, setBudget] = useState(0);
             const [paycheckDate, setPaycheckDate] = useState('');
             const [expenses, setExpenses] = useState([]);
+            // Added debts array to userProfile
             const [userProfile, setUserProfile] = useState({ name: '', age: '', gender: '', promiseBudget: '', createdAt: '', trackedItems: ['spending'], defaultTab: 'spending', debts: [], quote: 'Aku adalah orang yang disiplin finansial', avatar: null });
 
             // --- UI States ---
@@ -534,6 +535,7 @@
             const [activeTab, setActiveTab] = useState('spending');
             
             // Debt-specific Modals & States
+            const [isDebtExpanded, setIsDebtExpanded] = useState(false);
             const [isAddDebtModalOpen, setIsAddDebtModalOpen] = useState(false);
             const [newDebtType, setNewDebtType] = useState('tagihan'); // 'tagihan' or 'cicilan'
             const [newDebtName, setNewDebtName] = useState('');
@@ -825,7 +827,7 @@
                 cardSoft: isGlass ? 'bg-white/20 dark:bg-black/30 border border-white/40 dark:border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)] text-gray-900 dark:text-gray-100' : 'bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200',
                 capsule: isGlass ? 'bg-white/30 dark:bg-black/40 border border-white/50 dark:border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.2),inset_0_1px_2px_rgba(255,255,255,0.5)]' : 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/80 dark:border-gray-700/80 shadow-[0_8px_30px_rgb(0,0,0,0.12)]',
                 modalFrosted: isGlass ? 'bg-white/20 dark:bg-black/40 backdrop-blur-2xl border border-white/50 dark:border-white/20 shadow-[0_16px_40px_rgba(0,0,0,0.3),inset_0_1px_2px_rgba(255,255,255,0.5)]' : 'bg-white dark:bg-[#171717] shadow-2xl',
-                input: isGlass ? 'bg-white/30 dark:bg-black/30 border border-white/50 dark:border-white/20 placeholder-gray-600 dark:placeholder-gray-400 focus:bg-white/40 dark:focus:bg-black/40 text-gray-900 dark:text-white shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]' : 'bg-gray-50 dark:bg-[#171717] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white',
+                input: isGlass ? 'bg-white/30 dark:bg-black/30 border border-white/50 dark:border-white/20 placeholder-gray-600 dark:placeholder-gray-400 focus:bg-white/40 dark:focus:bg-black/40 text-gray-900 dark:text-white shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]' : 'bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white',
                 divider: isGlass ? 'bg-white/40 dark:bg-white/20' : 'bg-gray-300 dark:bg-gray-600'
             };
 
@@ -1796,26 +1798,21 @@
                                                                 <div className={`overflow-hidden transition-all duration-500 flex justify-center items-center gap-2 ${
                                                                     isScrolled ? 'max-h-0 opacity-0 mb-0' : 'max-h-20 opacity-100 mb-8'
                                                                 }`}>
-                                                                    {nearestDeadline ? (
-                                                                        <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center shadow-sm transition-colors ${
-                                                                        isDanger ? `bg-red-50/80 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50 animate-pulse ${isGlass ? 'shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'backdrop-blur-md'}` : `${uiStyle.cardSoft}`
-                                                                        }`}>
-                                                                            <span className="truncate max-w-[220px]">{nearestBadgeText}</span>
-                                                                        </div>
-                                                                    ) : (
-                                                                        <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center shadow-sm transition-colors ${uiStyle.cardSoft}`}>
-                                                                            <span>Tidak ada deadline terdekat</span>
-                                                                        </div>
-                                                                    )}
+                                                                    <div className={`text-sm font-semibold px-4 py-1.5 rounded-full flex items-center shadow-sm transition-colors ${
+                                                                    isDanger ? `bg-red-50/80 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50 animate-pulse ${isGlass ? 'shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]' : 'backdrop-blur-md'}` : `${uiStyle.cardSoft}`
+                                                                    }`}>
+                                                                        <span className="truncate max-w-[220px]">{nearestBadgeText}</span>
+                                                                    </div>
                                                                     <button onClick={(e) => { e.stopPropagation(); setIsAddDebtModalOpen(true); }} className={`p-2 rounded-full hover:opacity-80 transition-colors shadow-sm shrink-0 ${uiStyle.cardSoft}`}>
                                                                         <Plus className="w-4 h-4" strokeWidth={3} />
                                                                     </button>
                                                                 </div>
                                                                 
                                                                 <div 
-                                                                    className={`relative w-full border-[3px] ring-1 transition-all duration-500 ease-in-out ${
+                                                                    className={`relative w-full border-[3px] ring-1 transition-all duration-500 ease-in-out cursor-pointer ${
                                                                     totalDebtPct === 0 ? 'border-green-600 dark:border-green-500 animate-pulse bg-green-50 dark:bg-green-900/20 ring-green-200 dark:ring-green-900/50' : (isGlass ? 'border-white/50 dark:border-white/10 ring-white/20 dark:ring-white/5' : 'border-white dark:border-gray-900 ring-gray-200 dark:ring-gray-700')
                                                                     } ${isScrolled ? 'h-6 rounded-md mb-1' : 'h-14 rounded-xl mb-3'} ${isGlass ? 'bg-white/20 dark:bg-black/20' : 'bg-gray-200 dark:bg-gray-800'}`}
+                                                                    onClick={() => setIsDebtExpanded(!isDebtExpanded)}
                                                                 >
                                                                     <div className={`absolute inset-0 overflow-hidden transition-all duration-500 ${isScrolled ? 'rounded-[4px]' : 'rounded-[9px]'}`}>
                                                                         <div className={`h-full transition-all relative z-0`} style={{ width: `${totalDebtPct}%`, backgroundColor: getProgressColor(totalDebtPct) }}>
@@ -1823,18 +1820,19 @@
                                                                         </div>
                                                                     </div>
 
-                                                                    <div className={`absolute inset-0 flex items-center justify-start z-10 pointer-events-none transition-all duration-500 ${
+                                                                    <div className={`absolute inset-0 flex items-center justify-between z-10 pointer-events-none transition-all duration-500 ${
                                                                     isScrolled ? 'px-2' : 'px-4'
                                                                     }`}>
-                                                                    <span className={`font-bold transition-all duration-500 flex items-center ${
-                                                                        totalDebtPct < 40 && totalDebtPct > 0 ? (isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-800 dark:text-gray-200') : totalDebtPct === 0 ? 'text-green-500' : 'text-white/90'
-                                                                    } ${isScrolled ? 'text-[10px]' : 'text-sm'}`}>
-                                                                        {totalDebtPct.toFixed(0)}% Sisa 
-                                                                    </span>
+                                                                        <span className={`font-bold transition-all duration-500 flex items-center ${
+                                                                            totalDebtPct < 40 && totalDebtPct > 0 ? (isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-800 dark:text-gray-200') : totalDebtPct === 0 ? 'text-green-500' : 'text-white/90'
+                                                                        } ${isScrolled ? 'text-[10px]' : 'text-sm'}`}>
+                                                                            {totalDebtPct.toFixed(0)}% Sisa 
+                                                                            {!isScrolled && <ChevronDown className={`w-4 h-4 ml-1 transition-transform ${isDebtExpanded ? 'rotate-180' : ''}`} />}
+                                                                        </span>
                                                                     </div>
                                                                 </div>
 
-                                                                <div className={`w-full overflow-hidden transition-all duration-300 opacity-100 ${!isScrolled ? 'mt-2' : 'mt-0'}`}>
+                                                                <div className={`w-full overflow-hidden transition-all duration-300 ${isDebtExpanded && !isScrolled ? 'max-h-[50vh] opacity-100 mt-2' : 'max-h-0 opacity-0 mt-0'}`}>
                                                                     <div className="overflow-y-auto max-h-[45vh] pb-2 space-y-1.5 px-1">
                                                                         {debtProgress.list.map(debt => {
                                                                             const pct = Math.max(0, Math.min(100, ((debt.amount - debt.paid) / debt.amount) * 100));
@@ -2127,43 +2125,6 @@
                                         <div className="flex gap-3 pt-2">
                                             <button type="button" onClick={() => setIsAddDebtModalOpen(false)} className={`flex-1 py-3 rounded-xl font-bold ${uiStyle.cardSoft}`}>Batal</button>
                                             <button type="submit" disabled={!newDebtAmount || !newDebtName.trim()} className="flex-1 py-3 bg-gray-900 hover:bg-black dark:bg-gray-100 dark:hover:bg-white dark:text-gray-900 theme-bg text-white rounded-xl font-bold disabled:opacity-50 shadow-md">Simpan</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* INCOME MODAL OVERLAY */}
-                        {isIncomeModalOpen && (
-                            <div className={`fixed inset-0 z-[110] flex items-center justify-center p-6 animate-in fade-in duration-200 ${isGlass ? 'bg-black/20 backdrop-blur-md' : 'bg-black/40 dark:bg-black/60'}`} onClick={() => setIsIncomeModalOpen(false)}>
-                                <div className={`w-full max-w-sm rounded-3xl overflow-hidden flex flex-col p-6 ${uiStyle.modalFrosted}`} onClick={e => e.stopPropagation()}>
-                                    <h3 className={`font-bold text-xl mb-4 text-center ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black' : 'text-gray-900 dark:text-white'}`}>Tambah Pemasukan</h3>
-                                    <form onSubmit={handleAddIncome} className="space-y-4">
-                                        <input
-                                            type="text"
-                                            value={incomeDescInput}
-                                            onChange={(e) => setIncomeDescInput(e.target.value)}
-                                            placeholder="Sumber Dana (mis. Bonus, Jual Barang)"
-                                            className={`w-full px-4 py-3 rounded-xl focus:border-green-500 outline-none text-[16px] text-gray-900 dark:text-white ${uiStyle.input}`}
-                                            required
-                                        />
-                                        <div className="relative">
-                                            <span className={`absolute left-4 top-1/2 -translate-y-1/2 font-bold ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-600' : 'text-gray-500 dark:text-gray-400'}`}>Rp</span>
-                                            <input
-                                                type="text"
-                                                value={incomeAmountInput}
-                                                onChange={(e) => {
-                                                    const rawValue = e.target.value.replace(/\D/g, '');
-                                                    setIncomeAmountInput(rawValue ? parseInt(rawValue).toLocaleString('id-ID') : '');
-                                                }}
-                                                placeholder="Jumlah Pemasukan"
-                                                className={`w-full pl-12 pr-4 py-3 rounded-xl focus:border-green-500 outline-none text-[16px] font-semibold text-gray-900 dark:text-white theme-text ${uiStyle.input}`}
-                                                required
-                                            />
-                                        </div>
-                                        <div className="flex gap-3 pt-2">
-                                            <button type="button" onClick={() => setIsIncomeModalOpen(false)} className={`flex-1 py-3 rounded-xl font-bold ${uiStyle.cardSoft}`}>Batal</button>
-                                            <button type="submit" disabled={!incomeAmountInput || !incomeDescInput.trim()} className="flex-1 py-3 bg-green-600 hover:bg-green-700 theme-bg text-white rounded-xl font-bold disabled:opacity-50 shadow-md">Tambah</button>
                                         </div>
                                     </form>
                                 </div>
@@ -2498,7 +2459,7 @@
                                     <p className="text-center text-gray-600 dark:text-gray-400 text-sm mb-6">Yakin ingin Log Out dari akun ini?</p>
                                     <div className="flex gap-3">
                                         <button type="button" onClick={() => setShowLogoutConfirm(false)} className="flex-1 py-3 rounded-xl font-bold bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700">Batal</button>
-                                        <button type="button" onClick={() => { setShowLogoutConfirm(false); handleLogout(); }} className="flex-1 py-3 bg-red-600 hover:bg-red-700 shadow-lg text-white rounded-xl font-bold transition-colors">Log Out</button>
+                                        <button type="button" onClick={() => { setShowLogoutConfirm(false); handleLogout(); }} className="flex-1 py-3 bg-red-600 hover:bg-red-700 shadow-lg text-white rounded-xl font-bold transition-colors">Keluar</button>
                                     </div>
                                 </div>
                             </div>
