@@ -2003,276 +2003,293 @@
 
                         {/* SETTINGS / EDIT MODAL */}
                         {isSettingsOpen && (
-                        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-10 overflow-y-auto bg-black/40 dark:bg-black/60 backdrop-blur-sm pb-20">
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/60 backdrop-blur-sm overflow-hidden" onClick={() => { setIsSettingsOpen(false); setIsEditMode(false); }}>
                             
-                            <div className="w-full max-w-sm flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-8 duration-300">
+                            <div className="w-full max-w-sm flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-8 duration-300 max-h-[90vh]" onClick={e => e.stopPropagation()}>
                                 
-                                <div className="flex justify-between items-center px-2">
-                                    <h2 className="text-2xl font-bold text-white drop-shadow-md">Pengaturan</h2>
+                                <div className="flex justify-between items-center px-2 shrink-0">
+                                    <h2 className="text-2xl font-bold text-white drop-shadow-md">{isEditMode ? 'Edit Data' : 'Pengaturan'}</h2>
                                     <button onClick={() => { setIsSettingsOpen(false); setIsEditMode(false); }} className="p-2 bg-white/20 rounded-full text-white hover:bg-white/30 transition-colors">
                                         <XIcon className="w-5 h-5" />
                                     </button>
                                 </div>
 
-                                {/* ID CARD MODULE */}
-                                <div className="bg-white dark:bg-[#171717] rounded-3xl p-5 shadow-2xl flex flex-col gap-4 border border-gray-100 dark:border-gray-800 relative">
-                                    <button 
-                                        onClick={() => setShowLogoutConfirm(true)}
-                                        className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors z-20"
-                                        title="Log Out"
-                                    >
-                                        <LogOutIcon className="w-5 h-5" />
-                                    </button>
-                                    <div className="flex items-center mt-2">
-                                        <div className="flex-1 pr-4 z-10">
-                                            <h3 className="font-bold text-gray-900 dark:text-white text-xl uppercase tracking-wide">
-                                                {userProfile.name}
-                                            </h3>
-                                            <p className="text-gray-600 dark:text-gray-400 text-sm font-semibold mb-2">
-                                                {userProfile.age} Tahun
-                                            </p>
-                                            <input 
-                                                type="text"
-                                                defaultValue={userProfile.quote}
-                                                onBlur={(e) => handleUpdateProfile({quote: e.target.value})}
-                                                className="w-full bg-transparent text-gray-500 dark:text-gray-500 text-[10px] font-medium italic leading-snug border-l-2 border-gray-300 dark:border-gray-700 pl-2 outline-none focus:border-blue-500"
-                                                placeholder="Tulis motomu..."
-                                            />
-                                        </div>
-                                        <label className="w-[60px] h-[80px] rounded-lg flex items-center justify-center text-4xl shadow-sm z-10 shrink-0 bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 cursor-pointer overflow-hidden relative group">
-                                            {userProfile.avatar ? (
-                                                <img src={userProfile.avatar} className="w-full h-full object-cover" />
-                                            ) : (
-                                                userProfile.gender === 'male' ? '👨' : '👩'
-                                            )}
-                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <CameraIcon className="w-5 h-5 text-white" />
-                                            </div>
-                                            <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
-                                        </label>
-                                    </div>
-                                </div>
-
-                                {/* INSTALL / UPDATE BUTTON */}
-                                <div className="w-full shrink-0 z-10">
-                                    {!isStandalone ? (
-                                        <button 
-                                            onClick={handleInstallApp}
-                                            className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-3xl font-bold shadow-lg hover:from-blue-700 hover:to-blue-600 transition-all"
-                                        >
-                                            <DownloadIcon className="w-5 h-5" /> Install Wang
-                                        </button>
-                                    ) : (
-                                        <button 
-                                            onClick={handleForceUpdate}
-                                            className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-3xl font-bold shadow-lg hover:from-green-700 hover:to-green-600 transition-all"
-                                        >
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> 
-                                            Check for Update
-                                        </button>
-                                    )}
-                                </div>
-
-                                {/* SETTINGS MODULES */}
-                                <div className="bg-white dark:bg-[#171717] rounded-3xl p-6 shadow-2xl flex flex-col gap-8 border border-gray-100 dark:border-gray-800">
+                                <div className="flex-1 overflow-y-auto no-scrollbar pb-4 space-y-6" style={{ WebkitOverflowScrolling: 'touch' }}>
                                     
-                                    {isEditMode ? (
-                                        <div className="space-y-3">
-                                            <button onClick={() => setIsEditMode(false)} className="text-blue-600 dark:text-blue-400 text-sm font-semibold mb-3 flex items-center hover:opacity-80"><ChevronLeft className="w-4 h-4 mr-1"/> Kembali ke Pengaturan</button>
-                                            {expenses.filter(e => editModeType === 'spending' ? e.type === 'expense' : (e.type === 'debt' || e.type === 'debt_added')).map(exp => (
-                                                <div key={exp.id} className="flex gap-2 items-center p-2.5 rounded-xl bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
-                                                    <input 
-                                                        defaultValue={exp.description} 
-                                                        onBlur={(e) => handleEditExpense(exp.id, 'description', e.target.value)} 
-                                                        className="flex-1 w-full rounded-lg px-3 py-2 text-[15px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none"
-                                                    />
-                                                    <input 
-                                                        defaultValue={exp.amount} 
-                                                        onBlur={(e) => handleEditExpense(exp.id, 'amount', parseInt(e.target.value.replace(/\D/g, '')) || 0)} 
-                                                        className="w-24 px-3 py-2 rounded-lg text-[15px] font-semibold text-right bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none"
-                                                    />
-                                                    <button onClick={() => handleDeleteExpense(exp.id)} className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors">
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                            {expenses.filter(e => editModeType === 'spending' ? e.type === 'expense' : (e.type === 'debt' || e.type === 'debt_added')).length === 0 && <p className="text-center text-gray-500 dark:text-gray-400 text-sm mt-8 italic">Data transaksi kosong</p>}
-                                        </div>
-                                    ) : (
+                                    {/* HIDE ID CARD & INSTALL BUTTON IF EDIT MODE TO MAXIMIZE SPACE ON IOS */}
+                                    {!isEditMode && (
                                         <>
-                                            <div className="space-y-3">
-                                                <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">Pengaturan Umum</h3>
-                                                
-                                                <div className="pt-2">
-                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Tema Aplikasi</span>
-                                                    <div className="grid grid-cols-4 gap-2">
-                                                        {[
-                                                            { id: 'system', label: 'Auto', icon: <SystemIcon className="w-5 h-5 mb-1.5" /> },
-                                                            { id: 'light', label: 'Light', icon: <Sun className="w-5 h-5 mb-1.5" /> },
-                                                            { id: 'dark', label: 'Dark', icon: <Moon className="w-5 h-5 mb-1.5" /> },
-                                                            { id: 'custom', label: 'Custom', icon: <ImageIcon className="w-5 h-5 mb-1.5" /> }
-                                                        ].map(t => (
-                                                            <button 
-                                                                key={t.id}
-                                                                onClick={() => setAppSettings({...appSettings, themeMode: t.id})}
-                                                                className={`flex flex-col items-center justify-center py-3 rounded-xl transition-all border ${appSettings.themeMode === t.id ? 'bg-blue-50 border-blue-200 text-blue-600 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-400 shadow-sm' : 'bg-gray-50 border-transparent text-gray-500 hover:bg-gray-100 dark:bg-[#262626] dark:text-gray-400 dark:hover:bg-[#404040]'}`}
-                                                            >
-                                                                {t.icon}
-                                                                <span className="text-[10px] font-bold uppercase tracking-wider">{t.label}</span>
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                                
-                                                {appSettings.themeMode === 'custom' && (
-                                                <div className="animate-in fade-in slide-in-from-top-2 pt-2">
-                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Wallpaper Custom</span>
-                                                    <label className={`flex items-center justify-center w-full py-3 border-2 border-dashed ${appSettings.customThemeImage ? 'border-green-400/50 bg-green-50 dark:bg-green-900/20 text-gray-800 dark:text-white' : 'border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#262626] text-gray-600 dark:text-gray-400'} rounded-xl cursor-pointer transition-colors`}>
-                                                        <ImageIcon className={`w-5 h-5 mr-2 ${appSettings.customThemeImage ? 'text-green-700 dark:text-green-400' : ''}`} />
-                                                        <span className={`text-sm font-medium ${appSettings.customThemeImage ? 'text-green-800 dark:text-green-300' : ''}`}>
-                                                            {appSettings.customThemeImage ? 'Wallpaper Aktif' : 'Upload Wallpaper'}
-                                                        </span>
-                                                        <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                                                    </label>
-                                                    {appSettings.customThemeImage && (
-                                                        <button onClick={() => setAppSettings({...appSettings, customTheme: null, customThemeImage: null, themeLuminance: null})} className="text-xs text-red-500 hover:text-red-600 mt-2 font-medium w-full text-center">Hapus Wallpaper</button>
-                                                    )}
-                                                </div>
-                                                )}
-
-                                                <div className="pt-2">
-                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Modul Pelacakan & Default Tab</span>
-                                                    <div className="grid grid-cols-2 gap-3 mt-2">
-                                                        {[
-                                                            {id: 'spending', label: 'Pengeluaran', icon: <TrendingDown className="w-5 h-5"/>}, 
-                                                            {id: 'debt', label: 'Hutang', icon: <Wallet className="w-5 h-5"/>}
-                                                        ].map(item => (
-                                                            <div 
-                                                                key={item.id} 
-                                                                className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all cursor-pointer ${userProfile.trackedItems?.includes(item.id) ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#262626] text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#404040]'}`} 
-                                                                onClick={() => {
-                                                                    let newItems = userProfile.trackedItems ? [...userProfile.trackedItems] : [];
-                                                                    if (newItems.includes(item.id)) newItems = newItems.filter(i => i !== item.id);
-                                                                    else newItems.push(item.id);
-                                                                    if (newItems.length === 0) newItems = ['spending'];
-                                                                    const newDefault = newItems.includes(userProfile.defaultTab) ? userProfile.defaultTab : newItems[0];
-                                                                    setUserProfile({...userProfile, trackedItems: newItems, defaultTab: newDefault});
-                                                                    handleUpdateProfile({trackedItems: newItems, defaultTab: newDefault});
-                                                                }}
-                                                            >
-                                                                {item.icon}
-                                                                <span className="text-[11px] font-bold mt-1.5">{item.label}</span>
-                                                                
-                                                                {userProfile.trackedItems?.includes(item.id) && (
-                                                                    <button 
-                                                                        onClick={(e) => { 
-                                                                            e.stopPropagation(); 
-                                                                            handleUpdateProfile({defaultTab: item.id}); 
-                                                                            setUserProfile(prev => ({...prev, defaultTab: item.id}));
-                                                                        }}
-                                                                        className={`absolute top-2 right-2 p-1.5 rounded-full transition-colors ${userProfile.defaultTab === item.id ? 'bg-blue-500 text-white shadow-sm' : 'bg-blue-100 dark:bg-blue-800 text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-700'}`}
-                                                                        title="Set as Default Tab"
-                                                                    >
-                                                                        <HomeIcon className="w-3 h-3" />
-                                                                    </button>
-                                                                )}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-
-                                                <div className="pt-2 space-y-2">
-                                                    <label className="flex items-center justify-between p-3 rounded-xl cursor-pointer bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
-                                                        <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Intro JeStudios</span>
+                                            {/* ID CARD MODULE */}
+                                            <div className="bg-white dark:bg-[#171717] rounded-3xl p-5 shadow-2xl flex flex-col gap-4 border border-gray-100 dark:border-gray-800 relative">
+                                                <button 
+                                                    onClick={() => setShowLogoutConfirm(true)}
+                                                    className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors z-20"
+                                                    title="Log Out"
+                                                >
+                                                    <LogOutIcon className="w-5 h-5" />
+                                                </button>
+                                                <div className="flex items-center mt-2">
+                                                    <div className="flex-1 pr-4 z-10">
+                                                        <h3 className="font-bold text-gray-900 dark:text-white text-xl uppercase tracking-wide">
+                                                            {userProfile.name}
+                                                        </h3>
+                                                        <p className="text-gray-600 dark:text-gray-400 text-sm font-semibold mb-2">
+                                                            {userProfile.age} Tahun
+                                                        </p>
                                                         <input 
-                                                            type="checkbox" 
-                                                            checked={appSettings.showSplash}
-                                                            onChange={(e) => setAppSettings({...appSettings, showSplash: e.target.checked})}
-                                                            className="w-5 h-5 rounded focus:ring-blue-500 text-blue-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                                            type="text"
+                                                            defaultValue={userProfile.quote}
+                                                            onBlur={(e) => handleUpdateProfile({quote: e.target.value})}
+                                                            className="w-full bg-transparent text-gray-500 dark:text-gray-500 text-[10px] font-medium italic leading-snug border-l-2 border-gray-300 dark:border-gray-700 pl-2 outline-none focus:border-blue-500"
+                                                            placeholder="Tulis motomu..."
                                                         />
-                                                    </label>
-
-                                                    <label className="flex items-center justify-between p-3 rounded-xl cursor-pointer bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
-                                                        <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Ikon Waktu</span>
-                                                        <input 
-                                                            type="checkbox" 
-                                                            checked={appSettings.showTime}
-                                                            onChange={(e) => setAppSettings({...appSettings, showTime: e.target.checked})}
-                                                            className="w-5 h-5 rounded focus:ring-blue-500 text-blue-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                                                        />
+                                                    </div>
+                                                    <label className="w-[60px] h-[80px] rounded-lg flex items-center justify-center text-4xl shadow-sm z-10 shrink-0 bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 cursor-pointer overflow-hidden relative group">
+                                                        {userProfile.avatar ? (
+                                                            <img src={userProfile.avatar} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            userProfile.gender === 'male' ? '👨' : '👩'
+                                                        )}
+                                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <CameraIcon className="w-5 h-5 text-white" />
+                                                        </div>
+                                                        <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
                                                     </label>
                                                 </div>
                                             </div>
 
-                                            <div className="space-y-3">
-                                                <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">Pengaturan Pengeluaran</h3>
-                                                
-                                                {userProfile.trackedItems?.includes('spending') && (
+                                            {/* INSTALL / UPDATE BUTTON */}
+                                            <div className="w-full shrink-0 z-10">
+                                                {!isStandalone ? (
                                                     <button 
-                                                        onClick={() => { setEditModeType('spending'); setIsEditMode(true); }}
-                                                        className="w-full flex items-center justify-center gap-2 py-3 mt-2 text-blue-600 dark:text-blue-400 rounded-xl font-semibold transition-colors bg-blue-50 hover:bg-blue-100 border border-blue-100 dark:bg-blue-900/30 dark:border-blue-800/50 dark:hover:bg-blue-900/50"
+                                                        onClick={handleInstallApp}
+                                                        className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-3xl font-bold shadow-lg hover:from-blue-700 hover:to-blue-600 transition-all"
                                                     >
-                                                        <Edit3 className="w-4 h-4" />
-                                                        <span className="text-sm">Edit Data Transaksi Pengeluaran</span>
-                                                    </button>
-                                                )}
-
-                                                <label className="flex flex-col p-3 rounded-xl bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 mt-2">
-                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Budget spending untuk 1 bulan (Rp)</span>
-                                                    <input 
-                                                        type="text"
-                                                        value={budget ? parseInt(budget).toLocaleString('id-ID') : ''}
-                                                        onChange={(e) => {
-                                                            const rawValue = e.target.value.replace(/\D/g, '');
-                                                            setBudget(rawValue ? parseInt(rawValue) : 0);
-                                                        }}
-                                                        onBlur={handleUpdateProfile}
-                                                        className="px-3 py-2 rounded-lg text-[16px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none"
-                                                    />
-                                                </label>
-
-                                                <label className="flex flex-col p-3 rounded-xl bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
-                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Budget Max Per-Hari (Rp)</span>
-                                                    <input 
-                                                        type="text"
-                                                        value={userProfile.promiseBudget ? parseInt(userProfile.promiseBudget).toLocaleString('id-ID') : ''}
-                                                        onChange={(e) => {
-                                                            const rawValue = e.target.value.replace(/\D/g, '');
-                                                            setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
-                                                        }}
-                                                        onBlur={handleUpdateProfile}
-                                                        className="px-3 py-2 rounded-lg text-[16px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none"
-                                                        placeholder="Contoh: 50000"
-                                                    />
-                                                </label>
-                                                
-                                                <label className="flex items-center justify-between p-3 rounded-xl cursor-pointer bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
-                                                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Teguran</span>
-                                                    <input 
-                                                        type="checkbox" 
-                                                        checked={appSettings.showRecap}
-                                                        onChange={(e) => setAppSettings({...appSettings, showRecap: e.target.checked})}
-                                                        className="w-5 h-5 rounded focus:ring-blue-500 text-blue-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                                                    />
-                                                </label>
-                                            </div>
-
-                                            <div className="space-y-3">
-                                                <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">Pengaturan Hutang</h3>
-                                                {userProfile.trackedItems?.includes('debt') ? (
-                                                    <button 
-                                                        onClick={() => { setEditModeType('debt'); setIsEditMode(true); }}
-                                                        className="w-full flex items-center justify-center gap-2 py-3 mt-2 text-orange-600 dark:text-orange-400 rounded-xl font-semibold transition-colors bg-orange-50 hover:bg-orange-100 border border-orange-100 dark:bg-orange-900/30 dark:border-orange-800/50 dark:hover:bg-orange-900/50"
-                                                    >
-                                                        <Edit3 className="w-4 h-4" />
-                                                        <span className="text-sm">Edit Data Transaksi Hutang</span>
+                                                        <DownloadIcon className="w-5 h-5" /> Install Wang
                                                     </button>
                                                 ) : (
-                                                    <p className="text-xs text-gray-500 dark:text-gray-400 italic px-2 pt-2">Belum ada pengaturan khusus.</p>
+                                                    <button 
+                                                        onClick={handleForceUpdate}
+                                                        className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-3xl font-bold shadow-lg hover:from-green-700 hover:to-green-600 transition-all"
+                                                    >
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> 
+                                                        Check for Update
+                                                    </button>
                                                 )}
                                             </div>
                                         </>
                                     )}
+
+                                    {/* SETTINGS MODULES */}
+                                    <div className={`bg-white dark:bg-[#171717] rounded-3xl p-6 shadow-2xl flex flex-col border border-gray-100 dark:border-gray-800 ${isEditMode ? 'min-h-[50vh]' : 'gap-8'}`}>
+                                        
+                                        {isEditMode ? (
+                                            <div className="flex flex-col h-full min-h-0">
+                                                <div className="shrink-0 mb-4 pb-3 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
+                                                    <button onClick={() => setIsEditMode(false)} className="text-blue-600 dark:text-blue-400 text-sm font-semibold flex items-center hover:opacity-80">
+                                                        <ChevronLeft className="w-4 h-4 mr-1"/> Kembali
+                                                    </button>
+                                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                                        {editModeType === 'spending' ? 'Pengeluaran' : 'Hutang'}
+                                                    </span>
+                                                </div>
+                                                <div className="flex flex-col space-y-3 pr-1 pb-4">
+                                                    {expenses.filter(e => editModeType === 'spending' ? e.type === 'expense' : (e.type === 'debt' || e.type === 'debt_added')).map(exp => (
+                                                        <div key={exp.id} className="flex gap-2 items-center p-2.5 rounded-xl bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 shrink-0">
+                                                            <input 
+                                                                defaultValue={exp.description} 
+                                                                onBlur={(e) => handleEditExpense(exp.id, 'description', e.target.value)} 
+                                                                className="flex-1 min-w-0 rounded-lg px-3 py-2 text-[15px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                                                            />
+                                                            <input 
+                                                                defaultValue={exp.amount} 
+                                                                onBlur={(e) => handleEditExpense(exp.id, 'amount', parseInt(e.target.value.replace(/\D/g, '')) || 0)} 
+                                                                className="w-24 shrink-0 px-3 py-2 rounded-lg text-[15px] font-semibold text-right bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                                                            />
+                                                            <button onClick={() => handleDeleteExpense(exp.id)} className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors shrink-0">
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                    {expenses.filter(e => editModeType === 'spending' ? e.type === 'expense' : (e.type === 'debt' || e.type === 'debt_added')).length === 0 && <p className="text-center text-gray-500 dark:text-gray-400 text-sm mt-8 italic">Data transaksi kosong</p>}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <div className="space-y-3">
+                                                    <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">Pengaturan Umum</h3>
+                                                    
+                                                    <div className="pt-2">
+                                                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Tema Aplikasi</span>
+                                                        <div className="grid grid-cols-4 gap-2">
+                                                            {[
+                                                                { id: 'system', label: 'Auto', icon: <SystemIcon className="w-5 h-5 mb-1.5" /> },
+                                                                { id: 'light', label: 'Light', icon: <Sun className="w-5 h-5 mb-1.5" /> },
+                                                                { id: 'dark', label: 'Dark', icon: <Moon className="w-5 h-5 mb-1.5" /> },
+                                                                { id: 'custom', label: 'Custom', icon: <ImageIcon className="w-5 h-5 mb-1.5" /> }
+                                                            ].map(t => (
+                                                                <button 
+                                                                    key={t.id}
+                                                                    onClick={() => setAppSettings({...appSettings, themeMode: t.id})}
+                                                                    className={`flex flex-col items-center justify-center py-3 rounded-xl transition-all border ${appSettings.themeMode === t.id ? 'bg-blue-50 border-blue-200 text-blue-600 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-400 shadow-sm' : 'bg-gray-50 border-transparent text-gray-500 hover:bg-gray-100 dark:bg-[#262626] dark:text-gray-400 dark:hover:bg-[#404040]'}`}
+                                                                >
+                                                                    {t.icon}
+                                                                    <span className="text-[10px] font-bold uppercase tracking-wider">{t.label}</span>
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {appSettings.themeMode === 'custom' && (
+                                                    <div className="animate-in fade-in slide-in-from-top-2 pt-2">
+                                                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Wallpaper Custom</span>
+                                                        <label className={`flex items-center justify-center w-full py-3 border-2 border-dashed ${appSettings.customThemeImage ? 'border-green-400/50 bg-green-50 dark:bg-green-900/20 text-gray-800 dark:text-white' : 'border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#262626] text-gray-600 dark:text-gray-400'} rounded-xl cursor-pointer transition-colors`}>
+                                                            <ImageIcon className={`w-5 h-5 mr-2 ${appSettings.customThemeImage ? 'text-green-700 dark:text-green-400' : ''}`} />
+                                                            <span className={`text-sm font-medium ${appSettings.customThemeImage ? 'text-green-800 dark:text-green-300' : ''}`}>
+                                                                {appSettings.customThemeImage ? 'Wallpaper Aktif' : 'Upload Wallpaper'}
+                                                            </span>
+                                                            <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                                                        </label>
+                                                        {appSettings.customThemeImage && (
+                                                            <button onClick={() => setAppSettings({...appSettings, customTheme: null, customThemeImage: null, themeLuminance: null})} className="text-xs text-red-500 hover:text-red-600 mt-2 font-medium w-full text-center">Hapus Wallpaper</button>
+                                                        )}
+                                                    </div>
+                                                    )}
+
+                                                    <div className="pt-2">
+                                                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Modul Pelacakan & Default Tab</span>
+                                                        <div className="grid grid-cols-2 gap-3 mt-2">
+                                                            {[
+                                                                {id: 'spending', label: 'Pengeluaran', icon: <TrendingDown className="w-5 h-5"/>}, 
+                                                                {id: 'debt', label: 'Hutang', icon: <Wallet className="w-5 h-5"/>}
+                                                            ].map(item => (
+                                                                <div 
+                                                                    key={item.id} 
+                                                                    className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all cursor-pointer ${userProfile.trackedItems?.includes(item.id) ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#262626] text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#404040]'}`} 
+                                                                    onClick={() => {
+                                                                        let newItems = userProfile.trackedItems ? [...userProfile.trackedItems] : [];
+                                                                        if (newItems.includes(item.id)) newItems = newItems.filter(i => i !== item.id);
+                                                                        else newItems.push(item.id);
+                                                                        if (newItems.length === 0) newItems = ['spending'];
+                                                                        const newDefault = newItems.includes(userProfile.defaultTab) ? userProfile.defaultTab : newItems[0];
+                                                                        setUserProfile({...userProfile, trackedItems: newItems, defaultTab: newDefault});
+                                                                        handleUpdateProfile({trackedItems: newItems, defaultTab: newDefault});
+                                                                    }}
+                                                                >
+                                                                    {item.icon}
+                                                                    <span className="text-[11px] font-bold mt-1.5">{item.label}</span>
+                                                                    
+                                                                    {userProfile.trackedItems?.includes(item.id) && (
+                                                                        <button 
+                                                                            onClick={(e) => { 
+                                                                                e.stopPropagation(); 
+                                                                                handleUpdateProfile({defaultTab: item.id}); 
+                                                                                setUserProfile(prev => ({...prev, defaultTab: item.id}));
+                                                                            }}
+                                                                            className={`absolute top-2 right-2 p-1.5 rounded-full transition-colors ${userProfile.defaultTab === item.id ? 'bg-blue-500 text-white shadow-sm' : 'bg-blue-100 dark:bg-blue-800 text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-700'}`}
+                                                                            title="Set as Default Tab"
+                                                                        >
+                                                                            <HomeIcon className="w-3 h-3" />
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="pt-2 space-y-2">
+                                                        <label className="flex items-center justify-between p-3 rounded-xl cursor-pointer bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
+                                                            <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Intro JeStudios</span>
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={appSettings.showSplash}
+                                                                onChange={(e) => setAppSettings({...appSettings, showSplash: e.target.checked})}
+                                                                className="w-5 h-5 rounded focus:ring-blue-500 text-blue-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                                            />
+                                                        </label>
+
+                                                        <label className="flex items-center justify-between p-3 rounded-xl cursor-pointer bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
+                                                            <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Ikon Waktu</span>
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={appSettings.showTime}
+                                                                onChange={(e) => setAppSettings({...appSettings, showTime: e.target.checked})}
+                                                                className="w-5 h-5 rounded focus:ring-blue-500 text-blue-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                                            />
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-3">
+                                                    <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">Pengaturan Pengeluaran</h3>
+                                                    
+                                                    {userProfile.trackedItems?.includes('spending') && (
+                                                        <button 
+                                                            onClick={() => { setEditModeType('spending'); setIsEditMode(true); }}
+                                                            className="w-full flex items-center justify-center gap-2 py-3 mt-2 text-blue-600 dark:text-blue-400 rounded-xl font-semibold transition-colors bg-blue-50 hover:bg-blue-100 border border-blue-100 dark:bg-blue-900/30 dark:border-blue-800/50 dark:hover:bg-blue-900/50"
+                                                        >
+                                                            <Edit3 className="w-4 h-4" />
+                                                            <span className="text-sm">Edit Data Transaksi Pengeluaran</span>
+                                                        </button>
+                                                    )}
+
+                                                    <label className="flex flex-col p-3 rounded-xl bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 mt-2">
+                                                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Budget spending untuk 1 bulan (Rp)</span>
+                                                        <input 
+                                                            type="text"
+                                                            value={budget ? parseInt(budget).toLocaleString('id-ID') : ''}
+                                                            onChange={(e) => {
+                                                                const rawValue = e.target.value.replace(/\D/g, '');
+                                                                setBudget(rawValue ? parseInt(rawValue) : 0);
+                                                            }}
+                                                            onBlur={handleUpdateProfile}
+                                                            className="px-3 py-2 rounded-lg text-[16px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none"
+                                                        />
+                                                    </label>
+
+                                                    <label className="flex flex-col p-3 rounded-xl bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
+                                                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Budget Max Per-Hari (Rp)</span>
+                                                        <input 
+                                                            type="text"
+                                                            value={userProfile.promiseBudget ? parseInt(userProfile.promiseBudget).toLocaleString('id-ID') : ''}
+                                                            onChange={(e) => {
+                                                                const rawValue = e.target.value.replace(/\D/g, '');
+                                                                setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
+                                                            }}
+                                                            onBlur={handleUpdateProfile}
+                                                            className="px-3 py-2 rounded-lg text-[16px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none"
+                                                            placeholder="Contoh: 50000"
+                                                        />
+                                                    </label>
+                                                    
+                                                    <label className="flex items-center justify-between p-3 rounded-xl cursor-pointer bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700">
+                                                        <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Teguran</span>
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={appSettings.showRecap}
+                                                            onChange={(e) => setAppSettings({...appSettings, showRecap: e.target.checked})}
+                                                            className="w-5 h-5 rounded focus:ring-blue-500 text-blue-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                                        />
+                                                    </label>
+                                                </div>
+
+                                                <div className="space-y-3">
+                                                    <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">Pengaturan Hutang</h3>
+                                                    {userProfile.trackedItems?.includes('debt') ? (
+                                                        <button 
+                                                            onClick={() => { setEditModeType('debt'); setIsEditMode(true); }}
+                                                            className="w-full flex items-center justify-center gap-2 py-3 mt-2 text-orange-600 dark:text-orange-400 rounded-xl font-semibold transition-colors bg-orange-50 hover:bg-orange-100 border border-orange-100 dark:bg-orange-900/30 dark:border-orange-800/50 dark:hover:bg-orange-900/50"
+                                                        >
+                                                            <Edit3 className="w-4 h-4" />
+                                                            <span className="text-sm">Edit Data Transaksi Hutang</span>
+                                                        </button>
+                                                    ) : (
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400 italic px-2 pt-2">Belum ada pengaturan khusus.</p>
+                                                    )}
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
