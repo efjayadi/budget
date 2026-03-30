@@ -404,6 +404,7 @@
             const [selectedDateReceipt, setSelectedDateReceipt] = useState(null);
             const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
             const [showPastInputWarning, setShowPastInputWarning] = useState(false);
+            const [showSecondPastInputWarning, setShowSecondPastInputWarning] = useState(false);
             const [customExpenseDate, setCustomExpenseDate] = useState('');
             
             useEffect(() => {
@@ -1556,7 +1557,7 @@
                                                                 isScrolled ? 'text-xs mt-1 mr-1' : 'text-xl mt-3 mr-1'
                                                                 }`}>Rp</span>
                                                                 <span className={`font-bold tracking-tight leading-none transition-all duration-500 ${
-                                                                isScrolled ? 'text-3xl' : 'text-[5rem]'
+                                                                isScrolled ? 'text-3xl' : 'text-[clamp(2.2rem,11vw,4.5rem)]'
                                                                 }`}>
                                                                 <AnimatedNumber value={remaining} formatFn={formatNumber} />
                                                                 </span>
@@ -1640,7 +1641,7 @@
                                                                 </span>
                                                                 <div className={`flex items-start justify-center ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-900' : 'text-gray-900 dark:text-white'} transition-all duration-500 ${isScrolled ? 'mb-0' : 'mb-6'}`}>
                                                                     <span className={`font-medium transition-all duration-500 ${isScrolled ? 'text-xs mt-1 mr-1' : 'text-xl mt-3 mr-1'}`}>Rp</span>
-                                                                    <span className={`font-bold tracking-tight leading-none transition-all duration-500 ${isScrolled ? 'text-3xl' : 'text-[5rem]'}`}>
+                                                                    <span className={`font-bold tracking-tight leading-none transition-all duration-500 ${isScrolled ? 'text-3xl' : 'text-[clamp(2.2rem,11vw,4.5rem)]'}`}>
                                                                         <AnimatedNumber value={debtProgress.remaining} formatFn={formatNumber} />
                                                                     </span>
                                                                 </div>
@@ -2329,9 +2330,32 @@
                                     <div className="flex gap-3">
                                         <button type="button" onClick={() => setShowPastInputWarning(false)} className="flex-1 py-3 rounded-xl font-bold bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">Batal</button>
                                         <button type="button" onClick={() => { 
-                                            setAppSettings({...appSettings, allowPastInput: true}); 
                                             setShowPastInputWarning(false); 
+                                            setShowSecondPastInputWarning(true); 
                                         }} className="flex-1 py-3 bg-yellow-500 hover:bg-yellow-600 shadow-lg text-gray-900 rounded-xl font-bold transition-colors">Aku Janji</button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* SECOND PAST INPUT WARNING MODAL (SILLY/SOFT) */}
+                        {showSecondPastInputWarning && (
+                            <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 animate-in zoom-in-95 duration-200 drop-shadow-2xl bg-black/60 dark:bg-black/80 backdrop-blur-sm" onClick={() => setShowSecondPastInputWarning(false)}>
+                                <div className="w-full max-w-sm rounded-3xl overflow-hidden flex flex-col p-6 bg-white dark:bg-[#171717] shadow-2xl" onClick={e => e.stopPropagation()}>
+                                    <div className="mx-auto w-16 h-16 bg-orange-100 dark:bg-orange-900/40 rounded-full flex items-center justify-center mb-4 border-4 border-white dark:border-[#171717] shadow-sm">
+                                        <span className="text-3xl animate-bounce">🤨</span>
+                                    </div>
+                                    <h3 className="font-black text-gray-900 dark:text-white text-2xl mb-2 text-center uppercase tracking-wider">Apa Benul??</h3>
+                                    <p className="text-center text-gray-600 dark:text-gray-400 text-sm mb-6 leading-relaxed">
+                                        Nanti kalau bonnya numpuk terus males nyatet<br/><br/>
+                                        <span className="font-bold text-gray-800 dark:text-gray-200">Beneran janji rajin nyatet kan?</span>
+                                    </p>
+                                    <div className="flex gap-3">
+                                        <button type="button" onClick={() => setShowSecondPastInputWarning(false)} className="flex-1 py-3 rounded-xl font-bold bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">Gajadi deh</button>
+                                        <button type="button" onClick={() => { 
+                                            setAppSettings({...appSettings, allowPastInput: true}); 
+                                            setShowSecondPastInputWarning(false); 
+                                        }} className="flex-1 py-3 bg-orange-500 hover:bg-orange-600 shadow-lg text-white rounded-xl font-bold transition-all active:scale-95">Baiik baik</button>
                                     </div>
                                 </div>
                             </div>
