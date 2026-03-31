@@ -1669,7 +1669,10 @@
                                                                     }`}>
                                                                         <span className="truncate max-w-[220px]">{nearestBadgeText}</span>
                                                                     </div>
-                                                                    <button onClick={(e) => { e.stopPropagation(); setIsAddDebtModalOpen(true); }} className={`p-2 rounded-full hover:opacity-80 transition-colors shadow-sm shrink-0 ${uiStyle.cardSoft}`}>
+                                                                    <button onClick={(e) => { e.stopPropagation(); setEditModeType('debt'); setIsEditMode(true); setIsSettingsOpen(true); }} className={`p-2 rounded-full hover:opacity-80 transition-colors shadow-sm shrink-0 ${uiStyle.cardSoft}`} title="Edit Data Hutang">
+                                                                        <Edit3 className="w-4 h-4" />
+                                                                    </button>
+                                                                    <button onClick={(e) => { e.stopPropagation(); setIsAddDebtModalOpen(true); }} className={`p-2 rounded-full hover:opacity-80 transition-colors shadow-sm shrink-0 ${uiStyle.cardSoft}`} title="Tambah Hutang Baru">
                                                                         <Plus className="w-4 h-4" strokeWidth={3} />
                                                                     </button>
                                                                 </div>
