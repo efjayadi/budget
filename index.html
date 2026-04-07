@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Budget Tracker</title>
+    <title>Budget Tracker Offline</title>
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json">
@@ -33,17 +33,8 @@
           extend: {
             colors: {
               gray: {
-                50: '#fafafa',
-                100: '#f5f5f5',
-                200: '#e5e5e5',
-                300: '#d4d4d4',
-                400: '#a3a3a3',
-                500: '#737373',
-                600: '#525252',
-                700: '#404040',
-                800: '#262626',
-                900: '#171717',
-                950: '#0a0a0a',
+                50: '#fafafa', 100: '#f5f5f5', 200: '#e5e5e5', 300: '#d4d4d4', 400: '#a3a3a3',
+                500: '#737373', 600: '#525252', 700: '#404040', 800: '#262626', 900: '#171717', 950: '#0a0a0a',
               }
             },
             keyframes: {
@@ -61,45 +52,29 @@
     </script>
     
     <style>
-        /* Mengunci layar agar tidak bounce oleh Safari/Chrome */
         html, body {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            overflow: hidden;
-            width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            overflow: hidden; width: 100%; height: 100%;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f9fafb;
-            touch-action: pan-x pan-y;
-            overscroll-behavior-y: none;
-            margin: 0;
-            padding: 0;
+            background-color: #f9fafb; touch-action: pan-x pan-y;
+            overscroll-behavior-y: none; margin: 0; padding: 0;
             transition: background-color 0.3s ease;
         }
 
-        .dark body {
-            background-color: #0a0a0a; /* neutral-950 */
-        }
-
-        #root {
-            width: 100%; height: 100%;
-        }
+        .dark body { background-color: #0a0a0a; }
+        #root { width: 100%; height: 100%; }
 
         @keyframes breathe {
             0%, 100% { opacity: 0; }
             50% { opacity: 0.25; }
         }
-        .animate-breathe {
-            animation: breathe 3s ease-in-out infinite;
-        }
+        .animate-breathe { animation: breathe 3s ease-in-out infinite; }
         
-        /* Animasi iOS Dropdown PWA */
         @keyframes slideDownNotif {
             from { transform: translateY(-150%); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-        .animate-slide-down-notif {
-            animation: slideDownNotif 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
+        .animate-slide-down-notif { animation: slideDownNotif 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         .pb-safe { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
         .bottom-safe-capsule { bottom: max(24px, env(safe-area-inset-bottom, 24px)); }
@@ -115,7 +90,7 @@
                     mask: var(--mask);
         }
 
-        /* Splash Screen Animation Styles */
+        /* Splash Screen Base Variables */
         @import url("https://fonts.googleapis.com/css2?family=Heebo:wght@900&display=swap");
         :root {
             --splash-duration: 4s;
@@ -154,8 +129,8 @@
 
     <script type="text/babel" data-type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, getDocs, collection, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const { useState, useEffect, useMemo, useRef } = React;
 
@@ -183,7 +158,6 @@
         const CalendarIcon = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
         const Trash2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>;
         const TrendingDown = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>;
-        const TrendingUp = ({ className, strokeWidth }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth || "2"} strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>;
         const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>;
         const Sunrise = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 2v8M4.93 10.93l1.41 1.41M2 18h2M20 18h2M19.07 10.93l-1.41 1.41M22 22H2M8 6l4-4 4 4M16 18a4 4 0 0 0-8 0"/></svg>;
         const Sunset = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 10v12M4.93 10.93l1.41 1.41M2 18h2M20 18h2M19.07 10.93l-1.41 1.41M22 22H2M16 5l-4-4-4 4M16 18a4 4 0 0 0-8 0"/></svg>;
@@ -237,10 +211,8 @@
                 if (window.Splitting && titleRef.current) {
                     window.Splitting({ target: titleRef.current, by: 'chars' });
                 }
-
                 const fadeTimer = setTimeout(() => setIsFading(true), 4000); 
                 const removeTimer = setTimeout(() => onComplete(), 4500); 
-
                 return () => {
                     clearTimeout(fadeTimer);
                     clearTimeout(removeTimer);
@@ -250,15 +222,8 @@
             return (
                 <div 
                     className="splash-wrapper" 
-                    onClick={() => {
-                        setIsFading(true);
-                        setTimeout(onComplete, 500);
-                    }}
-                    style={{ 
-                        opacity: isFading ? 0 : 1, 
-                        transition: 'opacity 0.5s ease-in-out',
-                        cursor: 'pointer'
-                    }}
+                    onClick={() => { setIsFading(true); setTimeout(onComplete, 500); }}
+                    style={{ opacity: isFading ? 0 : 1, transition: 'opacity 0.5s ease-in-out', cursor: 'pointer' }}
                 >
                     <div className="splash-container">
                         <h1 className="splash-title" ref={titleRef}>JeStudios</h1>
@@ -286,7 +251,7 @@
                 let end = value;
                 if (start === end) return;
 
-                const duration = 2500; 
+                const duration = 1500; 
                 let startTime = null;
                 let animationFrame;
 
@@ -313,7 +278,27 @@
             return <span>{formatFn(Math.round(displayValue))}</span>;
         };
 
+        // Utility: UUID Generator
+        const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
+
         const App = () => {
+            // --- OFFLINE-FIRST LOCAL STATE ---
+            const [userProfile, setUserProfile] = useState(() => JSON.parse(localStorage.getItem('user_profile')) || null);
+            const [expenses, setExpensesState] = useState(() => JSON.parse(localStorage.getItem('local_expenses')) || []);
+            
+            // Core App States
+            const [appState, setAppState] = useState(userProfile ? 'app' : 'setup'); // 'setup' | 'app'
+            const [setupStep, setSetupStep] = useState(1);
+            
+            // Temporary setup states (until committed to userProfile)
+            const [setupProfile, setSetupProfile] = useState({ name: '', age: '', gender: '', promiseBudget: '', trackedItems: ['spending'], defaultTab: 'spending', debts: [], quote: 'Aku adalah orang yang disiplin finansial', avatar: null });
+            const [setupBudget, setSetupBudget] = useState(0);
+            const [setupPaycheckDate, setSetupPaycheckDate] = useState('');
+
+            // Safely retrieve persistent states from userProfile
+            const budget = userProfile?.budget || 0;
+            const paycheckDate = userProfile?.paycheckDate || 1;
+
             const [appSettings, setAppSettings] = useState(() => {
                 const saved = localStorage.getItem('app_settings');
                 const parsed = saved ? JSON.parse(saved) : { showTime: false, showRecap: true, showSplash: true, themeMode: 'system', customTheme: null, customThemeImage: null, themeLuminance: null };
@@ -321,6 +306,7 @@
                 if (!parsed.themeMode) parsed.themeMode = 'system';
                 return parsed;
             });
+            
             const [isSplashVisible, setIsSplashVisible] = useState(appSettings.showSplash);
 
             // --- Theme Enforcement Logic ---
@@ -354,19 +340,173 @@
                 return () => mediaQuery.removeEventListener('change', handleChange);
             }, [appSettings.themeMode, appSettings.customThemeImage, appSettings.themeLuminance]);
 
-            // --- Cloud States ---
+            // --- Firebase Auth & Sync ---
             const [firebaseUser, setFirebaseUser] = useState(null);
             const [uid, setUid] = useState(''); 
-            const [loginStep, setLoginStep] = useState('auth'); 
 
-            // --- Persistent States ---
-            const [budget, setBudget] = useState(0);
-            const [paycheckDate, setPaycheckDate] = useState('');
-            const [expenses, setExpenses] = useState([]);
-            const [userProfile, setUserProfile] = useState({ name: '', age: '', gender: '', promiseBudget: '', createdAt: '', trackedItems: ['spending'], defaultTab: 'spending', debts: [], quote: 'Aku adalah orang yang disiplin finansial', avatar: null });
+            // Initialize Background Auth
+            useEffect(() => {
+                if (!auth) return;
+                
+                const initAuth = async () => {
+                    try {
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    } catch (e) {
+                        console.log("Offline mode. Auth deferred.");
+                    }
+                };
+                initAuth();
+
+                const unsubscribe = onAuthStateChanged(auth, async (user) => {
+                    setFirebaseUser(user);
+                    if (user) {
+                        setUid(user.uid);
+                        await performCloudSync(user);
+                    } else {
+                        setUid('');
+                    }
+                });
+                return () => unsubscribe();
+            }, []);
+
+            // Real-time Cloud Sync Listener
+            useEffect(() => {
+                if (!firebaseUser || !uid || !db || appState !== 'app') return;
+
+                // Sync Expenses Down
+                const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid);
+                const unsubExps = onSnapshot(expensesRef, (snap) => {
+                    const cloudExps = [];
+                    snap.forEach(doc => cloudExps.push({ id: doc.id, ...doc.data() }));
+
+                    setExpensesState(prevLocal => {
+                        if (cloudExps.length === prevLocal.length && JSON.stringify(cloudExps) === JSON.stringify(prevLocal)) return prevLocal;
+                        const merged = [...cloudExps].sort((a,b) => new Date(b.date) - new Date(a.date));
+                        localStorage.setItem('local_expenses', JSON.stringify(merged));
+                        return merged;
+                    });
+                }, (err) => console.error("Snapshot error:", err));
+
+                // Sync Profile Down
+                const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', uid);
+                const unsubProfile = onSnapshot(profileRef, (snap) => {
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        setUserProfile(prev => {
+                            if (JSON.stringify(prev) === JSON.stringify(data)) return prev;
+                            localStorage.setItem('user_profile', JSON.stringify(data));
+                            return data;
+                        });
+                    }
+                }, (err) => console.error(err));
+
+                return () => { unsubExps(); unsubProfile(); };
+            }, [firebaseUser, uid, appState]);
+
+            // Two-way initial merge sync function
+            const performCloudSync = async (user) => {
+                if (!db) return;
+                try {
+                    const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', user.uid);
+                    const profileSnap = await getDoc(profileRef);
+
+                    let localProfile = JSON.parse(localStorage.getItem('user_profile'));
+
+                    if (profileSnap.exists()) {
+                        const cloudData = profileSnap.data();
+                        localProfile = { ...localProfile, ...cloudData };
+                        setUserProfile(localProfile);
+                        localStorage.setItem('user_profile', JSON.stringify(localProfile));
+                        
+                        // Automatically bring user to app if they recovered profile
+                        if (appState === 'setup') setAppState('app');
+                    } else if (localProfile) {
+                        // Push local profile to new cloud account
+                        await setDoc(profileRef, localProfile);
+                    }
+
+                    const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + user.uid);
+                    const querySnapshot = await getDocs(expensesRef);
+                    const cloudExps = [];
+                    querySnapshot.forEach(doc => cloudExps.push({ id: doc.id, ...doc.data() }));
+
+                    const localExps = JSON.parse(localStorage.getItem('local_expenses')) || [];
+
+                    const mergedExpsMap = new Map();
+                    localExps.forEach(e => mergedExpsMap.set(e.id, e));
+                    cloudExps.forEach(e => mergedExpsMap.set(e.id, e));
+
+                    const finalExps = Array.from(mergedExpsMap.values()).sort((a,b) => new Date(b.date) - new Date(a.date));
+
+                    setExpensesState(finalExps);
+                    localStorage.setItem('local_expenses', JSON.stringify(finalExps));
+
+                    // Upload missing local exps to cloud
+                    const cloudIds = new Set(cloudExps.map(e => e.id));
+                    const missingInCloud = finalExps.filter(e => !cloudIds.has(e.id));
+                    for (const exp of missingInCloud) {
+                        const ref = doc(db, 'artifacts', appId, 'public', 'data', 'expenses_' + user.uid, exp.id);
+                        await setDoc(ref, exp).catch(console.error);
+                    }
+
+                } catch (e) {
+                    console.error("Sync Error:", e);
+                }
+            };
+
+            // Custom Local + Cloud State Mutator
+            const saveExpense = async (expData) => {
+                const id = expData.id || generateId();
+                const exp = { ...expData, id };
+
+                const updatedExps = [exp, ...expenses].sort((a,b) => new Date(b.date) - new Date(a.date));
+                setExpensesState(updatedExps);
+                localStorage.setItem('local_expenses', JSON.stringify(updatedExps));
+
+                if (firebaseUser && db && uid) {
+                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid, exp.id);
+                    setDoc(ref, exp).catch(console.error);
+                }
+            };
+
+            const updateExpense = async (id, field, value) => {
+                const updatedExps = expenses.map(e => e.id === id ? { ...e, [field]: value } : e);
+                setExpensesState(updatedExps);
+                localStorage.setItem('local_expenses', JSON.stringify(updatedExps));
+
+                if (firebaseUser && db && uid) {
+                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid, id);
+                    updateDoc(ref, { [field]: value }).catch(console.error);
+                }
+            };
+
+            const removeExpense = async (id) => {
+                const updatedExps = expenses.filter(e => e.id !== id);
+                setExpensesState(updatedExps);
+                localStorage.setItem('local_expenses', JSON.stringify(updatedExps));
+
+                if (firebaseUser && db && uid) {
+                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid, id);
+                    deleteDoc(ref).catch(console.error);
+                }
+            };
+
+            const handleUpdateProfile = (overrides = {}) => {
+                const updated = { ...userProfile, ...overrides };
+                setUserProfile(updated);
+                localStorage.setItem('user_profile', JSON.stringify(updated));
+
+                if (firebaseUser && db && uid) {
+                    const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', uid);
+                    setDoc(profileRef, updated, { merge: true }).catch(console.error);
+                }
+            };
 
             // --- UI States ---
-            const [setupStep, setSetupStep] = useState(1);
             const [isSettingsOpen, setIsSettingsOpen] = useState(false);
             const [isEditMode, setIsEditMode] = useState(false);
             const [editModeType, setEditModeType] = useState('spending');
@@ -377,7 +517,7 @@
             // Debt-specific Modals & States
             const [isDebtExpanded, setIsDebtExpanded] = useState(false);
             const [isAddDebtModalOpen, setIsAddDebtModalOpen] = useState(false);
-            const [newDebtType, setNewDebtType] = useState('tagihan'); // 'tagihan' or 'cicilan'
+            const [newDebtType, setNewDebtType] = useState('tagihan'); 
             const [newDebtName, setNewDebtName] = useState('');
             const [newDebtAmount, setNewDebtAmount] = useState('');
             const [newDebtDeadline, setNewDebtDeadline] = useState('');
@@ -387,17 +527,17 @@
             const [isDebtEditMode, setIsDebtEditMode] = useState(false);
 
             useEffect(() => {
-                if (userProfile.defaultTab && userProfile.trackedItems?.includes(userProfile.defaultTab)) {
+                if (userProfile?.defaultTab && userProfile.trackedItems?.includes(userProfile.defaultTab)) {
                     setActiveTab(userProfile.defaultTab);
-                } else if (userProfile.trackedItems?.length > 0) {
+                } else if (userProfile?.trackedItems?.length > 0) {
                     setActiveTab(userProfile.trackedItems[0]);
                 }
-            }, [userProfile.defaultTab, userProfile.trackedItems]);
+            }, [userProfile?.defaultTab, userProfile?.trackedItems]);
             
             // Calendar Animation States
             const [currentMonthOffset, setCurrentMonthOffset] = useState(0); 
             const [isAnimatingMonth, setIsAnimatingMonth] = useState(false);
-            const [monthAnimDir, setMonthAnimDir] = useState(0); // -1 = up, 1 = down
+            const [monthAnimDir, setMonthAnimDir] = useState(0); 
             
             // Interaction States
             const [touchStartPos, setTouchStartPos] = useState({x: null, y: null});
@@ -445,7 +585,7 @@
 
                 if (standaloneStatus) {
                     setShowPWANotif(false);
-                    return; // Jika aplikasi telah terinstall, logic prompt dimatikan.
+                    return; 
                 }
 
                 const handler = (e) => {
@@ -464,7 +604,7 @@
             }, []);
 
             const handleInstallApp = async (e) => {
-                if(e) e.stopPropagation(); // Cegah event bubling ke atas yang bisa ditandai spam oleh Chrome
+                if(e) e.stopPropagation();
                 
                 if (isIOS) {
                     alert('Untuk menginstal di iOS:\n1. Tap ikon Share (kotak panah ke atas) di bawah layar.\n2. Scroll ke bawah dan pilih "Add to Home Screen".');
@@ -475,44 +615,30 @@
                 if (deferredPrompt) {
                     deferredPrompt.prompt();
                     const { outcome } = await deferredPrompt.userChoice;
-                    if (outcome === 'accepted') {
-                        setShowPWANotif(false);
-                    }
+                    if (outcome === 'accepted') setShowPWANotif(false);
                     setDeferredPrompt(null);
                 } else {
-                    alert('Browser Anda memblokir notifikasi (Anti-Spam).\n\nUntuk meng-install:\nTekan menu (titik tiga) di pojok kanan atas browser, lalu pilih "Install App" / "Tambahkan ke Layar Utama".');
+                    alert('Browser Anda memblokir notifikasi.\n\nUntuk meng-install:\nTekan menu (titik tiga) di pojok kanan atas browser, lalu pilih "Install App" / "Tambahkan ke Layar Utama".');
                 }
             };
 
             const handleForceUpdate = async () => {
                 try {
-                    // 1. Unregister semua Service Worker yang aktif
                     if ('serviceWorker' in navigator) {
                         const registrations = await navigator.serviceWorker.getRegistrations();
-                        for (let registration of registrations) {
-                            await registration.unregister();
-                        }
+                        for (let registration of registrations) await registration.unregister();
                     }
-                    
-                    // 2. Hapus semua Cache lokal dari PWA
                     if ('caches' in window) {
                         const names = await caches.keys();
-                        for (let name of names) {
-                            await caches.delete(name);
-                        }
+                        for (let name of names) await caches.delete(name);
                     }
-                    
-                    // 3. Muat ulang halaman dengan parameter waktu acak untuk memaksa unduh ulang dari server (Cache-Busting)
                     window.location.href = window.location.pathname + '?v=' + new Date().getTime();
                 } catch (err) {
-                    console.error('Update failed:', err);
-                    window.location.reload(); // Fallback jika terjadi error
+                    window.location.reload();
                 }
             };
 
-            // ==========================================
-            // GLOBAL KEYBOARD & FOCUS RESET LISTENER
-            // ==========================================
+            // Keyboard Focus Issue Reset
             useEffect(() => {
                 const handleFocusOut = () => {
                     setTimeout(() => {
@@ -524,58 +650,20 @@
                 return () => window.removeEventListener('focusout', handleFocusOut);
             }, []);
 
-            // ==========================================
-            // FIREBASE INIT & AUTHENTICATION LISTENER
-            // ==========================================
-            useEffect(() => {
-                if (!auth) {
-                    setLoginStep('login');
-                    return;
-                }
-
-                const unsubscribe = onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        setFirebaseUser(user);
-                        await handleUserAuthSuccess(user);
-                    } else {
-                        setFirebaseUser(null);
-                        setLoginStep('login');
-                    }
-                });
-                return () => unsubscribe();
-            }, []);
-
-            // ==========================================
-            // DATA FETCHING
-            // ==========================================
-            useEffect(() => {
-                if (!firebaseUser || loginStep !== 'app' || !uid || !db) return;
-                
-                const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid);
-                const unsubscribe = onSnapshot(expensesRef, (snapshot) => {
-                    const exps = [];
-                    snapshot.forEach(doc => exps.push({ id: doc.id, ...doc.data() }));
-                    exps.sort((a,b) => new Date(b.date) - new Date(a.date));
-                    setExpenses(exps);
-                }, (err) => console.error("Error fetching expenses:", err));
-
-                return () => unsubscribe();
-            }, [firebaseUser, loginStep, uid]);
-
-            // Save Settings
+            // Save Settings locally
             useEffect(() => {
                 localStorage.setItem('app_settings', JSON.stringify(appSettings));
             }, [appSettings]);
 
             // Track account creation date safely
             const createdAtTime = useMemo(() => {
-                if (userProfile.createdAt) return new Date(userProfile.createdAt).setHours(0,0,0,0);
+                if (userProfile?.createdAt) return new Date(userProfile.createdAt).setHours(0,0,0,0);
                 if (expenses.length > 0) {
                     const oldest = expenses.reduce((old, exp) => new Date(exp.date) < new Date(old.date) ? exp : old, expenses[0]);
                     return new Date(oldest.date).setHours(0,0,0,0);
                 }
                 return new Date().setHours(0,0,0,0);
-            }, [userProfile.createdAt, expenses]);
+            }, [userProfile?.createdAt, expenses]);
 
             // Calculate Totals strictly isolated per tracking type
             const { totalSpent, totalIncome } = useMemo(() => {
@@ -605,7 +693,7 @@
             
             // Advance Debt Progress Calculation
             const debtProgress = useMemo(() => {
-                const debts = userProfile.debts || [];
+                const debts = userProfile?.debts || [];
                 let totalPrincipal = 0;
                 let totalPaid = 0;
                 const progressMap = {};
@@ -628,7 +716,7 @@
                     remaining: Math.max(0, totalPrincipal - totalPaid),
                     list: Object.values(progressMap)
                 };
-            }, [userProfile.debts, expenses]);
+            }, [userProfile?.debts, expenses]);
             
             // Auto-select first unpaid debt
             useEffect(() => {
@@ -646,7 +734,7 @@
                 let minDiff = Infinity;
 
                 debtProgress.list.forEach(debt => {
-                    if (debt.paid >= debt.amount) return; // Lunas
+                    if (debt.paid >= debt.amount) return; 
 
                     let nextDate = null;
                     if (debt.type === 'tagihan' && debt.deadline) {
@@ -674,15 +762,8 @@
                 return closest;
             }, [debtProgress.list]);
 
-            const formatNumber = (amount) => {
-                return new Intl.NumberFormat('id-ID').format(amount);
-            };
-
-            const formatCompact = (amount) => {
-                if (amount === 0) return '0';
-                return new Intl.NumberFormat('id-ID', { notation: "compact", maximumFractionDigits: 1 }).format(amount);
-            };
-
+            const formatNumber = (amount) => new Intl.NumberFormat('id-ID').format(amount);
+            const formatCompact = (amount) => amount === 0 ? '0' : new Intl.NumberFormat('id-ID', { notation: "compact", maximumFractionDigits: 1 }).format(amount);
             const formatIDDate = (isoString) => {
                 if (!isoString) return '';
                 const d = new Date(isoString);
@@ -691,7 +772,6 @@
 
             const isGlass = appSettings.themeMode === 'custom' && !!appSettings.customThemeImage;
 
-            // Comprehensive mapping of pure liquid glass & frosted styles
             const uiStyle = {
                 paneHome: isGlass ? 'bg-transparent' : 'bg-gray-100 dark:bg-[#262626]',
                 paneCalendar: isGlass ? 'bg-transparent backdrop-blur-xl' : 'bg-gray-100 dark:bg-[#262626]',
@@ -704,25 +784,17 @@
                 divider: isGlass ? 'bg-white/40 dark:bg-white/20' : 'bg-gray-300 dark:bg-gray-600'
             };
 
-            const getProgressColor = (pct) => {
-                const hue = 120 - (pct * 0.9); // 100% -> 30 (orange), 0% -> 120 (green)
-                return `hsl(${hue}, 85%, 45%)`;
-            };
-
+            const getProgressColor = (pct) => `hsl(${120 - (pct * 0.9)}, 85%, 45%)`;
             const getBarStyle = () => {
                 if (percentage === 0) return { backgroundColor: 'transparent', width: '0%' };
-                if (isGlass && percentage > 20) {
-                    return { backgroundColor: 'var(--theme-main)', width: `${percentage}%`, transitionDuration: '2.5s' };
-                }
-                const hue = percentage > 50 ? 120 : (percentage / 50) * 120;
-                return { backgroundColor: `hsl(${hue}, 85%, 45%)`, width: `${percentage}%`, transitionDuration: '2.5s' };
+                if (isGlass && percentage > 20) return { backgroundColor: 'var(--theme-main)', width: `${percentage}%`, transitionDuration: '2.5s' };
+                return { backgroundColor: `hsl(${percentage > 50 ? 120 : (percentage / 50) * 120}, 85%, 45%)`, width: `${percentage}%`, transitionDuration: '2.5s' };
             };
 
             const getGlowStyle = () => {
                 let defaultGlow = isScrolled ? 'rgba(34, 197, 94, 0.4)' : 'rgba(34, 197, 94, 0.5)';
                 let activeGlow = percentage === 100 ? defaultGlow : 'none';
                 if (isHealing) activeGlow = 'rgba(34, 197, 94, 0.8)';
-                
                 if (isGlass && percentage > 20) {
                     if (percentage === 100) activeGlow = 'var(--theme-glow)';
                     if (isHealing) activeGlow = 'var(--theme-glow-strong)';
@@ -732,9 +804,7 @@
 
             const getTimeIcon = (dateStr) => {
                 const hour = new Date(dateStr).getHours();
-                const isBrightCustom = isGlass && appSettings.themeLuminance === 'light';
-                const iconColor = isBrightCustom ? "text-gray-900" : "text-gray-400 dark:text-gray-500";
-                
+                const iconColor = (isGlass && appSettings.themeLuminance === 'light') ? "text-gray-900" : "text-gray-400 dark:text-gray-500";
                 if (hour >= 5 && hour < 11) return <Sunrise className={`w-4 h-4 ${iconColor}`} />;
                 if (hour >= 11 && hour < 15) return <Sun className={`w-4 h-4 ${iconColor}`} />;
                 if (hour >= 15 && hour < 18) return <Sunset className={`w-4 h-4 ${iconColor}`} />;
@@ -745,11 +815,8 @@
                 const today = new Date();
                 const actualPaycheckDate = paycheckDate || 1;
                 let nextPaycheck = new Date(today.getFullYear(), today.getMonth(), actualPaycheckDate);
-                if (today.getDate() >= actualPaycheckDate) {
-                    nextPaycheck.setMonth(nextPaycheck.getMonth() + 1);
-                }
-                const diffTime = nextPaycheck.getTime() - today.getTime();
-                let days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (today.getDate() >= actualPaycheckDate) nextPaycheck.setMonth(nextPaycheck.getMonth() + 1);
+                let days = Math.ceil((nextPaycheck.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
                 if (days === 0) days = 1; 
                 
                 const allowance = remaining / days;
@@ -758,13 +825,9 @@
                 yesterday.setDate(yesterday.getDate() - 1);
                 
                 const yesterdayExpenses = expenses.filter(exp => new Date(exp.date).toDateString() === yesterday.toDateString() && exp.type === 'expense');
-                
-                // Net spent yesterday (Only consider expenses for budgeting allowance)
                 const yesterdaySpent = yesterdayExpenses.reduce((s, e) => s + e.amount, 0);
                 
-                const yesterdayRemaining = remaining + yesterdaySpent;
-                const yesterdayAllowance = yesterdayRemaining / (days + 1);
-                const diff = yesterdayAllowance - yesterdaySpent;
+                const diff = (remaining + yesterdaySpent) / (days + 1) - yesterdaySpent;
                 
                 let recap = null;
                 if (yesterdaySpent > 0 || diff < 0) {
@@ -807,31 +870,26 @@
                 for (let d = 1; d <= daysInMonth; d++) {
                     const currentDate = new Date(year, month, d);
                     const dateStr = currentDate.toDateString();
-                    
                     const dayExps = expenses.filter(exp => new Date(exp.date).toDateString() === dateStr);
                     
                     let dailyTotal = 0;
+                    let dailyDebtAdded = 0;
                     if (activeTab === 'spending') {
                         dailyTotal = dayExps.filter(e => e.type === 'expense').reduce((sum, exp) => sum + exp.amount, 0);
                     } else if (activeTab === 'debt') {
                         dailyTotal = dayExps.filter(e => e.type === 'debt').reduce((sum, exp) => sum + exp.amount, 0);
-                        const added = dayExps.filter(e => e.type === 'debt_added').reduce((sum, exp) => sum + exp.amount, 0);
-                        var dailyDebtAdded = added;
+                        dailyDebtAdded = dayExps.filter(e => e.type === 'debt_added').reduce((sum, exp) => sum + exp.amount, 0);
                     }
                     
                     totalSpentMonth += dailyTotal;
                     
-                    const isFuture = currentDate.setHours(0,0,0,0) > new Date().setHours(0,0,0,0);
-                    const isBeforeStart = currentDate.setHours(0,0,0,0) < createdAtTime;
-                    const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-
                     days.push({
                         day: d,
                         dailyExpense: dailyTotal,
                         dailyDebtAdded: dailyDebtAdded || 0,
-                        isToday,
-                        isFuture,
-                        isBeforeStart,
+                        isToday: d === today.getDate() && month === today.getMonth() && year === today.getFullYear(),
+                        isFuture: currentDate.setHours(0,0,0,0) > new Date().setHours(0,0,0,0),
+                        isBeforeStart: currentDate.setHours(0,0,0,0) < createdAtTime,
                         dateStr: currentDate.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
                     });
                 }
@@ -846,137 +904,81 @@
             // ==========================================
             // ACTIONS (Auth & Settings)
             // ==========================================
-            const handleUserAuthSuccess = async (user) => {
-                try {
-                    setUid(user.uid);
-
-                    if (!db) { 
-                        setLoginStep('setup');
-                        return; 
-                    }
-
-                    const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', user.uid);
-                    const snap = await getDoc(profileRef);
-
-                    if (snap.exists()) {
-                        const data = snap.data();
-                        if (!data.trackedItems) data.trackedItems = ['spending'];
-                        if (!data.defaultTab) data.defaultTab = 'spending';
-                        setUserProfile(data);
-                        setBudget(data.budget || 0);
-                        setPaycheckDate(data.paycheckDate || 1);
-                        setLoginStep('app');
-                    } else {
-                        setUserProfile(prev => ({...prev, name: user.displayName || '', trackedItems: ['spending'], defaultTab: 'spending'}));
-                        setLoginStep('setup');
-                    }
-                } catch (error) {
-                    console.error("Auth Data Error:", error);
-                    alert("Koneksi ditolak oleh Firebase. Pastikan Rules Anda mengizinkan proses Read/Write untuk user yang telah login.");
-                    setLoginStep('setup'); 
-                }
-            };
-
             const handleGoogleLogin = async () => {
                 if (!auth) return;
                 const provider = new GoogleAuthProvider();
                 try {
-                    setLoginStep('auth');
                     await signInWithPopup(auth, provider);
                 } catch (error) {
                     alert("Gagal login dengan Google: " + error.message);
-                    setLoginStep('login');
                 }
             };
 
-            const handleGuestLogin = async () => {
-                if (!auth) return;
-                try {
-                    setLoginStep('auth');
-                    await signInAnonymously(auth);
-                } catch (error) {
-                    alert("Gagal login sebagai guest: " + error.message);
-                    setLoginStep('login');
-                }
-            };
-
-            const handleLogout = async () => {
+            const handleLogout = async (wipeLocal) => {
                 if (auth) await signOut(auth);
                 setFirebaseUser(null);
                 setUid('');
-                setLoginStep('login');
+                if (wipeLocal) {
+                    localStorage.removeItem('user_profile');
+                    localStorage.removeItem('local_expenses');
+                    setUserProfile(null);
+                    setExpensesState([]);
+                    setAppState('setup');
+                    setSetupStep(1);
+                    setSetupProfile({ name: '', age: '', gender: '', promiseBudget: '', trackedItems: ['spending'], defaultTab: 'spending', debts: [], quote: 'Aku adalah orang yang disiplin finansial', avatar: null });
+                }
                 setIsSettingsOpen(false);
+                setShowLogoutConfirm(false);
             };
 
             const handleFinishSetup = async (e) => {
                 e.preventDefault();
-                const actualPaycheckDate = paycheckDate || 1;
+                const actualPaycheckDate = setupPaycheckDate || 1;
                 const finalProfile = { 
-                    ...userProfile, 
-                    budget, 
+                    ...setupProfile, 
+                    budget: setupBudget, 
                     paycheckDate: actualPaycheckDate,
-                    createdAt: userProfile.createdAt || new Date().toISOString()
+                    createdAt: new Date().toISOString()
                 };
                 
-                if (db) {
-                    try {
-                        const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', uid);
-                        await setDoc(profileRef, finalProfile);
-                    } catch (e) {
-                        console.error("Set Doc Error:", e);
-                    }
-                }
-                setLoginStep('app');
-            };
+                setUserProfile(finalProfile);
+                localStorage.setItem('user_profile', JSON.stringify(finalProfile));
 
-            const handleUpdateProfile = async (overrides = {}) => {
-                if (db) {
+                if (firebaseUser && db && uid) {
                     const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', uid);
-                    const finalProfile = { ...userProfile, budget, paycheckDate, ...overrides };
-                    await setDoc(profileRef, finalProfile, { merge: true });
-                } 
+                    setDoc(profileRef, finalProfile).catch(console.error);
+                }
+                
+                setAppState('app');
             };
 
             const handleAddDebtPrincipal = async (e) => {
                 e.preventDefault();
                 const amount = parseFloat(newDebtAmount.replace(/\D/g, ''));
                 if (amount > 0 && newDebtName.trim()) {
-                    const newDebtId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+                    const newDebtId = generateId();
                     const newDebt = {
                         id: newDebtId,
                         name: newDebtName.trim(),
                         amount: amount,
                         type: newDebtType,
-                        createdAt: new Date().toISOString()
+                        createdAt: new Date().toISOString(),
+                        ...(newDebtType === 'tagihan' && { deadline: newDebtDeadline }),
+                        ...(newDebtType === 'cicilan' && { startDate: newDebtStartDate, tenor: parseInt(newDebtTenor, 10) })
                     };
-                    if (newDebtType === 'tagihan') newDebt.deadline = newDebtDeadline;
-                    if (newDebtType === 'cicilan') {
-                        newDebt.startDate = newDebtStartDate;
-                        newDebt.tenor = parseInt(newDebtTenor, 10);
-                    }
 
                     const updatedDebts = [...(userProfile.debts || []), newDebt];
-                    setUserProfile({...userProfile, debts: updatedDebts});
-                    await handleUpdateProfile({ debts: updatedDebts });
+                    handleUpdateProfile({ debts: updatedDebts });
                     
-                    const debtAddedExpense = {
+                    await saveExpense({
                         amount: amount,
                         description: `Hutang Baru: ${newDebtName.trim()}`,
                         date: new Date().toISOString(),
                         type: 'debt_added',
                         debtId: newDebtId
-                    };
+                    });
                     
-                    if (db) {
-                        const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid);
-                        await addDoc(expensesRef, debtAddedExpense);
-                    }
-                    
-                    setNewDebtName('');
-                    setNewDebtAmount('');
-                    setNewDebtDeadline('');
-                    setNewDebtStartDate('');
-                    setNewDebtTenor('');
+                    setNewDebtName(''); setNewDebtAmount(''); setNewDebtDeadline(''); setNewDebtStartDate(''); setNewDebtTenor('');
                     setIsAddDebtModalOpen(false);
                 }
             };
@@ -1008,34 +1010,22 @@
                         ctx.drawImage(img, 0, 0, width, height);
                         
                         const wallpaperDataUrl = canvas.toDataURL('image/jpeg', 0.5);
-                        
                         const data = ctx.getImageData(0, 0, width, height).data;
-                        let maxScore = 0;
-                        let bestR = 34, bestG = 197, bestB = 94; 
-                        
+                        let maxScore = 0; let bestR = 34, bestG = 197, bestB = 94; 
                         let sumR = 0, sumG = 0, sumB = 0, count = 0;
 
                         for (let i = 0; i < data.length; i += 40) { 
-                            let r = data[i];
-                            let g = data[i+1];
-                            let b = data[i+2];
-                            let a = data[i+3];
-                            
+                            let r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
                             if (a < 128) continue;
+                            sumR += r; sumG += g; sumB += b; count++;
                             
-                            sumR += r; sumG += g; sumB += b;
-                            count++;
-                            
-                            let max = Math.max(r, g, b);
-                            let min = Math.min(r, g, b);
+                            let max = Math.max(r, g, b), min = Math.min(r, g, b);
                             let sat = max === 0 ? 0 : (max - min) / max;
                             let val = max / 255;
-                            
                             let score = sat * val * 100;
                             
                             if (sat > 0.15 && val > 0.15 && score > maxScore) {
-                                maxScore = score;
-                                bestR = r; bestG = g; bestB = b;
+                                maxScore = score; bestR = r; bestG = g; bestB = b;
                             }
                         }
                         
@@ -1055,7 +1045,6 @@
                                 themeLuminance: detectedTheme
                             });
                         } catch(err) {
-                            console.error(err);
                             alert("Gambar terlalu besar untuk disimpan, coba gunakan gambar lain.");
                         }
                     };
@@ -1089,10 +1078,7 @@
                         canvas.width = width;
                         canvas.height = height;
                         ctx.drawImage(img, 0, 0, width, height);
-                        
                         const avatarDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                        
-                        setUserProfile({...userProfile, avatar: avatarDataUrl});
                         handleUpdateProfile({ avatar: avatarDataUrl });
                     };
                     img.src = event.target.result;
@@ -1119,9 +1105,7 @@
 
                     if (activeTab === 'debt') {
                         const selectedDebt = debtProgress.list.find(d => d.id === selectedDebtId);
-                        if (!finalDesc) {
-                            finalDesc = selectedDebt ? `Bayar: ${selectedDebt.name}` : `Bayar Hutang`;
-                        }
+                        if (!finalDesc) finalDesc = selectedDebt ? `Bayar: ${selectedDebt.name}` : `Bayar Hutang`;
                         finalDebtId = selectedDebtId;
                     }
 
@@ -1139,28 +1123,18 @@
                         }
                     }
 
-                    const newExpense = {
+                    await saveExpense({
                         amount: amount,
                         description: finalDesc,
                         date: finalDate,
-                        type: finalType
-                    };
-                    if (finalDebtId) newExpense.debtId = finalDebtId;
+                        type: finalType,
+                        ...(finalDebtId && { debtId: finalDebtId })
+                    });
                     
-                    if (db) {
-                        const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid);
-                        await addDoc(expensesRef, newExpense);
-                    }
+                    setAmountInput(''); setDescInput('');
                     
-                    setAmountInput('');
-                    setDescInput('');
-                    
-                    if (document.activeElement && document.activeElement.blur) {
-                        document.activeElement.blur();
-                    }
-                    setTimeout(() => {
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }, 50);
+                    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+                    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
                 }
             };
 
@@ -1168,35 +1142,14 @@
                 e.preventDefault();
                 const amount = parseFloat(incomeAmountInput.replace(/\D/g, ''));
                 if (amount > 0 && incomeDescInput.trim()) {
-                    const newIncome = {
+                    await saveExpense({
                         amount: amount,
                         description: incomeDescInput.trim(),
                         date: new Date().toISOString(),
                         type: 'income'
-                    };
+                    });
                     
-                    if (db) {
-                        const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid);
-                        await addDoc(expensesRef, newIncome);
-                    }
-                    
-                    setIncomeAmountInput('');
-                    setIncomeDescInput('');
-                    setIsIncomeModalOpen(false);
-                }
-            };
-
-            const handleEditExpense = async (id, field, value) => {
-                if (db) {
-                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid, id);
-                    await updateDoc(ref, { [field]: value });
-                }
-            };
-
-            const handleDeleteExpense = async (id) => {
-                if (db) {
-                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid, id);
-                    await deleteDoc(ref);
+                    setIncomeAmountInput(''); setIncomeDescInput(''); setIsIncomeModalOpen(false);
                 }
             };
 
@@ -1225,8 +1178,7 @@
                 const today = new Date();
                 const nextTarget = new Date(today.getFullYear(), today.getMonth() + currentMonthOffset + delta, 1);
                 const startLimit = new Date(createdAtTime);
-                startLimit.setDate(1);
-                startLimit.setHours(0,0,0,0);
+                startLimit.setDate(1); startLimit.setHours(0,0,0,0);
 
                 if (nextTarget < startLimit) return;
 
@@ -1242,8 +1194,7 @@
                 const today = new Date();
                 const currentRenderedMonth = new Date(today.getFullYear(), today.getMonth() + currentMonthOffset, 1);
                 const startLimit = new Date(createdAtTime);
-                startLimit.setDate(1);
-                startLimit.setHours(0,0,0,0);
+                startLimit.setDate(1); startLimit.setHours(0,0,0,0);
                 return currentRenderedMonth <= startLimit;
             };
 
@@ -1252,8 +1203,7 @@
                 const distanceX = touchStartPos.x - touchEndPos.x;
                 const distanceY = touchStartPos.y - touchEndPos.y;
                 if (Math.abs(distanceY) > Math.abs(distanceX) && Math.abs(distanceY) > 50) {
-                    if (distanceY > 0) changeMonth(1);
-                    else changeMonth(-1);
+                    if (distanceY > 0) changeMonth(1); else changeMonth(-1);
                 }
             };
 
@@ -1268,78 +1218,19 @@
             // ==========================================
             // RENDER LOGIC
             // ==========================================
-            if (isSplashVisible) {
-                return <SplashScreen onComplete={() => setIsSplashVisible(false)} />;
-            }
+            if (isSplashVisible) return <SplashScreen onComplete={() => setIsSplashVisible(false)} />;
 
-            if (loginStep === 'auth') {
+            if (appState === 'setup') {
                 return (
-                    <div className="fixed inset-0 bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center p-6 z-50">
-                        <div className="w-12 h-12 border-4 border-green-200 border-t-green-500 rounded-full animate-spin"></div>
-                        <p className="mt-4 text-gray-500 dark:text-gray-400 font-medium">Connecting...</p>
-                    </div>
-                );
-            }
-
-            if (loginStep === 'login') {
-                return (
-                    <div className="fixed inset-0 bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center p-6 text-center z-50">
-                        <PWANotif show={showPWANotif} onInstall={handleInstallApp} onClose={() => setShowPWANotif(false)} />
-                        
-                        <div className="w-full max-w-sm flex flex-col items-center">
-                            
-                            <div className="flex items-end mb-4">
-                                <h1 className="text-6xl font-black text-gray-900 dark:text-white tracking-tighter">Wang</h1>
-                                <div className="w-4 h-4 bg-green-500 rounded-full ml-1.5 mb-1.5"></div>
-                            </div>
-
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-10 px-2 font-medium leading-relaxed">
-                                atur pengeluaran biar kamu selamat sampai akhir bulan, dan biar ga insomnia uang habis ke mana
-                            </p>
-
-                            <div className="w-full space-y-3">
-                                <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-4 uppercase tracking-widest">
-                                    Login biar pengeluaranmu tersimpan
-                                </p>
-
-                                <button 
-                                    onClick={handleGoogleLogin}
-                                    className="w-full py-4 bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#262626] text-gray-700 dark:text-gray-200 rounded-2xl font-bold text-[15px] transition-transform active:scale-95 flex items-center justify-center shadow-sm"
-                                >
-                                    <GoogleIcon className="w-5 h-5 mr-3" />
-                                    Lanjutkan dengan Google
-                                </button>
-                                
-                                <div className="flex items-center py-2 opacity-50">
-                                    <div className="flex-grow border-t border-gray-300 dark:border-gray-700"></div>
-                                    <span className="px-4 text-xs text-gray-400 font-bold uppercase tracking-wider">atau</span>
-                                    <div className="flex-grow border-t border-gray-300 dark:border-gray-700"></div>
-                                </div>
-
-                                <button 
-                                    type="button"
-                                    onClick={handleGuestLogin}
-                                    className="w-full py-4 bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-2xl font-bold text-[15px] transition-transform active:scale-95 shadow-sm"
-                                >
-                                    Lanjut sebagai Guest
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                );
-            }
-
-            if (loginStep === 'setup') {
-                return (
-                    <div className="fixed inset-0 bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center p-6 z-50">
+                    <div className="fixed inset-0 bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center p-6 z-50 overflow-y-auto">
                         <PWANotif show={showPWANotif} onInstall={handleInstallApp} onClose={() => setShowPWANotif(false)} />
                         {isGlass && (
                             <style>{`
                                 :root {
                                     --theme-main: ${appSettings.customTheme};
-                                    --theme-glow: ${appSettings.customTheme.replace('rgb', 'rgba').replace(')', ', 0.5)')};
-                                    --theme-glow-strong: ${appSettings.customTheme.replace('rgb', 'rgba').replace(')', ', 0.8)')};
-                                    --theme-light: ${appSettings.customTheme.replace('rgb', 'rgba').replace(')', ', 0.15)')};
+                                    --theme-glow: ${appSettings.customTheme?.replace('rgb', 'rgba').replace(')', ', 0.5)')};
+                                    --theme-glow-strong: ${appSettings.customTheme?.replace('rgb', 'rgba').replace(')', ', 0.8)')};
+                                    --theme-light: ${appSettings.customTheme?.replace('rgb', 'rgba').replace(')', ', 0.15)')};
                                 }
                                 .theme-bg { background-color: var(--theme-main) !important; color: white !important; }
                                 .theme-text { color: var(--theme-main) !important; }
@@ -1356,39 +1247,46 @@
                                 <div className="space-y-4">
                                     <input
                                         type="text"
-                                        value={userProfile.name}
-                                        onChange={(e) => setUserProfile({...userProfile, name: e.target.value})}
-                                        placeholder="Nama Asli"
+                                        value={setupProfile.name}
+                                        onChange={(e) => setSetupProfile({...setupProfile, name: e.target.value})}
+                                        placeholder="Nama Panggilan"
                                         className="w-full px-5 py-4 text-[16px] bg-white dark:bg-[#171717] text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-blue-500 outline-none transition-colors"
                                     />
                                     <input
                                         type="number"
-                                        value={userProfile.age}
-                                        onChange={(e) => setUserProfile({...userProfile, age: e.target.value})}
+                                        value={setupProfile.age}
+                                        onChange={(e) => setSetupProfile({...setupProfile, age: e.target.value})}
                                         placeholder="Umur"
                                         className="w-full px-5 py-4 text-[16px] bg-white dark:bg-[#171717] text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-blue-500 outline-none transition-colors"
                                     />
                                     <div className="flex gap-4 pt-4">
                                         <button 
-                                            onClick={() => setUserProfile({...userProfile, gender: 'male'})}
-                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'male' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 scale-105' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-[#171717] hover:bg-gray-50 dark:hover:bg-gray-800'}`}
-                                        >
-                                            👨
-                                        </button>
+                                            onClick={() => setSetupProfile({...setupProfile, gender: 'male'})}
+                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${setupProfile.gender === 'male' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 scale-105' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-[#171717] hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                                        >👨</button>
                                         <button 
-                                            onClick={() => setUserProfile({...userProfile, gender: 'female'})}
-                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${userProfile.gender === 'female' ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/30 scale-105' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-[#171717] hover:bg-gray-50 dark:hover:bg-gray-800'}`}
-                                        >
-                                            👩
-                                        </button>
+                                            onClick={() => setSetupProfile({...setupProfile, gender: 'female'})}
+                                            className={`flex-1 py-8 rounded-2xl border-2 text-4xl transition-all ${setupProfile.gender === 'female' ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/30 scale-105' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-[#171717] hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                                        >👩</button>
                                     </div>
                                     <button 
                                         onClick={() => setSetupStep(2)}
-                                        disabled={!userProfile.name || !userProfile.age || !userProfile.gender}
+                                        disabled={!setupProfile.name || !setupProfile.age || !setupProfile.gender}
                                         className="w-full mt-8 py-4 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-2xl font-bold text-lg disabled:opacity-50"
                                     >
                                         Lanjut
                                     </button>
+
+                                    <div className="mt-8 flex flex-col items-center border-t border-gray-200 dark:border-gray-800 pt-6">
+                                        <p className="text-xs text-gray-500 mb-3 font-semibold">Punya data lama di Cloud?</p>
+                                        <button
+                                            type="button"
+                                            onClick={handleGoogleLogin}
+                                            className="flex items-center justify-center w-full gap-3 py-4 bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-200 rounded-2xl font-bold text-sm shadow-sm active:scale-95 transition-all"
+                                        >
+                                            <GoogleIcon className="w-5 h-5" /> Pulihkan dengan Google
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -1405,10 +1303,10 @@
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-bold">Rp</span>
                                         <input
                                             type="text"
-                                            value={budget ? budget.toLocaleString('id-ID') : ''}
+                                            value={setupBudget ? setupBudget.toLocaleString('id-ID') : ''}
                                             onChange={(e) => {
                                                 const rawValue = e.target.value.replace(/\D/g, '');
-                                                setBudget(rawValue ? parseFloat(rawValue) : 0);
+                                                setSetupBudget(rawValue ? parseFloat(rawValue) : 0);
                                             }}
                                             placeholder="Total Anggaran Bulanan"
                                             className="w-full pl-12 pr-4 py-4 text-[16px] bg-white dark:bg-[#171717] text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-green-500 outline-none"
@@ -1420,10 +1318,10 @@
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-bold">Rp</span>
                                         <input
                                             type="text"
-                                            value={userProfile.promiseBudget ? parseInt(userProfile.promiseBudget).toLocaleString('id-ID') : ''}
+                                            value={setupProfile.promiseBudget ? parseInt(setupProfile.promiseBudget).toLocaleString('id-ID') : ''}
                                             onChange={(e) => {
                                                 const rawValue = e.target.value.replace(/\D/g, '');
-                                                setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
+                                                setSetupProfile({...setupProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
                                             }}
                                             placeholder="Target Pengeluaran Harian"
                                             className="w-full pl-12 pr-4 py-4 text-[16px] bg-white dark:bg-[#171717] text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-green-500 outline-none"
@@ -1434,11 +1332,9 @@
                                     <div className="relative">
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400"><CalendarIcon className="w-5 h-5"/></span>
                                         <input
-                                            type="number"
-                                            min="1"
-                                            max="31"
-                                            value={paycheckDate}
-                                            onChange={(e) => setPaycheckDate(e.target.value ? parseInt(e.target.value) : '')}
+                                            type="number" min="1" max="31"
+                                            value={setupPaycheckDate}
+                                            onChange={(e) => setSetupPaycheckDate(e.target.value ? parseInt(e.target.value) : '')}
                                             placeholder="Tanggal Gajian (1-31)"
                                             className="w-full pl-12 pr-4 py-4 text-[16px] bg-white dark:bg-[#171717] text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-800 rounded-2xl focus:border-green-500 outline-none"
                                             required
@@ -1457,20 +1353,20 @@
                                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-8">Apa yang ingin dilacak?</h1>
                                 <div className="space-y-4">
                                     {['spending', 'debt'].map(item => (
-                                        <label key={item} className={`flex items-center p-4 border-2 rounded-2xl cursor-pointer transition-all ${userProfile.trackedItems?.includes(item) ? 'border-green-500 bg-green-50 dark:bg-green-900/30' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-[#171717]'}`}>
+                                        <label key={item} className={`flex items-center p-4 border-2 rounded-2xl cursor-pointer transition-all ${setupProfile.trackedItems?.includes(item) ? 'border-green-500 bg-green-50 dark:bg-green-900/30' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-[#171717]'}`}>
                                             <input type="checkbox" className="hidden" 
-                                                checked={userProfile.trackedItems?.includes(item)}
+                                                checked={setupProfile.trackedItems?.includes(item)}
                                                 onChange={(e) => {
-                                                    let newItems = userProfile.trackedItems ? [...userProfile.trackedItems] : [];
+                                                    let newItems = setupProfile.trackedItems ? [...setupProfile.trackedItems] : [];
                                                     if (e.target.checked) newItems.push(item);
                                                     else newItems = newItems.filter(i => i !== item);
                                                     if (newItems.length === 0) newItems = ['spending'];
-                                                    const newDefault = newItems.includes(userProfile.defaultTab) ? userProfile.defaultTab : newItems[0];
-                                                    setUserProfile({...userProfile, trackedItems: newItems, defaultTab: newDefault});
+                                                    const newDefault = newItems.includes(setupProfile.defaultTab) ? setupProfile.defaultTab : newItems[0];
+                                                    setSetupProfile({...setupProfile, trackedItems: newItems, defaultTab: newDefault});
                                                 }}
                                             />
-                                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mr-4 ${userProfile.trackedItems?.includes(item) ? 'border-green-500 bg-green-500' : 'border-gray-300 dark:border-gray-600'}`}>
-                                                {userProfile.trackedItems?.includes(item) && <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>}
+                                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mr-4 ${setupProfile.trackedItems?.includes(item) ? 'border-green-500 bg-green-500' : 'border-gray-300 dark:border-gray-600'}`}>
+                                                {setupProfile.trackedItems?.includes(item) && <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>}
                                             </div>
                                             <span className="font-semibold text-lg text-gray-900 dark:text-white">{item === 'spending' ? 'Pengeluaran' : 'Hutang'}</span>
                                         </label>
@@ -1489,12 +1385,7 @@
             return (
                 <div 
                     className="fixed inset-0 flex justify-center w-full overflow-hidden transition-colors duration-300"
-                    style={{
-                        backgroundImage: isGlass ? `url(${appSettings.customThemeImage})` : 'none',
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        backgroundColor: isGlass ? 'transparent' : ''
-                    }}
+                    style={{ backgroundImage: isGlass ? `url(${appSettings.customThemeImage})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', backgroundColor: isGlass ? 'transparent' : '' }}
                 >
                     <PWANotif show={showPWANotif} onInstall={handleInstallApp} onClose={() => setShowPWANotif(false)} />
                     
@@ -1502,9 +1393,9 @@
                         <style>{`
                             :root {
                                 --theme-main: ${appSettings.customTheme};
-                                --theme-glow: ${appSettings.customTheme.replace('rgb', 'rgba').replace(')', ', 0.5)')};
-                                --theme-glow-strong: ${appSettings.customTheme.replace('rgb', 'rgba').replace(')', ', 0.8)')};
-                                --theme-light: ${appSettings.customTheme.replace('rgb', 'rgba').replace(')', ', 0.15)')};
+                                --theme-glow: ${appSettings.customTheme?.replace('rgb', 'rgba').replace(')', ', 0.5)')};
+                                --theme-glow-strong: ${appSettings.customTheme?.replace('rgb', 'rgba').replace(')', ', 0.8)')};
+                                --theme-light: ${appSettings.customTheme?.replace('rgb', 'rgba').replace(')', ', 0.15)')};
                             }
                             .theme-bg { background-color: var(--theme-main) !important; color: white !important; }
                             .theme-text { color: var(--theme-main) !important; }
@@ -1519,9 +1410,7 @@
                         <div 
                             className="flex w-[200%] flex-1 min-h-0 transition-transform duration-300 ease-in-out"
                             style={{ transform: currentView === 'calendar' ? 'translateX(-50%)' : 'translateX(0)' }}
-                            onTouchStart={onTouchStart}
-                            onTouchMove={onTouchMove}
-                            onTouchEnd={onTouchEnd}
+                            onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
                         >
                         
                             {/* ======================= HOME PANE ======================= */}
@@ -1531,7 +1420,7 @@
                                     const availableTabs = [
                                         { id: 'spending', label: 'Pengeluaran' },
                                         { id: 'debt', label: 'Hutang' }
-                                    ].filter(t => userProfile.trackedItems?.includes(t.id));
+                                    ].filter(t => userProfile?.trackedItems?.includes(t.id));
 
                                     return (
                                         <>
@@ -1561,7 +1450,7 @@
                                                 <CalendarIcon className="w-6 h-6" strokeWidth={1.5} />
                                             </button>
 
-                                            {/* MAIN CARD CONTAINER (Isolates everything below the tabs) */}
+                                            {/* MAIN CARD CONTAINER */}
                                             <div className={`flex-1 flex flex-col min-h-0 ${isGlass ? 'bg-white/20 dark:bg-black/40 backdrop-blur-2xl' : 'bg-white dark:bg-[#171717]'}`}>
                                                 
                                                 {/* FIXED HEADER PORTION */}
@@ -1579,10 +1468,10 @@
                                                                 isScrolled ? 'mb-3' : 'mb-6'
                                                             }`}>
                                                                 <span className={`font-medium ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'} transition-all duration-500 ${
-                                                                isScrolled ? 'text-xs mt-1 mr-1' : 'text-xl mt-3 mr-1'
+                                                                    isScrolled ? 'text-xs mt-1 mr-1' : 'text-xl mt-3 mr-1'
                                                                 }`}>Rp</span>
                                                                 <span className={`font-bold tracking-tight leading-none transition-all duration-500 ${
-                                                                isScrolled ? 'text-3xl' : 'text-[clamp(2.2rem,11vw,4.5rem)]'
+                                                                    isScrolled ? 'text-3xl' : 'text-[clamp(2.2rem,11vw,4.5rem)]'
                                                                 }`}>
                                                                 <AnimatedNumber value={remaining} formatFn={formatNumber} />
                                                                 </span>
@@ -1651,11 +1540,9 @@
                                                         let nearestBadgeText = 'Tidak ada deadline terdekat';
                                                         if (nearestDeadline) {
                                                             nearestBadgeText = `⚠️ Deadline: ${formatIDDate(nearestDeadline.date.toISOString())}`;
-                                                            const now = new Date();
-                                                            now.setHours(0,0,0,0);
+                                                            const now = new Date(); now.setHours(0,0,0,0);
                                                             const diffTime = nearestDeadline.date.getTime() - now.getTime();
-                                                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                                                            if (diffDays <= 3) isDanger = true;
+                                                            if (Math.ceil(diffTime / (1000 * 60 * 60 * 24)) <= 3) isDanger = true;
                                                         }
                                                         
                                                         return (
@@ -1684,7 +1571,7 @@
                                                                     </button>
                                                                     <button onClick={(e) => { e.stopPropagation(); setIsAddDebtModalOpen(true); }} className={`p-2 rounded-full hover:opacity-80 transition-colors shadow-sm shrink-0 ${uiStyle.cardSoft}`} title="Tambah Hutang Baru">
                                                                         <Plus className="w-4 h-4" strokeWidth={3} />
-                                                                    </button>
+                                                                   </button>
                                                                 </div>
                                                                 
                                                                 <div 
@@ -1733,7 +1620,6 @@
                                                                                             onClick={(e) => {
                                                                                                 e.stopPropagation();
                                                                                                 const newDebts = userProfile.debts.filter(d => d.id !== debt.id);
-                                                                                                setUserProfile({...userProfile, debts: newDebts});
                                                                                                 handleUpdateProfile({ debts: newDebts });
                                                                                                 if(selectedDebtId === debt.id) setSelectedDebtId('');
                                                                                             }} 
@@ -1888,10 +1774,7 @@
 
                                     <div 
                                         className={`flex-1 min-h-0 overflow-y-auto p-5 pb-36 transition-all duration-150 ${isAnimatingMonth ? `opacity-0 ${monthAnimDir > 0 ? '-translate-y-4' : 'translate-y-4'}` : 'opacity-100 translate-y-0'}`}
-                                        onTouchEnd={(e) => {
-                                            e.stopPropagation(); 
-                                            onCalendarTouchEnd(e);
-                                        }}
+                                        onTouchEnd={(e) => { e.stopPropagation(); onCalendarTouchEnd(e); }}
                                     >
                                         <div className="mb-8 flex flex-col items-center justify-center text-center">
                                             <p className={`text-xs font-bold uppercase tracking-widest mb-1 ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>Total {activeTab === 'spending' ? 'Pengeluaran' : 'Pembayaran Hutang'} Bulan Ini</p>
@@ -1902,9 +1785,7 @@
                                             {calendarData.days.map((dayObj, i) => {
                                                 const targetBudget = parseInt(userProfile.promiseBudget) || 0;
                                                 const isSpending = activeTab === 'spending';
-                                                let bgClass = '';
-                                                let textClass = '';
-                                                let showData = false;
+                                                let bgClass = ''; let textClass = ''; let showData = false;
 
                                                 if (dayObj.isFuture || dayObj.isBeforeStart) {
                                                     bgClass = isGlass ? 'bg-white/10 dark:bg-black/20 border-transparent opacity-50 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]' : 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 opacity-50';
@@ -1997,8 +1878,8 @@
                                     <h3 className={`font-bold text-xl mb-4 text-center ${isGlass && appSettings.themeLuminance === 'light' ? 'text-black' : 'text-gray-900 dark:text-white'}`}>Tambah Hutang Baru</h3>
                                     
                                     <div className={`flex mb-4 p-1 rounded-xl ${isGlass ? 'bg-black/20 dark:bg-white/10' : 'bg-gray-100 dark:bg-[#262626]'}`}>
-                                        <button type="button" onClick={() => setNewDebtType('tagihan')} className={`flex-1 py-2 text-sm font-semibold rounded-lg capitalize transition-colors ${newDebtType === 'tagihan' ? (isGlass ? 'bg-white/40 dark:bg-black/40 text-gray-900 dark:text-white shadow-sm' : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm') : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}>Tagihan (Sekali Bayar)</button>
-                                        <button type="button" onClick={() => setNewDebtType('cicilan')} className={`flex-1 py-2 text-sm font-semibold rounded-lg capitalize transition-colors ${newDebtType === 'cicilan' ? (isGlass ? 'bg-white/40 dark:bg-black/40 text-gray-900 dark:text-white shadow-sm' : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm') : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}>Cicilan (Bulanan)</button>
+                                        <button type="button" onClick={() => setNewDebtType('tagihan')} className={`flex-1 py-2 text-sm font-semibold rounded-lg capitalize transition-colors ${newDebtType === 'tagihan' ? (isGlass ? 'bg-white/40 dark:bg-black/40 text-gray-900 dark:text-white shadow-sm' : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm') : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}>Tagihan</button>
+                                        <button type="button" onClick={() => setNewDebtType('cicilan')} className={`flex-1 py-2 text-sm font-semibold rounded-lg capitalize transition-colors ${newDebtType === 'cicilan' ? (isGlass ? 'bg-white/40 dark:bg-black/40 text-gray-900 dark:text-white shadow-sm' : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm') : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}>Cicilan</button>
                                     </div>
 
                                     <form onSubmit={handleAddDebtPrincipal} className="space-y-4">
@@ -2027,7 +1908,7 @@
 
                                         {newDebtType === 'tagihan' && (
                                             <div>
-                                                <span className={`text-xs font-semibold mb-1 block ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>Tenggat Waktu Pembayaran (Deadline)</span>
+                                                <span className={`text-xs font-semibold mb-1 block ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>Tenggat Waktu (Deadline)</span>
                                                 <input
                                                     type="date"
                                                     value={newDebtDeadline}
@@ -2051,11 +1932,9 @@
                                                     />
                                                 </div>
                                                 <div className="w-1/3">
-                                                    <span className={`text-xs font-semibold mb-1 block ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>Berapa Bulan?</span>
+                                                    <span className={`text-xs font-semibold mb-1 block ${isGlass && appSettings.themeLuminance === 'light' ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>Berapa Bln?</span>
                                                     <input
-                                                        type="number"
-                                                        min="1"
-                                                        placeholder="Bulan"
+                                                        type="number" min="1"
                                                         value={newDebtTenor}
                                                         onChange={(e) => setNewDebtTenor(e.target.value)}
                                                         className={`w-full px-3 py-3 rounded-xl outline-none text-[16px] text-center text-gray-900 dark:text-white ${uiStyle.input}`}
@@ -2131,18 +2010,10 @@
 
                                 <div className="flex-1 overflow-y-auto no-scrollbar pb-4 space-y-6" style={{ WebkitOverflowScrolling: 'touch' }}>
                                     
-                                    {/* HIDE ID CARD & INSTALL BUTTON IF EDIT MODE TO MAXIMIZE SPACE ON IOS */}
                                     {!isEditMode && (
                                         <>
                                             {/* ID CARD MODULE */}
                                             <div className="bg-white dark:bg-[#171717] rounded-3xl p-5 shadow-2xl flex flex-col gap-4 border border-gray-100 dark:border-gray-800 relative">
-                                                <button 
-                                                    onClick={() => setShowLogoutConfirm(true)}
-                                                    className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors z-20"
-                                                    title="Log Out"
-                                                >
-                                                    <LogOutIcon className="w-5 h-5" />
-                                                </button>
                                                 <div className="flex items-center mt-2">
                                                     <div className="flex-1 pr-4 z-10">
                                                         <h3 className="font-bold text-gray-900 dark:text-white text-xl uppercase tracking-wide">
@@ -2171,6 +2042,27 @@
                                                         <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
                                                     </label>
                                                 </div>
+                                            </div>
+                                            
+                                            {/* CLOUD SYNC MODULE */}
+                                            <div className="bg-white dark:bg-[#171717] rounded-3xl p-5 shadow-2xl flex flex-col border border-gray-100 dark:border-gray-800 relative">
+                                                {!firebaseUser ? (
+                                                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800/50 p-4">
+                                                        <h4 className="text-sm font-bold text-blue-800 dark:text-blue-300 mb-1">Backup ke Cloud</h4>
+                                                        <p className="text-xs text-blue-600 dark:text-blue-400 mb-3">Simpan semua progresmu secara online agar aman & bisa diakses lintas perangkat.</p>
+                                                        <button onClick={handleGoogleLogin} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors">
+                                                            <GoogleIcon className="w-4 h-4" /> Login Google
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800/50 p-4 relative">
+                                                        <h4 className="text-sm font-bold text-green-800 dark:text-green-300 mb-1">Tersinkronisasi ✅</h4>
+                                                        <p className="text-xs text-green-600 dark:text-green-400 mb-3">Login sebagai: {firebaseUser.email || firebaseUser.displayName}</p>
+                                                        <button onClick={() => setShowLogoutConfirm(true)} className="w-full py-3 bg-red-100 hover:bg-red-200 text-red-600 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-400 rounded-xl font-bold text-sm transition-colors">
+                                                            Log Out
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
 
                                             {/* INSTALL / UPDATE BUTTON */}
@@ -2221,7 +2113,6 @@
                                                                                 defaultValue={debt.name} 
                                                                                 onBlur={(e) => {
                                                                                     const newDebts = userProfile.debts.map(d => d.id === debt.id ? {...d, name: e.target.value} : d);
-                                                                                    setUserProfile({...userProfile, debts: newDebts});
                                                                                     handleUpdateProfile({ debts: newDebts });
                                                                                 }} 
                                                                                 className="w-full rounded-lg px-2 py-1 text-[15px] bg-transparent text-gray-900 dark:text-white outline-none font-bold"
@@ -2233,7 +2124,6 @@
                                                                                     onBlur={(e) => {
                                                                                         const val = parseInt(e.target.value.replace(/\D/g, '')) || 0;
                                                                                         const newDebts = userProfile.debts.map(d => d.id === debt.id ? {...d, amount: val} : d);
-                                                                                        setUserProfile({...userProfile, debts: newDebts});
                                                                                         handleUpdateProfile({ debts: newDebts });
                                                                                     }} 
                                                                                     className="flex-1 px-1 py-0.5 rounded text-[13px] font-semibold bg-transparent text-gray-900 dark:text-white outline-none"
@@ -2242,7 +2132,6 @@
                                                                         </div>
                                                                         <button onClick={() => {
                                                                             const newDebts = userProfile.debts.filter(d => d.id !== debt.id);
-                                                                            setUserProfile({...userProfile, debts: newDebts});
                                                                             handleUpdateProfile({ debts: newDebts });
                                                                             if(selectedDebtId === debt.id) setSelectedDebtId('');
                                                                         }} className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors shrink-0" title="Hapus Hutang">
@@ -2260,15 +2149,15 @@
                                                         <div key={exp.id} className="flex gap-2 items-center p-2.5 rounded-xl bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 shrink-0">
                                                             <input 
                                                                 defaultValue={exp.description} 
-                                                                onBlur={(e) => handleEditExpense(exp.id, 'description', e.target.value)} 
+                                                                onBlur={(e) => updateExpense(exp.id, 'description', e.target.value)} 
                                                                 className="flex-1 min-w-0 rounded-lg px-3 py-2 text-[15px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
                                                             />
                                                             <input 
                                                                 defaultValue={exp.amount} 
-                                                                onBlur={(e) => handleEditExpense(exp.id, 'amount', parseInt(e.target.value.replace(/\D/g, '')) || 0)} 
+                                                                onBlur={(e) => updateExpense(exp.id, 'amount', parseInt(e.target.value.replace(/\D/g, '')) || 0)} 
                                                                 className="w-24 shrink-0 px-3 py-2 rounded-lg text-[15px] font-semibold text-right bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
                                                             />
-                                                            <button onClick={() => handleDeleteExpense(exp.id)} className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors shrink-0">
+                                                            <button onClick={() => removeExpense(exp.id)} className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors shrink-0">
                                                                 <Trash2 className="w-4 h-4" />
                                                             </button>
                                                         </div>
@@ -2334,7 +2223,6 @@
                                                                         else newItems.push(item.id);
                                                                         if (newItems.length === 0) newItems = ['spending'];
                                                                         const newDefault = newItems.includes(userProfile.defaultTab) ? userProfile.defaultTab : newItems[0];
-                                                                        setUserProfile({...userProfile, trackedItems: newItems, defaultTab: newDefault});
                                                                         handleUpdateProfile({trackedItems: newItems, defaultTab: newDefault});
                                                                     }}
                                                                 >
@@ -2346,7 +2234,6 @@
                                                                             onClick={(e) => { 
                                                                                 e.stopPropagation(); 
                                                                                 handleUpdateProfile({defaultTab: item.id}); 
-                                                                                setUserProfile(prev => ({...prev, defaultTab: item.id}));
                                                                             }}
                                                                             className={`absolute top-2 right-2 p-1.5 rounded-full transition-colors ${userProfile.defaultTab === item.id ? 'bg-blue-500 text-white shadow-sm' : 'bg-blue-100 dark:bg-blue-800 text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-700'}`}
                                                                             title="Set as Default Tab"
@@ -2430,9 +2317,8 @@
                                                             value={budget ? parseInt(budget).toLocaleString('id-ID') : ''}
                                                             onChange={(e) => {
                                                                 const rawValue = e.target.value.replace(/\D/g, '');
-                                                                setBudget(rawValue ? parseInt(rawValue) : 0);
+                                                                handleUpdateProfile({ budget: rawValue ? parseInt(rawValue) : 0 });
                                                             }}
-                                                            onBlur={handleUpdateProfile}
                                                             className="px-3 py-2 rounded-lg text-[16px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none"
                                                         />
                                                     </label>
@@ -2444,9 +2330,8 @@
                                                             value={userProfile.promiseBudget ? parseInt(userProfile.promiseBudget).toLocaleString('id-ID') : ''}
                                                             onChange={(e) => {
                                                                 const rawValue = e.target.value.replace(/\D/g, '');
-                                                                setUserProfile({...userProfile, promiseBudget: rawValue ? parseInt(rawValue) : ''});
+                                                                handleUpdateProfile({ promiseBudget: rawValue ? parseInt(rawValue) : '' });
                                                             }}
-                                                            onBlur={handleUpdateProfile}
                                                             className="px-3 py-2 rounded-lg text-[16px] bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white outline-none"
                                                             placeholder="Contoh: 50000"
                                                         />
@@ -2480,10 +2365,11 @@
                             <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 animate-in fade-in duration-200 drop-shadow-2xl bg-black/60 dark:bg-black/80" onClick={() => setShowLogoutConfirm(false)}>
                                 <div className="w-full max-w-sm rounded-3xl overflow-hidden flex flex-col p-6 bg-white dark:bg-[#171717] shadow-2xl" onClick={e => e.stopPropagation()}>
                                     <h3 className="font-bold text-gray-900 dark:text-white text-xl mb-2 text-center">Konfirmasi Log Out</h3>
-                                    <p className="text-center text-gray-600 dark:text-gray-400 text-sm mb-6">Yakin ingin Log Out dari akun ini?</p>
-                                    <div className="flex gap-3">
-                                        <button type="button" onClick={() => setShowLogoutConfirm(false)} className="flex-1 py-3 rounded-xl font-bold bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700">Batal</button>
-                                        <button type="button" onClick={() => { setShowLogoutConfirm(false); handleLogout(); }} className="flex-1 py-3 bg-red-600 hover:bg-red-700 shadow-lg text-white rounded-xl font-bold transition-colors">Keluar</button>
+                                    <p className="text-center text-gray-600 dark:text-gray-400 text-sm mb-6">Pilih bagaimana kamu ingin log out dari sesi cloud ini:</p>
+                                    <div className="flex flex-col gap-3">
+                                        <button type="button" onClick={() => handleLogout(false)} className="w-full py-3 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded-xl font-bold">Log Out (Biarkan Data Tetap Di HP)</button>
+                                        <button type="button" onClick={() => handleLogout(true)} className="w-full py-3 bg-red-600 text-white rounded-xl font-bold">Log Out & Hapus Semua Data Di HP</button>
+                                        <button type="button" onClick={() => setShowLogoutConfirm(false)} className="w-full py-3 bg-gray-100 dark:bg-[#262626] text-gray-800 dark:text-gray-200 rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-gray-700">Batal</button>
                                     </div>
                                 </div>
                             </div>
@@ -2512,7 +2398,7 @@
                             </div>
                         )}
 
-                        {/* SECOND PAST INPUT WARNING MODAL (SILLY/SOFT) */}
+                        {/* SECOND PAST INPUT WARNING MODAL */}
                         {showSecondPastInputWarning && (
                             <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 animate-in zoom-in-95 duration-200 drop-shadow-2xl bg-black/60 dark:bg-black/80 backdrop-blur-sm" onClick={() => setShowSecondPastInputWarning(false)}>
                                 <div className="w-full max-w-sm rounded-3xl overflow-hidden flex flex-col p-6 bg-white dark:bg-[#171717] shadow-2xl" onClick={e => e.stopPropagation()}>
