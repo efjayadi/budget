@@ -373,33 +373,55 @@
                 return () => unsubscribe();
             }, []);
 
-            // Real-time Cloud Sync Listener
+            // Real-time Cloud Sync Listener (Local First)
             useEffect(() => {
                 if (!firebaseUser || !uid || !db || appState !== 'app') return;
 
-                // Sync Expenses Down
+                // Sync Expenses Down Safely
                 const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + uid);
                 const unsubExps = onSnapshot(expensesRef, (snap) => {
                     const cloudExps = [];
                     snap.forEach(doc => cloudExps.push({ id: doc.id, ...doc.data() }));
 
                     setExpensesState(prevLocal => {
-                        if (cloudExps.length === prevLocal.length && JSON.stringify(cloudExps) === JSON.stringify(prevLocal)) return prevLocal;
-                        const merged = [...cloudExps].sort((a,b) => new Date(b.date) - new Date(a.date));
-                        localStorage.setItem('local_expenses', JSON.stringify(merged));
-                        return merged;
+                        const localMap = new Map(prevLocal.map(e => [e.id, e]));
+                        let changed = false;
+                        let merged = [...prevLocal];
+
+                        // Hanya tambahkan data dari cloud jika belum ada di lokal (misal dari device lain)
+                        // Jangan hapus atau timpa data lokal jika tidak ada di cloud untuk mencegah data loss saat offline
+                        cloudExps.forEach(cloudExp => {
+                            if (!localMap.has(cloudExp.id)) {
+                                merged.push(cloudExp);
+                                changed = true;
+                            }
+                        });
+
+                        if (changed) {
+                            merged.sort((a,b) => new Date(b.date) - new Date(a.date));
+                            localStorage.setItem('local_expenses', JSON.stringify(merged));
+                            return merged;
+                        }
+                        return prevLocal;
                     });
                 }, (err) => console.error("Snapshot error:", err));
 
-                // Sync Profile Down
+                // Sync Profile Down Safely
                 const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', uid);
                 const unsubProfile = onSnapshot(profileRef, (snap) => {
                     if (snap.exists()) {
-                        const data = snap.data();
+                        const cloudData = snap.data();
                         setUserProfile(prev => {
-                            if (JSON.stringify(prev) === JSON.stringify(data)) return prev;
-                            localStorage.setItem('user_profile', JSON.stringify(data));
-                            return data;
+                            if (!prev) {
+                                localStorage.setItem('user_profile', JSON.stringify(cloudData));
+                                return cloudData;
+                            }
+                            // Lokal selalu menang, kita hanya mengambil data yang kosong/baru dari cloud
+                            const merged = { ...cloudData, ...prev };
+                            if (JSON.stringify(prev) === JSON.stringify(merged)) return prev;
+                            
+                            localStorage.setItem('user_profile', JSON.stringify(merged));
+                            return merged;
                         });
                     }
                 }, (err) => console.error(err));
@@ -407,7 +429,7 @@
                 return () => { unsubExps(); unsubProfile(); };
             }, [firebaseUser, uid, appState]);
 
-            // Two-way initial merge sync function
+            // Two-way initial merge sync function (Local First)
             const performCloudSync = async (user) => {
                 if (!db) return;
                 try {
@@ -416,17 +438,22 @@
 
                     let localProfile = JSON.parse(localStorage.getItem('user_profile'));
 
-                    if (profileSnap.exists()) {
-                        const cloudData = profileSnap.data();
-                        localProfile = { ...localProfile, ...cloudData };
-                        setUserProfile(localProfile);
-                        localStorage.setItem('user_profile', JSON.stringify(localProfile));
-                        
-                        // Automatically bring user to app if they recovered profile
+                    if (localProfile) {
+                        // Local data exists, push to cloud to ensure cloud doesn't wipe local
+                        await setDoc(profileRef, localProfile, { merge: true });
+                        if (profileSnap.exists()) {
+                            const cloudData = profileSnap.data();
+                            localProfile = { ...cloudData, ...localProfile }; // Local overrides cloud if conflict
+                            setUserProfile(localProfile);
+                            localStorage.setItem('user_profile', JSON.stringify(localProfile));
+                        }
                         if (appState === 'setup') setAppState('app');
-                    } else if (localProfile) {
-                        // Push local profile to new cloud account
-                        await setDoc(profileRef, localProfile);
+                    } else if (profileSnap.exists()) {
+                        // No local profile, safe to pull from cloud completely
+                        const cloudData = profileSnap.data();
+                        setUserProfile(cloudData);
+                        localStorage.setItem('user_profile', JSON.stringify(cloudData));
+                        if (appState === 'setup') setAppState('app');
                     }
 
                     const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses_' + user.uid);
@@ -437,15 +464,17 @@
                     const localExps = JSON.parse(localStorage.getItem('local_expenses')) || [];
 
                     const mergedExpsMap = new Map();
-                    localExps.forEach(e => mergedExpsMap.set(e.id, e));
+                    // 1. Masukkan cloud data terlebih dahulu
                     cloudExps.forEach(e => mergedExpsMap.set(e.id, e));
+                    // 2. Data Lokal akan selalu menimpa Cloud jika ID nya sama
+                    localExps.forEach(e => mergedExpsMap.set(e.id, e));
 
                     const finalExps = Array.from(mergedExpsMap.values()).sort((a,b) => new Date(b.date) - new Date(a.date));
 
                     setExpensesState(finalExps);
                     localStorage.setItem('local_expenses', JSON.stringify(finalExps));
 
-                    // Upload missing local exps to cloud
+                    // Dorong (Push) data local yang belum ada di cloud ke cloud
                     const cloudIds = new Set(cloudExps.map(e => e.id));
                     const missingInCloud = finalExps.filter(e => !cloudIds.has(e.id));
                     for (const exp of missingInCloud) {
@@ -457,6 +486,18 @@
                     console.error("Sync Error:", e);
                 }
             };
+
+            // Sync data otomatis jika internet pulih sementara aplikasi masih terbuka
+            useEffect(() => {
+                const handleOnline = () => {
+                    if (firebaseUser) {
+                        console.log("Koneksi Internet pulih. Mendorong pembaruan ke Cloud...");
+                        performCloudSync(firebaseUser);
+                    }
+                };
+                window.addEventListener('online', handleOnline);
+                return () => window.removeEventListener('online', handleOnline);
+            }, [firebaseUser]);
 
             // Custom Local + Cloud State Mutator
             const saveExpense = async (expData) => {
