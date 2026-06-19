@@ -2366,8 +2366,8 @@
                                                                         if (newItems.includes(item.id)) newItems = newItems.filter(i => i !== item.id);
                                                                         else newItems.push(item.id);
                                                                         if (newItems.length === 0) newItems = ['spending'];
-                                                                        const newDefault = newItems.includes(userProfile.defaultTab) ? userProfile.defaultTab : newItems[0];
-                                                                        handleUpdateProfile({trackedItems: newItems, defaultTab: newDefault});
+                                                                        const newDefault = newItems.includes(setupProfile.defaultTab) ? setupProfile.defaultTab : newItems[0];
+                                                                        setSetupProfile({...setupProfile, trackedItems: newItems, defaultTab: newDefault});
                                                                     }}
                                                                 >
                                                                     {item.icon}
@@ -2592,7 +2592,11 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
-                    .then(registration => console.log('ServiceWorker terdaftar'))
+                    .then(registration => {
+                        console.log('ServiceWorker terdaftar dengan sukses');
+                        // Memaksa pengecekan versi baru segera di latar belakang
+                        registration.update();
+                    })
                     .catch(err => console.log('ServiceWorker gagal terdaftar: ', err));
             });
         }
