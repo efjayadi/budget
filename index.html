@@ -10,7 +10,7 @@
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ffffff">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link class="apple-touch-icon" rel="apple-touch-icon" href="icon-192.png">
     
     <!-- React & ReactDOM (Menggunakan jsDelivr CDN yang lebih cepat & stabil dibanding unpkg) -->
     <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js" crossorigin></script>
@@ -18,6 +18,15 @@
     
     <!-- Babel for in-browser JSX compilation -->
     <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.0/babel.min.js"></script>
+    <script>
+      // Mendaftarkan preset kustom untuk memaksa runtime classic (React.createElement)
+      // Hal ini mencegah kesalahan "react/jsx-runtime" ketika dilarikan langsung di browser
+      Babel.registerPreset('custom-react', {
+        presets: [
+          [Babel.availablePresets['react'], { runtime: 'classic' }]
+        ]
+      });
+    </script>
     
     <!-- Splitting.js for Splash Screen Text Animations -->
     <link rel="stylesheet" href="https://unpkg.com/splitting/dist/splitting.css" />
@@ -159,8 +168,8 @@
 
     <div id="root"></div>
 
-    <!-- PENTING: data-presets="react" ditambahkan untuk menahan Babel agar tidak merusak import sintaksis orisinal -->
-    <script type="text/babel" data-presets="react" data-type="module">
+    <!-- PENTING: data-presets="custom-react" ditambahkan untuk menggunakan runtime classic agar tidak merusak import/resolusi JSX -->
+    <script type="text/babel" data-presets="custom-react" data-type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, getDocs, collection, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
